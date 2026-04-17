@@ -1,0 +1,110 @@
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import VPCClient from './VPCClient'
+import type { DigitalTwin, TwinInterview } from '@/lib/types'
+
+export const dynamic = 'force-dynamic'
+
+export default async function VPCPage({
+  params,
+}: {
+  params: Promise<{ id: string; opp_id: string }>
+}) {
+  const { id, opp_id } = await params
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: project } = await supabase
+    .from('projects')
+    .select('id, title')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
+  if (!project) redirect('/dashboard')
+
+  const { data: opportunity } = await supabase
+    .from('opportunities')
+    .select('*')
+    .eq('id', opp_id)
+    .single()
+  if (!opportunity) redirect(`/project/${id}/strategy`)
+
+  // Load abilities for the AI value map generation
+  const { data: abilities } = await supabase
+    .from('abilities')
+    .select('id, name, description')
+    .eq('project_id', id)
+
+  // Load twins
+  const { data: twinRows } = await supabase
+    .from('twins')
+    .select('*')
+    .eq('opportunity_id', opp_id)
+    .order('created_at', { ascending: true })
+
+  const twins: DigitalTwin[] = (twinRows ?? []).map((row, i) => ({
+    id: `twin${i + 1}`,
+    name: row.name,
+    role: row.role ?? '',
+    segment: row.segment ?? '',
+    personality: row.personality ?? '',
+    painPoints: row.pain_points ?? [],
+    techLevel: (row.tech_level ?? 'medium') as 'low' | 'medium' | 'high',
+    budgetTier: (row.budget_tier ?? 'mid') as 'low' | 'mid' | 'premium',
+    affinityLabel: (row.affinity_label ?? 'moderate') as
+      | 'high_affinity'
+      | 'moderate'
+      | 'early_adopter',
+  }))
+
+  // Load twin_interviews with VPC data
+  const dbTwinIds = (twinRows ?? []).map((r) => r.id)
+  const { data: interviewRows } = await supabase
+    .from('twin_interviews')
+    .select('id, twin_id, gains, pains, jobs_to_be_done, messages')
+    .in('twin_id', dbTwinIds.length > 0 ? dbTwinIds : ['00000000-0000-0000-0000-000000000000'])
+
+  // Map twin DB ids to interview data with sequential twin id
+  const interviews: (TwinInterview & { twinSequentialId: string })[] = []
+  if (interviewRows && twinRows) {
+    twinRows.forEach((row, i) => {
+      const iv = interviewRows.find((r) => r.twin_id === row.id)
+      if (iv) {
+        interviews.push({
+          ...(iv as TwinInterview),
+          twinSequentialId: `twin${i + 1}`,
+        })
+      }
+    })
+  }
+
+  const hasInterviews = interviews.some(
+    (iv) =>
+      (iv.gains?.length ?? 0) > 0 ||
+      (iv.pains?.length ?? 0) > 0 ||
+      (iv.jobs_to_be_done?.length ?? 0) > 0
+  )
+
+  // Load twin_session for vpc_value_map
+  const { data: twinSession } = await supabase
+    .from('twin_sessions')
+    .select('id, vpc_value_map')
+    .eq('opportunity_id', opp_id)
+    .maybeSingle()
+
+  return (
+    <VPCClient
+      project={project}
+      opportunity={opportunity}
+      twins={twins}
+      interviews={interviews}
+      hasInterviews={hasInterviews}
+      abilities={abilities ?? []}
+      sessionId={twinSession?.id ?? null}
+      existingValueMap={twinSession?.vpc_value_map ?? null}
+    />
+  )
+}
