@@ -207,7 +207,7 @@ export default function ReportClient({
           </h2>
           <div className="space-y-3 mb-6">
             {POTENTIAL_DIMS.map(({ key, label }) => {
-              const dim = report[key as keyof InterviewReport] as DimensionScore | undefined
+              const dim = (report as unknown as Record<string, DimensionScore>)[key]
               if (!dim) return null
               return (
                 <div key={key} className="bg-white border border-gray-200 rounded-2xl p-5">
@@ -238,7 +238,7 @@ export default function ReportClient({
           </h2>
           <div className="space-y-3 mb-8">
             {CHALLENGE_DIMS.map(({ key, label }) => {
-              const dim = report[key as keyof InterviewReport] as DimensionScore | undefined
+              const dim = (report as unknown as Record<string, DimensionScore>)[key]
               if (!dim) return null
               const displayScore = 10 - dim.score
               return (
