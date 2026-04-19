@@ -119,25 +119,51 @@ Return ONLY valid JSON in this exact format:
   })
 
   const raw = completion.choices[0].message.content || '{}'
+  console.log('[generate-report] raw LLM response:', raw)
   const match = raw.match(/\{[\s\S]*\}/)
-  const report = match ? JSON.parse(match[0]) : {}
+  const parsed = match ? JSON.parse(match[0]) : {}
+  console.log('[generate-report] parsed JSON:', JSON.stringify(parsed, null, 2))
 
-  // Server-side override: recalculate overall scores from dimension averages
-  const dims = report.dimensions
-  if (dims) {
-    const potentialAvg =
-      (dims.reason_to_buy.numeric_score +
-        dims.market_volume.numeric_score +
-        dims.economic_viability.numeric_score) /
-      3
-    const challengeAvg =
-      (dims.implementation_obstacles.numeric_score +
-        dims.time_to_revenue.numeric_score +
-        dims.external_risks.numeric_score) /
-      3
-    report.overall_potential = numericToLabel(potentialAvg)
-    report.overall_challenge = numericToLabel(challengeAvg)
+  const dims = parsed.dimensions
+  if (!dims) {
+    return Response.json({ report: null }, { status: 500 })
   }
 
+  const potentialAvg =
+    (dims.reason_to_buy.numeric_score +
+      dims.market_volume.numeric_score +
+      dims.economic_viability.numeric_score) /
+    3
+  const challengeAvg =
+    (dims.implementation_obstacles.numeric_score +
+      dims.time_to_revenue.numeric_score +
+      dims.external_risks.numeric_score) /
+    3
+
+  const DIM_KEYS = [
+    'reason_to_buy',
+    'market_volume',
+    'economic_viability',
+    'implementation_obstacles',
+    'time_to_revenue',
+    'external_risks',
+  ] as const
+
+  const report: Record<string, unknown> = {
+    executive_summary: parsed.summary,
+    overall_potential: numericToLabel(potentialAvg),
+    overall_challenge: numericToLabel(challengeAvg),
+  }
+
+  for (const key of DIM_KEYS) {
+    const d = dims[key]
+    report[key] = {
+      score: d.numeric_score,
+      label: d.score as string,
+      analysis: d.detailed_analysis,
+    }
+  }
+
+  console.log('[generate-report] shaped report:', JSON.stringify(report, null, 2))
   return Response.json({ report })
 }

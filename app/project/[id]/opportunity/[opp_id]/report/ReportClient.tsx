@@ -198,7 +198,7 @@ export default function ReportClient({
             <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
               Executive Summary
             </h2>
-            <p className="text-sm text-gray-700 leading-relaxed">{report.executive_summary || (report as unknown as { summary: string }).summary}</p>
+            <p className="text-sm text-gray-700 leading-relaxed">{report.executive_summary}</p>
           </div>
 
           {/* Potential dimensions */}
