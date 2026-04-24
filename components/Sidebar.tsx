@@ -25,6 +25,7 @@ import {
 interface SidebarProps {
   projectId?: string
   projectTitle?: string
+  /** ID of the first pursue-now opportunity — drives Twin / VPC / BMC nav links */
   primaryOpportunityId?: string
   primaryOpportunityName?: string
   hasTwinInterviews?: boolean

@@ -445,7 +445,55 @@ export default function VPCClient({
         ) : (
           <div className="space-y-8 max-w-4xl">
 
-            {/* ── Section 1: Per-Twin Breakdown ──────────────────────────── */}
+            {/* ── Section 1: Cross-Segment Synthesis ─────────────────────── */}
+            <div>
+              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                Cross-Segment Synthesis
+              </h2>
+              <div className="bg-gray-900 text-white rounded-2xl p-6">
+                <div className="flex items-center gap-2 mb-5">
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/10 text-white/70">
+                    Aggregated across all twins
+                  </span>
+                  <span className="text-[10px] text-white/40">
+                    Ranked by frequency · {twins.length} twin{twins.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                {!hasSynthData ? (
+                  <p className="text-xs text-white/30 italic">
+                    Generate results on the Results page to populate the cross-segment synthesis.
+                  </p>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-6">
+                    <EditableDarkColumn
+                      title="Jobs to be Done"
+                      items={synthJobs}
+                      pillClass="bg-[#0D6E6E]/30 text-[#4ECDC4] border border-[#0D6E6E]/30 text-xs font-medium px-2.5 py-1 rounded-lg"
+                      onAdd={(t) => addSynthItem('jobs', t)}
+                      onRemove={(i) => removeSynthItem('jobs', i)}
+                    />
+                    <div className="hidden sm:block w-px bg-white/10" />
+                    <EditableDarkColumn
+                      title="Pains"
+                      items={synthPains}
+                      pillClass="bg-red-900/30 text-red-300 border border-red-800/30 text-xs font-medium px-2.5 py-1 rounded-lg"
+                      onAdd={(t) => addSynthItem('pains', t)}
+                      onRemove={(i) => removeSynthItem('pains', i)}
+                    />
+                    <div className="hidden sm:block w-px bg-white/10" />
+                    <EditableDarkColumn
+                      title="Gains"
+                      items={synthGains}
+                      pillClass="bg-emerald-900/30 text-emerald-300 border border-emerald-800/30 text-xs font-medium px-2.5 py-1 rounded-lg"
+                      onAdd={(t) => addSynthItem('gains', t)}
+                      onRemove={(i) => removeSynthItem('gains', i)}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ── Section 2: Per-Twin Breakdown ──────────────────────────── */}
             <div>
               <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
                 Per-Twin Breakdown
@@ -566,7 +614,7 @@ export default function VPCClient({
               </div>
             </div>
 
-            {/* ── Section 2: Your Value Proposition (Value Map) ──────────── */}
+            {/* ── Section 3: Your Value Proposition (Value Map) ──────────── */}
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -637,50 +685,6 @@ export default function VPCClient({
                 )}
               </div>
             </div>
-
-            {/* ── Section 3: Cross-Segment Synthesis (editable, client-only) */}
-            {hasSynthData && (
-              <div>
-                <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                  Cross-Segment Synthesis
-                </h2>
-                <div className="bg-gray-900 text-white rounded-2xl p-6">
-                  <div className="flex items-center gap-2 mb-5">
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/10 text-white/70">
-                      Cross-segment synthesis
-                    </span>
-                    <span className="text-[10px] text-white/40">
-                      Ranked by frequency across {twins.length} twin{twins.length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-6">
-                    <EditableDarkColumn
-                      title="Jobs to be Done"
-                      items={synthJobs}
-                      pillClass="bg-[#0D6E6E]/30 text-[#4ECDC4] border border-[#0D6E6E]/30 text-xs font-medium px-2.5 py-1 rounded-lg"
-                      onAdd={(t) => addSynthItem('jobs', t)}
-                      onRemove={(i) => removeSynthItem('jobs', i)}
-                    />
-                    <div className="hidden sm:block w-px bg-white/10" />
-                    <EditableDarkColumn
-                      title="Pains"
-                      items={synthPains}
-                      pillClass="bg-red-900/30 text-red-300 border border-red-800/30 text-xs font-medium px-2.5 py-1 rounded-lg"
-                      onAdd={(t) => addSynthItem('pains', t)}
-                      onRemove={(i) => removeSynthItem('pains', i)}
-                    />
-                    <div className="hidden sm:block w-px bg-white/10" />
-                    <EditableDarkColumn
-                      title="Gains"
-                      items={synthGains}
-                      pillClass="bg-emerald-900/30 text-emerald-300 border border-emerald-800/30 text-xs font-medium px-2.5 py-1 rounded-lg"
-                      onAdd={(t) => addSynthItem('gains', t)}
-                      onRemove={(i) => removeSynthItem('gains', i)}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* ── CTA: Continue to Business Model Canvas ─────────────────── */}
             <div className="flex justify-end pt-2">

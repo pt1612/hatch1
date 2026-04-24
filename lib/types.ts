@@ -64,7 +64,8 @@ export type Evaluation = {
 export type Strategy = {
   id: string
   project_id: string
-  primary_opportunity_id: string | null
+  primary_opportunity_id: string | null          // kept for sidebar compat (= first pursue_now id)
+  pursue_now_opportunity_ids: string[]            // all pursue_now opportunities
   classifications: Record<string, Classification>
   created_at: string
 }
@@ -129,6 +130,7 @@ export type ChatMessage = {
 
 export interface DigitalTwin {
   id: string                                          // 'twin1', 'twin2', etc.
+  dbId?: string                                       // real Supabase UUID
   name: string
   age?: number
   occupation?: string

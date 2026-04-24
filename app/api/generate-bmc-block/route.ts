@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
-import Groq from 'groq-sdk'
+import Anthropic from '@anthropic-ai/sdk'
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const BLOCK_LABELS: Record<string, string> = {
   customer_relationships: 'Customer Relationships',
@@ -63,19 +63,20 @@ ${definedLines}
 Generate 4-6 specific, concrete items for the "${BLOCK_LABELS[block]}" block of the Business Model Canvas.
 Items must be consistent with the already defined blocks above.
 Be specific and actionable — avoid generic items.
+Each item must be a short phrase of at most 8 words — no full sentences.
 Detect the language from the opportunity description and respond in that language.
 
+Return only valid complete JSON. Never truncate. If content is too long, shorten individual items rather than cutting the JSON structure.
 Respond ONLY with a JSON array of strings, no other text.
 Example: ["Item 1", "Item 2", "Item 3"]`
 
-  const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+  const msg = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 1024,
     messages: [{ role: 'user', content: prompt }],
-    max_tokens: 800,
-    temperature: 0.5,
   })
 
-  const raw = completion.choices[0].message.content || '[]'
+  const raw = msg.content[0].type === 'text' ? msg.content[0].text : '[]'
   const match = raw.match(/\[[\s\S]*\]/)
   const items = match ? JSON.parse(match[0]) : []
 

@@ -328,29 +328,58 @@ function BMCBlock({
 
 // ─── Main client component ───────────────────────────────────────────────────────
 
-function deriveValuePropositions(vpcValueMap: VPCValueMap): string[] {
-  if (!vpcValueMap) return []
-  return [
-    ...new Set([
-      ...(vpcValueMap.productsAndServices ?? []),
-      ...(vpcValueMap.painRelievers ?? []),
-      ...(vpcValueMap.gainCreators ?? []),
-    ]),
-  ]
+type AggregatedInsights = { gains: string[]; pains: string[]; jobs: string[] }
+
+/**
+ * Derive a concise value proposition list (max ~5 items).
+ * Priority: interview-derived insights (most authentic) → VPC value map (AI-generated).
+ * Never dumps the full VPC canvas — always curated to 2-3 items per dimension.
+ */
+function deriveValuePropositions(
+  vpcValueMap: VPCValueMap,
+  insights: AggregatedInsights
+): string[] {
+  // Prefer interview insights when available — take top gains, pains, jobs
+  const hasInsights =
+    insights.gains.length > 0 || insights.pains.length > 0 || insights.jobs.length > 0
+
+  if (hasInsights) {
+    return [
+      ...new Set([
+        ...insights.gains.slice(0, 2),
+        ...insights.pains.slice(0, 2),
+        ...insights.jobs.slice(0, 1),
+      ].filter(Boolean)),
+    ]
+  }
+
+  // Fall back to VPC value map but take only the most curated subset
+  if (vpcValueMap) {
+    return [
+      ...new Set([
+        ...(vpcValueMap.productsAndServices ?? []).slice(0, 2),
+        ...(vpcValueMap.painRelievers ?? []).slice(0, 1),
+        ...(vpcValueMap.gainCreators ?? []).slice(0, 1),
+      ]),
+    ]
+  }
+
+  return []
 }
 
 function initData(
   existingBMC: BMCRow | null,
   vpcValueMap: VPCValueMap,
-  twinSegments: string[]
+  twinSegments: string[],
+  insights: AggregatedInsights
 ): BMCData {
-  const derivedVP = deriveValuePropositions(vpcValueMap)
+  const derivedVP = deriveValuePropositions(vpcValueMap, insights)
   const derivedCS = twinSegments
 
   if (existingBMC) {
     return {
-      value_propositions:     existingBMC.value_propositions?.length   ? existingBMC.value_propositions   : derivedVP,
-      customer_segments:      existingBMC.customer_segments?.length    ? existingBMC.customer_segments    : derivedCS,
+      value_propositions:     (existingBMC.value_propositions?.length ?? 0) > 0 ? existingBMC.value_propositions : derivedVP,
+      customer_segments:      (existingBMC.customer_segments?.length ?? 0) > 0  ? existingBMC.customer_segments  : derivedCS,
       customer_relationships: existingBMC.customer_relationships ?? [],
       channels:               existingBMC.channels ?? [],
       key_activities:         existingBMC.key_activities ?? [],
@@ -380,6 +409,7 @@ export default function BMCClient({
   abilities,
   vpcValueMap,
   twinSegments,
+  aggregatedInsights,
   existingBMC,
 }: {
   project: { id: string; title: string }
@@ -387,12 +417,13 @@ export default function BMCClient({
   abilities: Ability[]
   vpcValueMap: VPCValueMap
   twinSegments: string[]
+  aggregatedInsights: AggregatedInsights
   existingBMC: BMCRow | null
 }) {
   const supabase = createClient()
 
   const [data, setData] = useState<BMCData>(() =>
-    initData(existingBMC, vpcValueMap, twinSegments)
+    initData(existingBMC, vpcValueMap, twinSegments, aggregatedInsights)
   )
   const [bmcId, setBmcId] = useState<string | null>(existingBMC?.id ?? null)
   const [generating, setGenerating] = useState<Partial<Record<BlockKey, boolean>>>({})

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
-import Groq from 'groq-sdk'
+import Anthropic from '@anthropic-ai/sdk'
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(request: NextRequest) {
   const {
@@ -36,8 +36,10 @@ Based on this, suggest:
 2. Pain Relievers (3-5 items): how their offering addresses each key pain
 3. Gain Creators (3-5 items): how their offering creates the gains customers want
 
+Each item must be a short phrase of at most 10 words — no full sentences.
 Detect the language from the opportunity description and respond in that language.
 
+Return only valid complete JSON. Never truncate. If content is too long, shorten individual items rather than cutting the JSON structure.
 Respond ONLY with a JSON object, no other text:
 {
   "productsAndServices": ["...", "..."],
@@ -45,14 +47,13 @@ Respond ONLY with a JSON object, no other text:
   "gainCreators": ["...", "..."]
 }`
 
-  const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+  const msg = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 1024,
     messages: [{ role: 'user', content: prompt }],
-    max_tokens: 1200,
-    temperature: 0.7,
   })
 
-  const raw = completion.choices[0].message.content || '{}'
+  const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
   const match = raw.match(/\{[\s\S]*\}/)
   const valueMap = match ? JSON.parse(match[0]) : { productsAndServices: [], painRelievers: [], gainCreators: [] }
 

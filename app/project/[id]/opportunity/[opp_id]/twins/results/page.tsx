@@ -45,6 +45,7 @@ export default async function ResultsPage({
 
   const twins: DigitalTwin[] = twinRows.map((row, i) => ({
     id: `twin${i + 1}`,
+    dbId: row.id,
     name: row.name,
     role: row.role ?? '',
     segment: row.segment ?? '',

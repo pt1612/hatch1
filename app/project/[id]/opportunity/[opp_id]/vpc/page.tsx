@@ -81,12 +81,18 @@ export default async function VPCPage({
     })
   }
 
-  const hasInterviews = interviews.some(
-    (iv) =>
-      (iv.gains?.length ?? 0) > 0 ||
-      (iv.pains?.length ?? 0) > 0 ||
-      (iv.jobs_to_be_done?.length ?? 0) > 0
-  )
+  // Show VPC canvas as long as interview rows exist — gains/pains/jobs may still
+  // be empty if "Generate Results" hasn't been run yet, which is fine: the per-twin
+  // breakdown already handles that case with an inline prompt to generate results.
+  console.log('[VPC page] interviewRows:', JSON.stringify((interviewRows ?? []).map(r => ({
+    id: r.id,
+    twin_id: r.twin_id,
+    gains: r.gains,
+    pains: r.pains,
+    jobs: r.jobs_to_be_done,
+  }))))
+
+  const hasInterviews = interviews.length > 0
 
   // Load twin_session for vpc_value_map
   const { data: twinSession } = await supabase

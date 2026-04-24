@@ -1,17 +1,15 @@
 import { NextRequest } from 'next/server'
-import Groq from 'groq-sdk'
+import Anthropic from '@anthropic-ai/sdk'
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(request: NextRequest) {
   const { conversation } = await request.json()
 
-  const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
-    messages: [
-      {
-        role: 'system',
-        content: `Analyze this market opportunity evaluation conversation and extract scores (0-100) for each dimension based on what has been discussed.
+  const msg = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 1024,
+    system: `Analyze this market opportunity evaluation conversation and extract scores (0-100) for each dimension based on what has been discussed.
 
 Dimensions:
 - reason_to_buy: Compelling reason to buy / customer urgency
@@ -30,14 +28,10 @@ Return ONLY valid JSON with scores 0-100 for dimensions that have been discussed
   "time_to_revenue": 30,
   "external_risks": 25
 }`,
-      },
-      { role: 'user', content: conversation },
-    ],
-    max_tokens: 256,
-    temperature: 0.2,
+    messages: [{ role: 'user', content: conversation }],
   })
 
-  const raw = completion.choices[0].message.content || '{}'
+  const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
   const match = raw.match(/\{[\s\S]*\}/)
   const scores = match ? JSON.parse(match[0]) : {}
   return Response.json({ scores })

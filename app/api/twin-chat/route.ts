@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
-import Groq from 'groq-sdk'
+import Anthropic from '@anthropic-ai/sdk'
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const SKEPTICISM_INSTRUCTIONS = `
 BEHAVIOR RULES — follow these strictly:
@@ -11,7 +11,7 @@ BEHAVIOR RULES — follow these strictly:
 - Contradict other twins when you genuinely would disagree, based on your profile
 - Express uncertainty when relevant ("I'm not sure this would actually work for me because...")
 - Never give a glowing endorsement unless there is a truly compelling reason rooted in your specific pain points
-- Keep responses to 2-4 sentences — be direct and opinionated, not polite and vague
+- Keep responses to 3-5 sentences maximum — be direct and opinionated, not polite and vague. Never write a long structured document or list.
 
 SIGNAL LAYERING — do NOT announce scores or labels; let these emerge naturally in how you speak:
 - Problem urgency: the intensity of your frustration or indifference should be evident in your word choice and examples ("we lose hours every week" vs. "it's mildly annoying sometimes")
@@ -108,24 +108,22 @@ export async function POST(request: NextRequest) {
     const responses = await Promise.all(
       twins.map(async (twin: DigitalTwin) => {
         const systemPrompt = buildSystemPrompt(twin, projectInfo, modeDescription)
-        // Filter: only user messages + this twin's assistant messages
         const twinHistory = (messages as TwinMessage[]).filter(
           (m) => m.role === 'user' || m.twinId === twin.id
         )
-        const completion = await groq.chat.completions.create({
-          model: 'llama-3.3-70b-versatile',
+        const msg = await anthropic.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1024,
+          system: systemPrompt,
           messages: [
-            { role: 'system', content: systemPrompt },
             ...twinHistory.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
             { role: 'user', content: userMessage },
           ],
-          temperature: 0.9,
-          max_tokens: 300,
         })
         return {
           twinId: twin.id,
           twinName: twin.name,
-          text: completion.choices[0].message.content ?? '',
+          text: msg.content[0].type === 'text' ? msg.content[0].text : '',
         }
       })
     )
@@ -136,30 +134,32 @@ export async function POST(request: NextRequest) {
     if (!twin) return Response.json({ error: 'Twin not found' }, { status: 404 })
 
     const systemPrompt = buildSystemPrompt(twin, projectInfo, modeDescription)
-    // Filter: only user messages + this twin's assistant messages
     const twinHistory = (messages as TwinMessage[]).filter(
       (m) => m.role === 'user' || m.twinId === twin.id
     )
 
-    const stream = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...twinHistory.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
-        { role: 'user', content: userMessage },
-      ],
-      temperature: 0.9,
-      max_tokens: 350,
-      stream: true,
-    })
-
     const encoder = new TextEncoder()
     const readable = new ReadableStream({
       async start(controller) {
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content ?? ''
-          if (content) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`))
+        const anthropicStream = anthropic.messages.stream({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: [
+            ...twinHistory.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+            { role: 'user', content: userMessage },
+          ],
+        })
+
+        for await (const event of anthropicStream) {
+          if (
+            event.type === 'content_block_delta' &&
+            event.delta.type === 'text_delta'
+          ) {
+            const text = (event.delta as { type: 'text_delta'; text: string }).text
+            if (text) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: text })}\n\n`))
+            }
           }
         }
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))

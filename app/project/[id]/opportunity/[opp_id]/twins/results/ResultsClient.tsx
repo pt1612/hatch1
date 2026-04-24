@@ -112,6 +112,7 @@ export default function ResultsClient({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          opportunityId: opportunity.id,
           projectInfo: {
             name: opportunity.name,
             problem: opportunity.description,
@@ -141,30 +142,46 @@ export default function ResultsClient({
       }
 
       // Update twin_interviews with extracted gains/pains/jobs per twin
+      console.log('[ResultsClient] whereToPlay:', JSON.stringify(generated.whereToPlay ?? null))
+
       if (generated.whereToPlay && Array.isArray(generated.whereToPlay)) {
         for (const entry of generated.whereToPlay) {
           // Find the DB twin id for this twin
           const twinIdx = parseInt((entry.twinId as string).replace('twin', '')) - 1
-          // We update segment_attractiveness and ability_to_serve via opportunity
           const { data: twinRow } = await supabase
             .from('twins')
             .select('id')
             .eq('opportunity_id', opportunity.id)
             .order('created_at', { ascending: true })
             .range(twinIdx, twinIdx)
-            .single()
+            .maybeSingle()
+
+          console.log(`[ResultsClient] entry ${entry.twinId} (idx ${twinIdx}):`, JSON.stringify({
+            gains: entry.gains,
+            pains: entry.pains,
+            jobsToBeDone: entry.jobsToBeDone,
+          }))
+          console.log(`[ResultsClient] twinRow:`, twinRow)
 
           if (twinRow) {
-            await supabase
+            // Fallback to top-level aggregated values if per-twin fields are empty
+            const entryGains = (entry.gains?.length > 0) ? entry.gains : (generated.gains ?? []).slice(0, 3)
+            const entryPains = (entry.pains?.length > 0) ? entry.pains : (generated.pains ?? []).slice(0, 3)
+            const entryJobs = (entry.jobsToBeDone?.length > 0) ? entry.jobsToBeDone : (generated.jobsToBeDone ?? []).slice(0, 3)
+
+            const { data: updated, error: updateErr } = await supabase
               .from('twin_interviews')
               .update({
                 segment_attractiveness: entry.segmentAttractiveness,
                 ability_to_serve: entry.abilityToServe,
-                gains: entry.gains ?? [],
-                pains: entry.pains ?? [],
-                jobs_to_be_done: entry.jobsToBeDone ?? [],
+                gains: entryGains,
+                pains: entryPains,
+                jobs_to_be_done: entryJobs,
               })
               .eq('twin_id', twinRow.id)
+              .select('id, gains, pains, jobs_to_be_done')
+
+            console.log(`[ResultsClient] update result:`, JSON.stringify(updated), 'error:', updateErr)
           }
         }
       }

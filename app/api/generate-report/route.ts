@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
-import Groq from 'groq-sdk'
+import Anthropic from '@anthropic-ai/sdk'
 import { numericToLabel } from '@/lib/types'
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(request: NextRequest) {
   const { opportunityName, application, customerSegment, description, userContext } =
@@ -69,8 +69,8 @@ external_risks (1–10):
 IMPORTANT:
 - Be specific and data-driven. Avoid vague or overly optimistic assessments.
 - Use the full scale — avoid defaulting to mid-range scores.
-- Each detailed_analysis must be 5–8 sentences with specific reasoning.
-- The summary must be exactly 3–4 sentences synthesizing across all 6 dimensions.
+- Each detailed_analysis must be at most 2 sentences of specific reasoning.
+- The summary must be 2–3 sentences maximum.
 
 Return ONLY valid JSON in this exact format:
 {
@@ -111,14 +111,13 @@ Return ONLY valid JSON in this exact format:
   }
 }`
 
-  const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+  const msg = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 1024,
     messages: [{ role: 'user', content: systemPrompt }],
-    max_tokens: 3500,
-    temperature: 0.35,
   })
 
-  const raw = completion.choices[0].message.content || '{}'
+  const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
   console.log('[generate-report] raw LLM response:', raw)
   const match = raw.match(/\{[\s\S]*\}/)
   const parsed = match ? JSON.parse(match[0]) : {}

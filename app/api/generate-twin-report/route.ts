@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server'
-import Groq from 'groq-sdk'
+import Anthropic from '@anthropic-ai/sdk'
+import { createClient } from '@/lib/supabase/server'
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 interface TwinMessage {
   role: 'user' | 'assistant'
@@ -11,7 +12,8 @@ interface TwinMessage {
 }
 
 interface DigitalTwin {
-  id: string
+  id: string       // sequential: "twin1", "twin2", etc.
+  dbId?: string    // real Supabase UUID
   name: string
   role: string
   segment: string
@@ -25,7 +27,8 @@ interface ProjectInfo {
 }
 
 export async function POST(request: NextRequest) {
-  const { projectInfo, twins, messages }: {
+  const { opportunityId, projectInfo, twins, messages }: {
+    opportunityId: string
     projectInfo: ProjectInfo
     twins: DigitalTwin[]
     messages: TwinMessage[]
@@ -58,39 +61,98 @@ INTERVIEW TRANSCRIPT:
 ${transcript || 'No conversation recorded.'}
 
 Generate a validation report as a JSON object with exactly these fields:
-- problemIntensity: number 0-100 (how intense and real the problem is based on responses; 0=not a real problem, 100=extremely painful)
-- valueResonance: number 0-100 (how well the solution resonates; 0=no interest, 100=strong demand)
-- recurringThemes: string[] (3-5 key themes that came up repeatedly in the conversation)
-- mainObjections: string[] (3-4 main objections or concerns raised by the twins)
+- problemIntensity: number 0-100
+- valueResonance: number 0-100
+- recurringThemes: string[] (exactly 3 items — each a short phrase, max 7 words)
+- mainObjections: string[] (exactly 3 items — each a short phrase, max 7 words)
 - verdict: exactly one of "strong_fit" | "weak_fit" | "pivot_needed"
-- nextSteps: string[] (exactly 3 specific, actionable next steps for the founder)
-- summary: string (2-3 sentences summarizing the key validation findings)
-- gains: string[] (3-5 things the twins want to achieve or improve — extracted from what they expressed wanting, not generic)
-- pains: string[] (3-5 frustrations or problems the twins experience — extracted from what they explicitly mentioned)
-- jobsToBeDone: string[] (3-5 tasks the twins are trying to accomplish that relate to the problem — what they're hiring a solution to do)
-- whereToPlay: array with one entry per twin, each entry being:
+- nextSteps: string[] (exactly 3 items — each an actionable phrase, max 9 words)
+- summary: string (1-2 sentences maximum)
+- gains: string[] (exactly 3 items — short phrases, max 7 words each)
+- pains: string[] (exactly 3 items — short phrases, max 7 words each)
+- jobsToBeDone: string[] (exactly 3 items — short phrases, max 7 words each)
+- whereToPlay: array with one entry per twin:
   {
-    "twinId": string (e.g. "twin1"),
+    "twinId": string,
     "twinName": string,
-    "segment": string (the twin's segment label),
-    "segmentAttractiveness": number 0-100 (how attractive this segment is as a market opportunity — based on problem urgency and willingness-to-pay signals expressed in the interview; 0 = very low urgency/WTP, 100 = extremely urgent with high WTP),
-    "abilityToServe": number 0-100 (how well the proposed solution fits this segment's specific needs — based on perceived solution fit and absence of hard adoption barriers from the interview; 0 = very poor fit or blocking barriers, 100 = strong fit, easy adoption),
-    "gains": string[] (2-4 specific gains THIS twin expressed — based only on what this twin said, not shared with other twins),
-    "pains": string[] (2-4 specific pains THIS twin expressed — based only on what this twin said, not shared with other twins),
-    "jobsToBeDone": string[] (2-4 specific jobs THIS twin mentioned — based only on what this twin said, not shared with other twins)
+    "segment": string,
+    "segmentAttractiveness": number 0-100,
+    "abilityToServe": number 0-100,
+    "gains": string[] (exactly 2 items — short phrases, max 7 words each, specific to this twin),
+    "pains": string[] (exactly 2 items — short phrases, max 7 words each, specific to this twin),
+    "jobsToBeDone": string[] (exactly 2 items — short phrases, max 7 words each, specific to this twin)
   }
-  The whereToPlay scores and per-twin gains/pains/jobsToBeDone MUST be derived strictly from interview signals for each specific twin. Do not make all scores similar — spread them across the 0-100 range based on actual differences in how each twin responded. Each twin's gains/pains/jobsToBeDone must reflect what that specific twin said, not an aggregate.
 
-Be rigorous and honest in your assessment. Base scores on actual interview content, not just the project description.`
+STRICT RULES:
+- Spread segmentAttractiveness and abilityToServe scores across the 0-100 range — do not make all twins similar.
+- Per-twin gains/pains/jobsToBeDone must reflect what that specific twin said, not shared across all twins.
+- Base scores on actual interview content, not the project description.
+- Return only valid complete JSON. Never truncate. If content is too long, shorten individual field values rather than cutting the JSON structure.
 
-  const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+Return ONLY valid JSON, no other text.`
+
+  const msg = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 2048,
     messages: [{ role: 'user', content: prompt }],
-    temperature: 0.3,
-    response_format: { type: 'json_object' },
   })
 
-  const raw = completion.choices[0].message.content || '{}'
-  const parsed = JSON.parse(raw)
+  const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
+  const match = raw.match(/\{[\s\S]*\}/)
+  const parsed = match ? JSON.parse(match[0]) : {}
+
+  console.log('[generate-twin-report] whereToPlay:', JSON.stringify(parsed.whereToPlay ?? null))
+  console.log('[generate-twin-report] top-level gains:', JSON.stringify(parsed.gains ?? null))
+  console.log('[generate-twin-report] top-level pains:', JSON.stringify(parsed.pains ?? null))
+  console.log('[generate-twin-report] top-level jobsToBeDone:', JSON.stringify(parsed.jobsToBeDone ?? null))
+
+  // Persist per-twin gains/pains/jobs to twin_interviews
+  if (parsed.whereToPlay && Array.isArray(parsed.whereToPlay)) {
+    try {
+      const supabase = await createClient()
+
+      // Build a direct map from sequential twinId → real DB UUID using the dbId
+      // field sent by the client — no order-based lookup needed
+      console.log('[generate-twin-report] twins dbIds:', JSON.stringify(twins.map(t => ({ id: t.id, dbId: t.dbId }))))
+
+      for (const [index, entry] of parsed.whereToPlay.entries()) {
+        const dbId = twins[index]?.dbId
+        if (!dbId) {
+          console.log(`[generate-twin-report] no dbId for index ${index} (${entry.twinId}) — skipping`)
+          continue
+        }
+
+        // Fall back to top-level aggregated values if per-twin fields are missing
+        const entryGains = (Array.isArray(entry.gains) && entry.gains.length > 0)
+          ? entry.gains
+          : (parsed.gains ?? []).slice(0, 3)
+        const entryPains = (Array.isArray(entry.pains) && entry.pains.length > 0)
+          ? entry.pains
+          : (parsed.pains ?? []).slice(0, 3)
+        const entryJobs = (Array.isArray(entry.jobsToBeDone) && entry.jobsToBeDone.length > 0)
+          ? entry.jobsToBeDone
+          : (parsed.jobsToBeDone ?? []).slice(0, 3)
+
+        console.log(`[generate-twin-report] writing ${entry.twinId} (twin_id=${dbId}):`, JSON.stringify({ gains: entryGains, pains: entryPains, jobs_to_be_done: entryJobs }))
+
+        const { data: updated, error: updateErr } = await supabase
+          .from('twin_interviews')
+          .update({
+            segment_attractiveness: entry.segmentAttractiveness,
+            ability_to_serve: entry.abilityToServe,
+            gains: entryGains,
+            pains: entryPains,
+            jobs_to_be_done: entryJobs,
+          })
+          .eq('twin_id', dbId)
+          .select('id, gains, pains, jobs_to_be_done')
+
+        console.log(`[generate-twin-report] supabase response for ${entry.twinId}:`, JSON.stringify(updated), 'error:', JSON.stringify(updateErr))
+      }
+    } catch (err) {
+      console.error('[generate-twin-report] DB write error:', err)
+    }
+  }
+
   return Response.json({ report: parsed })
 }

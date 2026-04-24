@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Sidebar from '@/components/Sidebar'
-import { ChevronRight, Check, Loader2 } from 'lucide-react'
+import { ChevronRight, Check, Loader2, Plus, X } from 'lucide-react'
 import { POTENTIAL_BADGE, CHALLENGE_BADGE } from '@/lib/constants'
 import { computeCategory } from '@/lib/types'
 import type { Opportunity, Strategy, Classification } from '@/lib/types'
@@ -22,8 +22,8 @@ export default function StrategyClient({
   const router = useRouter()
   const supabase = createClient()
 
-  const [primaryId, setPrimaryId] = useState<string | null>(
-    existingStrategy?.primary_opportunity_id ?? null
+  const [pursueNowIds, setPursueNowIds] = useState<string[]>(
+    existingStrategy?.pursue_now_opportunity_ids ?? []
   )
   const [classifications, setClassifications] = useState<Record<string, Classification>>(
     existingStrategy?.classifications ?? {}
@@ -31,10 +31,18 @@ export default function StrategyClient({
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  const primaryOpp = opportunities.find((o) => o.id === primaryId)
-  const nonPrimary = opportunities.filter((o) => o.id !== primaryId)
+  const evaluatedOpps = opportunities.filter((o) => !!o.potential_score)
+  const pursueNowOpps = opportunities.filter((o) => pursueNowIds.includes(o.id))
+  // non-pursue-now opps available to classify
+  const otherOpps = opportunities.filter((o) => !pursueNowIds.includes(o.id))
 
-  function handleToggle(
+  function togglePursueNow(oppId: string) {
+    setPursueNowIds((prev) =>
+      prev.includes(oppId) ? prev.filter((id) => id !== oppId) : [...prev, oppId]
+    )
+  }
+
+  function handleToggleClassification(
     oppId: string,
     field: 'product_fit' | 'market_fit',
     value: boolean
@@ -49,9 +57,11 @@ export default function StrategyClient({
 
   async function handleSave() {
     setSaving(true)
+    const firstPursueNowId = pursueNowIds[0] ?? null
     const payload = {
       project_id: project.id,
-      primary_opportunity_id: primaryId,
+      primary_opportunity_id: firstPursueNowId,
+      pursue_now_opportunity_ids: pursueNowIds,
       classifications,
     }
     if (existingStrategy) {
@@ -65,9 +75,9 @@ export default function StrategyClient({
     router.refresh()
   }
 
-  const growthOpps = nonPrimary.filter((o) => classifications[o.id]?.category === 'growth')
-  const backupOpps = nonPrimary.filter((o) => classifications[o.id]?.category === 'backup')
-  const storageOpps = nonPrimary.filter(
+  const growthOpps = otherOpps.filter((o) => classifications[o.id]?.category === 'growth')
+  const backupOpps = otherOpps.filter((o) => classifications[o.id]?.category === 'backup')
+  const storageOpps = otherOpps.filter(
     (o) => !classifications[o.id] || classifications[o.id]?.category === 'storage'
   )
 
@@ -76,9 +86,11 @@ export default function StrategyClient({
       <Sidebar
         projectId={project.id}
         projectTitle={project.title}
-        primaryOpportunityId={existingStrategy?.primary_opportunity_id ?? undefined}
+        primaryOpportunityId={pursueNowIds[0] ?? existingStrategy?.primary_opportunity_id ?? undefined}
         primaryOpportunityName={
-          existingStrategy?.primary_opportunity_id
+          pursueNowIds[0]
+            ? opportunities.find((o) => o.id === pursueNowIds[0])?.name
+            : existingStrategy?.primary_opportunity_id
             ? opportunities.find((o) => o.id === existingStrategy.primary_opportunity_id)?.name
             : undefined
         }
@@ -90,24 +102,22 @@ export default function StrategyClient({
             <h1 className="text-lg font-semibold text-gray-900">Strategic Prioritization</h1>
             <p className="text-xs text-gray-400 mt-0.5">Agile Focus Dartboard</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleSave}
-              disabled={saving || !primaryId}
-              className="flex items-center gap-2 bg-[#0D6E6E] text-white py-2.5 px-4 rounded-lg text-sm font-semibold hover:bg-[#0a5555] transition-colors disabled:opacity-60"
-            >
-              {saving ? (
-                <Loader2 size={15} className="animate-spin" />
-              ) : saved ? (
-                <>
-                  <Check size={15} />
-                  Saved
-                </>
-              ) : (
-                'Save strategy'
-              )}
-            </button>
-          </div>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2 bg-[#0D6E6E] text-white py-2.5 px-4 rounded-lg text-sm font-semibold hover:bg-[#0a5555] transition-colors disabled:opacity-60"
+          >
+            {saving ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : saved ? (
+              <>
+                <Check size={15} />
+                Saved
+              </>
+            ) : (
+              'Save strategy'
+            )}
+          </button>
         </div>
 
         {opportunities.length === 0 ? (
@@ -122,61 +132,110 @@ export default function StrategyClient({
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Column 1: Primary */}
+
+            {/* ── Column 1: Pursue Now ── */}
             <div>
               <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
                 Pursue Now
               </h2>
-              <div className="mb-4">
-                <label className="block text-xs text-gray-500 mb-1.5">
-                  Select primary opportunity
-                </label>
-                <select
-                  value={primaryId ?? ''}
-                  onChange={(e) => setPrimaryId(e.target.value || null)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700 focus:ring-2 focus:ring-[#0D6E6E] focus:border-transparent outline-none transition"
-                >
-                  <option value="">— Select —</option>
-                  {opportunities.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
-              {primaryOpp && (
-                <div className="bg-[#0D6E6E] text-white rounded-2xl p-5">
-                  <p className="text-sm font-semibold mb-1">{primaryOpp.name}</p>
-                  <p className="text-xs text-white/60 mb-3">
-                    {primaryOpp.customer_segment} · {primaryOpp.application}
-                  </p>
-                  <div className="flex gap-2 flex-wrap">
-                    {primaryOpp.potential_score && (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/20 text-white">
-                        Potential: {primaryOpp.potential_score.replace('_', ' ')}
-                      </span>
-                    )}
-                    {primaryOpp.challenge_score && (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/20 text-white">
-                        Challenge: {primaryOpp.challenge_score.replace('_', ' ')}
-                      </span>
-                    )}
-                  </div>
+              {/* Active pursue-now cards */}
+              {pursueNowOpps.length > 0 && (
+                <div className="space-y-3 mb-4">
+                  {pursueNowOpps.map((opp) => (
+                    <div key={opp.id} className="bg-[#0D6E6E] text-white rounded-2xl p-4">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <p className="text-sm font-semibold leading-snug">{opp.name}</p>
+                        <button
+                          onClick={() => togglePursueNow(opp.id)}
+                          className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                          title="Remove from Pursue Now"
+                        >
+                          <X size={11} className="text-white" />
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-white/60 mb-3">
+                        {opp.customer_segment} · {opp.application}
+                      </p>
+                      {(opp.potential_score || opp.challenge_score) && (
+                        <div className="flex gap-1.5 flex-wrap mb-3">
+                          {opp.potential_score && (
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/20 text-white">
+                              Potential: {opp.potential_score.replace('_', ' ')}
+                            </span>
+                          )}
+                          {opp.challenge_score && (
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/20 text-white">
+                              Challenge: {opp.challenge_score.replace('_', ' ')}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      <Link
+                        href={`/project/${project.id}/opportunity/${opp.id}/twins/setup`}
+                        className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors w-fit"
+                      >
+                        Enter Twin phase
+                        <ChevronRight size={12} />
+                      </Link>
+                    </div>
+                  ))}
                 </div>
+              )}
+
+              {/* Evaluated opportunities to add */}
+              {evaluatedOpps.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-2">
+                    {pursueNowOpps.length === 0 ? 'Select opportunities to pursue' : 'Add more'}
+                  </p>
+                  <div className="space-y-2">
+                    {evaluatedOpps
+                      .filter((o) => !pursueNowIds.includes(o.id))
+                      .map((opp) => (
+                        <button
+                          key={opp.id}
+                          onClick={() => togglePursueNow(opp.id)}
+                          className="w-full text-left bg-white border border-gray-200 rounded-xl p-3 hover:border-[#0D6E6E] hover:bg-[#0D6E6E]/5 transition-colors group"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-gray-800 truncate">{opp.name}</p>
+                              <p className="text-[10px] text-gray-400 truncate">
+                                {opp.customer_segment} · {opp.application}
+                              </p>
+                            </div>
+                            <Plus
+                              size={14}
+                              className="flex-shrink-0 ml-2 text-gray-300 group-hover:text-[#0D6E6E] transition-colors"
+                            />
+                          </div>
+                        </button>
+                      ))}
+                  </div>
+                  {evaluatedOpps.filter((o) => !pursueNowIds.includes(o.id)).length === 0 && (
+                    <p className="text-xs text-gray-300 italic">All evaluated opportunities are in Pursue Now.</p>
+                  )}
+                </div>
+              )}
+
+              {evaluatedOpps.length === 0 && (
+                <p className="text-xs text-gray-300 italic">
+                  Evaluate opportunities first to select them here.
+                </p>
               )}
             </div>
 
-            {/* Column 2: Classify non-primary */}
+            {/* ── Column 2: Keep Options Open ── */}
             <div>
               <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
                 Keep Options Open
               </h2>
-              {nonPrimary.length === 0 ? (
+              {otherOpps.length === 0 ? (
                 <p className="text-xs text-gray-300 italic">No other opportunities.</p>
               ) : (
                 <div className="space-y-3">
-                  {nonPrimary.map((opp) => {
+                  {otherOpps.map((opp) => {
                     const cls = classifications[opp.id] ?? {
                       product_fit: false,
                       market_fit: false,
@@ -211,7 +270,7 @@ export default function StrategyClient({
                         <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                           <span>Product fit</span>
                           <button
-                            onClick={() => handleToggle(opp.id, 'product_fit', !cls.product_fit)}
+                            onClick={() => handleToggleClassification(opp.id, 'product_fit', !cls.product_fit)}
                             className={`w-9 h-5 rounded-full transition-colors relative flex-shrink-0 ${
                               cls.product_fit ? 'bg-[#0D6E6E]' : 'bg-gray-200'
                             }`}
@@ -226,7 +285,7 @@ export default function StrategyClient({
                         <div className="flex items-center justify-between text-xs text-gray-500">
                           <span>Market fit</span>
                           <button
-                            onClick={() => handleToggle(opp.id, 'market_fit', !cls.market_fit)}
+                            onClick={() => handleToggleClassification(opp.id, 'market_fit', !cls.market_fit)}
                             className={`w-9 h-5 rounded-full transition-colors relative flex-shrink-0 ${
                               cls.market_fit ? 'bg-[#0D6E6E]' : 'bg-gray-200'
                             }`}
@@ -245,26 +304,33 @@ export default function StrategyClient({
               )}
             </div>
 
-            {/* Column 3: Summary */}
+            {/* ── Column 3: Strategy Summary ── */}
             <div>
               <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
                 Strategy Summary
               </h2>
 
               <div className="space-y-4">
-                {/* Pursue Now */}
+                {/* Pursue Now summary */}
                 <div className="bg-white border border-gray-200 rounded-2xl p-4">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Pursue Now
+                    Pursue Now ({pursueNowOpps.length})
                   </p>
-                  {primaryOpp ? (
-                    <p className="text-xs font-semibold text-gray-800">{primaryOpp.name}</p>
-                  ) : (
+                  {pursueNowOpps.length === 0 ? (
                     <p className="text-xs text-gray-300 italic">None selected</p>
+                  ) : (
+                    <div className="space-y-1">
+                      {pursueNowOpps.map((o) => (
+                        <p key={o.id} className="text-xs font-semibold text-gray-800 flex items-center gap-1.5">
+                          <span className="inline-block w-2 h-2 rounded-full bg-[#0D6E6E] flex-shrink-0" />
+                          {o.name}
+                        </p>
+                      ))}
+                    </div>
                   )}
                 </div>
 
-                {/* Keep Options Open */}
+                {/* Keep Options Open summary */}
                 <div className="bg-white border border-gray-200 rounded-2xl p-4">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                     Keep Options Open
@@ -313,27 +379,8 @@ export default function StrategyClient({
                   )}
                 </div>
               </div>
-
-              {/* Proceed to validation */}
-              {saved && primaryId && (
-                <Link
-                  href={`/project/${project.id}/opportunity/${primaryId}/twins/setup`}
-                  className="flex items-center justify-center gap-2 w-full mt-4 bg-[#0D6E6E] text-white py-2.5 px-4 rounded-xl text-sm font-semibold hover:bg-[#0a5555] transition-colors"
-                >
-                  Proceed to validation
-                  <ChevronRight size={15} />
-                </Link>
-              )}
-              {existingStrategy?.primary_opportunity_id && !saved && (
-                <Link
-                  href={`/project/${project.id}/opportunity/${existingStrategy.primary_opportunity_id}/twins/setup`}
-                  className="flex items-center justify-center gap-2 w-full mt-4 border border-[#0D6E6E] text-[#0D6E6E] py-2.5 px-4 rounded-xl text-sm font-semibold hover:bg-[#0D6E6E]/5 transition-colors"
-                >
-                  Proceed to validation
-                  <ChevronRight size={15} />
-                </Link>
-              )}
             </div>
+
           </div>
         )}
       </div>

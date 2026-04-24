@@ -6,27 +6,25 @@ import { createClient } from '@/lib/supabase/client'
 import Sidebar from '@/components/Sidebar'
 import BackButton from '@/components/BackButton'
 import { Plus, X, Loader2, RefreshCw, ChevronRight, Edit2, Check } from 'lucide-react'
-import {
-  getAffinityDisplay,
-  getBudgetDisplay,
-  getTechLabel,
-  getTechProgress,
-  getInitials,
-} from '@/lib/types'
+import { getInitials } from '@/lib/types'
 import { TWIN_AVATAR_COLORS } from '@/lib/constants'
-import type { Opportunity, DigitalTwin, TwinRow } from '@/lib/types'
+import type { Opportunity, TwinRow } from '@/lib/types'
 
-function twinRowToDigitalTwin(row: TwinRow, index: number): DigitalTwin {
+type MinimalTwin = {
+  id: string
+  name: string
+  role: string      // maps to 'occupation' from the API response
+  segment: string
+  context: string   // one-sentence description
+}
+
+function twinRowToMinimalTwin(row: TwinRow, index: number): MinimalTwin {
   return {
     id: `twin${index + 1}`,
     name: row.name,
     role: row.role,
     segment: row.segment,
-    personality: row.personality,
-    painPoints: row.pain_points ?? [],
-    techLevel: row.tech_level as 'low' | 'medium' | 'high',
-    budgetTier: row.budget_tier as 'low' | 'mid' | 'premium',
-    affinityLabel: row.affinity_label as 'high_affinity' | 'moderate' | 'early_adopter',
+    context: row.personality ?? '',
   }
 }
 
@@ -51,9 +49,9 @@ export default function TwinSetupClient({
   const [loadingSegments, setLoadingSegments] = useState(segments.length === 0)
 
   // Part B: twin profiles
-  const [twins, setTwins] = useState<DigitalTwin[]>(
+  const [twins, setTwins] = useState<MinimalTwin[]>(
     existingTwins.length > 0
-      ? existingTwins.map((t, i) => twinRowToDigitalTwin(t, i))
+      ? existingTwins.map((t, i) => twinRowToMinimalTwin(t, i))
       : []
   )
   const [generatingTwins, setGeneratingTwins] = useState(false)
@@ -114,7 +112,17 @@ export default function TwinSetupClient({
       }),
     })
     const { twins: generated } = await res.json()
-    setTwins(generated ?? [])
+    // API returns { id, name, occupation, segment, context }
+    const mapped: MinimalTwin[] = (generated ?? []).map(
+      (t: { id: string; name: string; occupation?: string; role?: string; segment: string; context: string }) => ({
+        id: t.id,
+        name: t.name,
+        role: t.occupation ?? t.role ?? '',
+        segment: t.segment,
+        context: t.context ?? '',
+      })
+    )
+    setTwins(mapped)
     setGeneratingTwins(false)
   }
 
@@ -138,7 +146,7 @@ export default function TwinSetupClient({
     // Delete old twins for this opportunity
     await supabase.from('twins').delete().eq('opportunity_id', opportunity.id)
 
-    // Insert new twins
+    // Insert new twins — store context as personality, use safe defaults for legacy columns
     await supabase.from('twins').insert(
       twins.map((t) => ({
         project_id: project.id,
@@ -146,11 +154,11 @@ export default function TwinSetupClient({
         name: t.name,
         role: t.role,
         segment: t.segment,
-        personality: t.personality,
-        pain_points: t.painPoints,
-        tech_level: t.techLevel,
-        budget_tier: t.budgetTier,
-        affinity_label: t.affinityLabel,
+        personality: t.context,
+        pain_points: [],
+        tech_level: 'medium',
+        budget_tier: 'mid',
+        affinity_label: 'moderate',
       }))
     )
 
@@ -273,10 +281,6 @@ export default function TwinSetupClient({
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
               {twins.map((twin, idx) => {
                 const avatarColor = TWIN_AVATAR_COLORS[idx % TWIN_AVATAR_COLORS.length]
-                const affinity = getAffinityDisplay(twin.affinityLabel)
-                const techLabel = getTechLabel(twin.techLevel)
-                const techPct = getTechProgress(twin.techLevel)
-                const budgetText = getBudgetDisplay(twin.budgetTier)
                 const isEditing = editingIdx === idx
 
                 return (
@@ -284,24 +288,14 @@ export default function TwinSetupClient({
                     key={twin.id}
                     className="bg-white rounded-2xl p-6 flex flex-col gap-0 border border-gray-200 hover:border-gray-300 transition-colors"
                   >
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-5">
-                      <div className={`w-12 h-12 rounded-xl ${avatarColor} flex items-center justify-center text-sm font-bold flex-shrink-0`}>
-                        {getInitials(twin.name)}
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border ${affinity.className}`}>
-                          {affinity.text}
-                        </span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-gray-800 text-white">
-                          {budgetText}
-                        </span>
-                      </div>
+                    {/* Avatar */}
+                    <div className={`w-12 h-12 rounded-xl ${avatarColor} flex items-center justify-center text-sm font-bold flex-shrink-0 mb-4`}>
+                      {getInitials(twin.name)}
                     </div>
 
-                    {/* Name + role */}
+                    {/* Name (editable) */}
                     {isEditing ? (
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-0.5">
                         <input
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
@@ -332,46 +326,21 @@ export default function TwinSetupClient({
                         </button>
                       </div>
                     )}
-                    <p className="text-sm text-gray-400 mb-1">{twin.role}</p>
-                    <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#0D6E6E]/10 text-[#0D6E6E] mb-5 w-fit">
+
+                    {/* Role */}
+                    <p className="text-sm text-gray-400 mb-2">{twin.role}</p>
+
+                    {/* Segment badge */}
+                    <span className="inline-block text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#0D6E6E]/10 text-[#0D6E6E] mb-4 w-fit">
                       {twin.segment}
                     </span>
 
-                    {/* Pain points */}
-                    <div className="mb-5">
-                      <p className="text-[10px] font-bold tracking-widest uppercase text-gray-300 mb-2.5">
-                        Pain Points
+                    {/* Context */}
+                    {twin.context && (
+                      <p className="text-xs italic text-gray-400 leading-relaxed border-t border-gray-100 pt-4 mt-auto">
+                        &ldquo;{twin.context}&rdquo;
                       </p>
-                      <div className="space-y-1.5">
-                        {twin.painPoints.map((p, pi) => (
-                          <div key={pi} className="flex items-start gap-2 text-xs text-gray-600">
-                            <span className="text-gray-300 font-bold flex-shrink-0 mt-px">×</span>
-                            {p}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Tech level */}
-                    <div className="mb-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-[10px] font-bold tracking-widest uppercase text-gray-300">
-                          Tech Level
-                        </p>
-                        <span className="text-xs font-semibold text-gray-500">{techLabel}</span>
-                      </div>
-                      <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gray-800 rounded-full transition-all duration-700"
-                          style={{ width: `${techPct}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Personality */}
-                    <p className="text-xs italic text-gray-400 leading-relaxed border-t border-gray-100 pt-4 mt-auto">
-                      &ldquo;{twin.personality}&rdquo;
-                    </p>
+                    )}
                   </div>
                 )
               })}
