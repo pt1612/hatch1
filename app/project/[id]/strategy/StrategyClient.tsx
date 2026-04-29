@@ -83,18 +83,7 @@ export default function StrategyClient({
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar
-        projectId={project.id}
-        projectTitle={project.title}
-        primaryOpportunityId={pursueNowIds[0] ?? existingStrategy?.primary_opportunity_id ?? undefined}
-        primaryOpportunityName={
-          pursueNowIds[0]
-            ? opportunities.find((o) => o.id === pursueNowIds[0])?.name
-            : existingStrategy?.primary_opportunity_id
-            ? opportunities.find((o) => o.id === existingStrategy.primary_opportunity_id)?.name
-            : undefined
-        }
-      />
+      <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-8">
         <div className="flex items-center justify-between mb-6">

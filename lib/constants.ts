@@ -23,6 +23,9 @@ export const TWIN_DOT_COLORS = [
   'bg-rose-700',
 ]
 
+// Twin hex colours (inline dot styles, same hues as TWIN_DOT_COLORS)
+export const TWIN_COLORS_HEX = ['#0d3b2e', '#0f766e', '#475569', '#b45309', '#be123c']
+
 // Attractiveness map dot palette (from Vela)
 export const MAP_DOT_PALETTE = [
   '#0D6E6E',

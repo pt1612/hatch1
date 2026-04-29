@@ -328,13 +328,7 @@ export default function InterviewClient({
 
   return (
     <div className="ml-60 flex min-h-screen">
-      <Sidebar
-        projectId={project.id}
-        projectTitle={project.title}
-        primaryOpportunityId={opportunity.id}
-        primaryOpportunityName={opportunity.name}
-        hasTwinInterviews={messages.length > 0}
-      />
+      <Sidebar projectId={project.id} projectTitle={project.title} />
 
       {/* Twin list sidebar */}
       <div className="w-56 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 h-screen sticky top-0">

@@ -30,6 +30,35 @@ export default function DashboardClient({
   const router = useRouter()
   const supabase = createClient()
   const [creating, setCreating] = useState(false)
+  const [projectList, setProjectList] = useState(projects)
+  const [deleting, setDeleting] = useState<string | null>(null)
+
+  async function handleDeleteProject(projectId: string) {
+    if (!window.confirm('Delete this project? All opportunities, twins, interviews, and canvases will be permanently removed.')) return
+    setDeleting(projectId)
+    try {
+      const { data: opps } = await supabase.from('opportunities').select('id').eq('project_id', projectId)
+      const oppIds = opps?.map((o) => o.id) ?? []
+      if (oppIds.length > 0) {
+        await supabase.from('evaluations').delete().in('opportunity_id', oppIds)
+        const { data: twins } = await supabase.from('twins').select('id').in('opportunity_id', oppIds)
+        const twinIds = twins?.map((t) => t.id) ?? []
+        if (twinIds.length > 0) {
+          await supabase.from('twin_interviews').delete().in('twin_id', twinIds)
+          await supabase.from('twins').delete().in('id', twinIds)
+        }
+        await supabase.from('twin_sessions').delete().in('opportunity_id', oppIds)
+        await supabase.from('business_model_canvases').delete().in('opportunity_id', oppIds)
+        await supabase.from('opportunities').delete().in('id', oppIds)
+      }
+      await supabase.from('projects').delete().eq('id', projectId)
+      setProjectList((prev) => prev.filter((p) => p.id !== projectId))
+    } catch (err) {
+      console.error('Delete failed:', err)
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   async function handleNewProject() {
     setCreating(true)
@@ -95,10 +124,15 @@ export default function DashboardClient({
         )}
 
         {/* Grid */}
-        {projects.length > 0 && (
+        {projectList.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+            {projectList.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                isDeleting={deleting === project.id}
+                onDelete={() => handleDeleteProject(project.id)}
+              />
             ))}
           </div>
         )}
@@ -107,7 +141,15 @@ export default function DashboardClient({
   )
 }
 
-function ProjectCard({ project }: { project: EnrichedProject }) {
+function ProjectCard({
+  project,
+  isDeleting,
+  onDelete,
+}: {
+  project: EnrichedProject
+  isDeleting: boolean
+  onDelete: () => void
+}) {
   const [menuOpen, setMenuOpen] = useState(false)
   const completed = project.completed_phases.filter(Boolean).length
   const total = project.completed_phases.length
@@ -120,7 +162,7 @@ function ProjectCard({ project }: { project: EnrichedProject }) {
   })
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md transition-shadow flex flex-col gap-4">
+    <div className={`bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md transition-shadow flex flex-col gap-4 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}>
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
@@ -140,16 +182,10 @@ function ProjectCard({ project }: { project: EnrichedProject }) {
           {menuOpen && (
             <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-xl shadow-lg z-10 py-1 w-36">
               <button
-                className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
-                onClick={() => setMenuOpen(false)}
-              >
-                Rename
-              </button>
-              <button
                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                onClick={() => setMenuOpen(false)}
+                onClick={() => { setMenuOpen(false); onDelete() }}
               >
-                Delete
+                {isDeleting ? 'Deleting…' : 'Delete'}
               </button>
             </div>
           )}

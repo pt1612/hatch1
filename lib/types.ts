@@ -99,6 +99,8 @@ export type TwinInterview = {
   gains: string[]
   pains: string[]
   jobs_to_be_done: string[]
+  value_map: Record<string, unknown> | null   // { productsAndServices, painRelievers, gainCreators }
+  bmc_data:  Record<string, unknown> | null   // Record<BlockKey, string[]>
   segment_attractiveness: number | null
   ability_to_serve: number | null
   created_at: string

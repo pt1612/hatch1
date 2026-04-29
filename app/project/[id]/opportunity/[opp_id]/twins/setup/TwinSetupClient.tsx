@@ -168,7 +168,7 @@ export default function TwinSetupClient({
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar projectId={project.id} projectTitle={project.title} primaryOpportunityId={opportunity.id} primaryOpportunityName={opportunity.name} />
+      <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-8">
         <BackButton href={`/project/${project.id}/strategy`} label="Back to strategy" />

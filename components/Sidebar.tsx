@@ -11,11 +11,6 @@ import {
   CheckSquare,
   Map,
   Compass,
-  Users,
-  MessageSquare,
-  BarChart2,
-  Layers,
-  LayoutTemplate,
   Settings,
   HelpCircle,
   LogOut,
@@ -25,18 +20,11 @@ import {
 interface SidebarProps {
   projectId?: string
   projectTitle?: string
-  /** ID of the first pursue-now opportunity — drives Twin / VPC / BMC nav links */
-  primaryOpportunityId?: string
-  primaryOpportunityName?: string
-  hasTwinInterviews?: boolean
 }
 
 export default function Sidebar({
   projectId,
   projectTitle,
-  primaryOpportunityId,
-  primaryOpportunityName,
-  hasTwinInterviews = false,
 }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -167,73 +155,6 @@ export default function Sidebar({
               <Compass size={16} />
             )}
 
-            {/* Section 2: TWIN VALIDATION */}
-            <>
-              {divider}
-              {sectionLabel('Twin Validation')}
-              {primaryOpportunityName && (
-                <p className="text-[10px] text-gray-400 px-3 mb-1 truncate italic">
-                  {primaryOpportunityName}
-                </p>
-              )}
-              {navLink(
-                primaryOpportunityId
-                  ? `/project/${projectId}/opportunity/${primaryOpportunityId}/twins/setup`
-                  : `/project/${projectId}/strategy`,
-                'Twin Setup',
-                <Users size={16} />,
-                undefined,
-                primaryOpportunityId ? undefined : false
-              )}
-              {navLink(
-                primaryOpportunityId
-                  ? `/project/${projectId}/opportunity/${primaryOpportunityId}/twins/interview`
-                  : `/project/${projectId}/strategy`,
-                'Twin Interviews',
-                <MessageSquare size={16} />,
-                undefined,
-                primaryOpportunityId ? undefined : false
-              )}
-              {navLink(
-                primaryOpportunityId
-                  ? `/project/${projectId}/opportunity/${primaryOpportunityId}/twins/results`
-                  : `/project/${projectId}/strategy`,
-                'Twin Results',
-                <BarChart2 size={16} />,
-                undefined,
-                primaryOpportunityId ? undefined : false
-              )}
-            </>
-
-            {/* Section 3: VALUE PROPOSITION */}
-            <>
-              {divider}
-              {sectionLabel('Value Proposition')}
-              {navLink(
-                primaryOpportunityId
-                  ? `/project/${projectId}/opportunity/${primaryOpportunityId}/vpc`
-                  : `/project/${projectId}/strategy`,
-                'VPC Canvas',
-                <Layers size={16} />,
-                undefined,
-                primaryOpportunityId ? undefined : false
-              )}
-            </>
-
-            {/* Section 4: BUSINESS MODEL */}
-            <>
-              {divider}
-              {sectionLabel('Business Model')}
-              {navLink(
-                primaryOpportunityId
-                  ? `/project/${projectId}/opportunity/${primaryOpportunityId}/bmc`
-                  : `/project/${projectId}/strategy`,
-                'Business Model Canvas',
-                <LayoutTemplate size={16} />,
-                undefined,
-                primaryOpportunityId ? undefined : false
-              )}
-            </>
           </>
         )}
       </nav>

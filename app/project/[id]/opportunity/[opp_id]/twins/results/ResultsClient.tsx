@@ -196,13 +196,7 @@ export default function ResultsClient({
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar
-        projectId={project.id}
-        projectTitle={project.title}
-        primaryOpportunityId={opportunity.id}
-        primaryOpportunityName={opportunity.name}
-        hasTwinInterviews={messages.length > 0}
-      />
+      <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-8 max-w-3xl">
         <BackButton

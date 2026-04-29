@@ -60,12 +60,19 @@ export default async function VPCPage({
       | 'early_adopter',
   }))
 
-  // Load twin_interviews with VPC data
+  // Load twin_interviews with VPC data.
+  // Use select('*') so the query never fails if optional columns (value_map)
+  // haven't been added to the database yet — PostgREST only errors when a column
+  // is explicitly requested but absent; '*' silently skips missing columns.
   const dbTwinIds = (twinRows ?? []).map((r) => r.id)
-  const { data: interviewRows } = await supabase
+  const { data: interviewRows, error: interviewErr } = await supabase
     .from('twin_interviews')
-    .select('id, twin_id, gains, pains, jobs_to_be_done, messages')
+    .select('*')
     .in('twin_id', dbTwinIds.length > 0 ? dbTwinIds : ['00000000-0000-0000-0000-000000000000'])
+
+  if (interviewErr) {
+    console.error('[VPC page] twin_interviews query error:', interviewErr)
+  }
 
   // Map twin DB ids to interview data with sequential twin id
   const interviews: (TwinInterview & { twinSequentialId: string })[] = []
@@ -110,7 +117,7 @@ export default async function VPCPage({
       hasInterviews={hasInterviews}
       abilities={abilities ?? []}
       sessionId={twinSession?.id ?? null}
-      existingValueMap={twinSession?.vpc_value_map ?? null}
+      existingFinalVPC={twinSession?.vpc_value_map ?? null}
     />
   )
 }

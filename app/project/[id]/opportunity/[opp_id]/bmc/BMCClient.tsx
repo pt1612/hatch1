@@ -8,6 +8,7 @@ import {
   Plus, X, Loader2, Sparkles, Download,
   Handshake, Zap, Package, Gift, Heart, Users, Truck, Tag, DollarSign,
 } from 'lucide-react'
+import { TWIN_COLORS_HEX } from '@/lib/constants'
 import type { Opportunity } from '@/lib/types'
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
@@ -25,17 +26,33 @@ type BlockKey =
 
 type BMCData = Record<BlockKey, string[]>
 
-type VPCValueMap = {
-  productsAndServices: string[]
-  painRelievers: string[]
-  gainCreators: string[]
-} | null
+type FinalVPCItem = { text: string; twinIdx: number }
+type FinalVPC = {
+  productsAndServices?: (string | FinalVPCItem)[]
+  painRelievers?:       (string | FinalVPCItem)[]
+  gainCreators?:        (string | FinalVPCItem)[]
+  jobs?:                (string | FinalVPCItem)[]
+  pains?:               (string | FinalVPCItem)[]
+  gains?:               (string | FinalVPCItem)[]
+}
 
 type Ability = { id: string; name: string; description: string }
 
+type AggregatedInsights = { gains: string[]; pains: string[]; jobs: string[] }
+
+type TwinInterviewData = {
+  id: string | null
+  twinDbId: string
+  twinName: string
+  twinSegment: string
+  twinIdx: number
+  valueMap: Record<string, unknown> | null
+  bmcData: Record<string, unknown> | null
+}
+
 type BMCRow = BMCData & { id: string }
 
-// ─── Block static configuration ─────────────────────────────────────────────────
+// ─── Block static config ────────────────────────────────────────────────────────
 
 const BLOCK_CONFIG: Record<
   BlockKey,
@@ -97,7 +114,6 @@ const BLOCK_CONFIG: Record<
   },
 }
 
-// Sequential generation order (each unlocks after prev is generated)
 const GENERATION_ORDER: BlockKey[] = [
   'customer_relationships',
   'channels',
@@ -108,10 +124,8 @@ const GENERATION_ORDER: BlockKey[] = [
   'cost_structure',
 ]
 
-// Pre-filled from external data — no generate button
 const PRE_FILLED = new Set<BlockKey>(['value_propositions', 'customer_segments'])
 
-// Desktop grid placement
 const GRID_PLACEMENT: Record<BlockKey, React.CSSProperties> = {
   key_partners:           { gridRow: '1 / 3', gridColumn: '1 / 2' },
   key_activities:         { gridRow: '1 / 2', gridColumn: '2 / 3' },
@@ -124,7 +138,6 @@ const GRID_PLACEMENT: Record<BlockKey, React.CSSProperties> = {
   revenue_streams:        { gridRow: '3 / 4', gridColumn: '3 / 6' },
 }
 
-// Internal border classes for the grid (no outer borders — the container handles those)
 const GRID_BORDERS: Record<BlockKey, string> = {
   key_partners:           'border-r border-b border-gray-200',
   key_activities:         'border-r border-b border-gray-200',
@@ -149,7 +162,114 @@ const MOBILE_ORDER: BlockKey[] = [
   'cost_structure',
 ]
 
-// ─── BMCBlock component ─────────────────────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────────
+
+function toText(item: string | FinalVPCItem): string {
+  return typeof item === 'string' ? item : item.text
+}
+
+function extractTexts(arr: (string | FinalVPCItem)[] | undefined): string[] {
+  return (arr ?? []).map(toText).filter(Boolean)
+}
+
+/** Derive value propositions from the FinalVPC or aggregated insights */
+function deriveValuePropositions(
+  vpcValueMap: FinalVPC | null,
+  insights: AggregatedInsights
+): string[] {
+  const hasInsights =
+    insights.gains.length > 0 || insights.pains.length > 0 || insights.jobs.length > 0
+  if (hasInsights) {
+    return [
+      ...new Set([
+        ...insights.gains.slice(0, 2),
+        ...insights.pains.slice(0, 2),
+        ...insights.jobs.slice(0, 1),
+      ].filter(Boolean)),
+    ]
+  }
+  if (vpcValueMap) {
+    return [
+      ...new Set([
+        ...extractTexts(vpcValueMap.productsAndServices).slice(0, 2),
+        ...extractTexts(vpcValueMap.painRelievers).slice(0, 1),
+        ...extractTexts(vpcValueMap.gainCreators).slice(0, 1),
+      ]),
+    ]
+  }
+  return []
+}
+
+/** Init aggregated BMC data from existing row or fresh */
+function initAggData(
+  existingBMC: BMCRow | null,
+  vpcValueMap: FinalVPC | null,
+  twinSegments: string[],
+  insights: AggregatedInsights
+): BMCData {
+  const vp = deriveValuePropositions(vpcValueMap, insights)
+  const cs = twinSegments
+  if (existingBMC) {
+    return {
+      value_propositions:     (existingBMC.value_propositions?.length ?? 0) > 0 ? existingBMC.value_propositions : vp,
+      customer_segments:      (existingBMC.customer_segments?.length ?? 0) > 0  ? existingBMC.customer_segments  : cs,
+      customer_relationships: existingBMC.customer_relationships ?? [],
+      channels:               existingBMC.channels ?? [],
+      key_activities:         existingBMC.key_activities ?? [],
+      key_resources:          existingBMC.key_resources ?? [],
+      key_partners:           existingBMC.key_partners ?? [],
+      revenue_streams:        existingBMC.revenue_streams ?? [],
+      cost_structure:         existingBMC.cost_structure ?? [],
+    }
+  }
+  return {
+    value_propositions: vp, customer_segments: cs,
+    customer_relationships: [], channels: [], key_activities: [],
+    key_resources: [], key_partners: [], revenue_streams: [], cost_structure: [],
+  }
+}
+
+/** Init per-twin BMC data from saved bmc_data or prefill from value_map + segment */
+function initTwinBmcData(iv: TwinInterviewData): BMCData {
+  // bmc_data DB default is '{}' — treat empty objects the same as null
+  const rawBmc = iv.bmcData as Partial<BMCData> | null | undefined
+  const hasSavedData =
+    rawBmc &&
+    Object.keys(rawBmc).length > 0 &&
+    Object.values(rawBmc).some((v) => Array.isArray(v) && v.length > 0)
+
+  if (hasSavedData && rawBmc) {
+    return {
+      value_propositions:     rawBmc.value_propositions     ?? prefillTwinVP(iv),
+      customer_segments:      rawBmc.customer_segments      ?? (iv.twinSegment ? [iv.twinSegment] : []),
+      customer_relationships: rawBmc.customer_relationships ?? [],
+      channels:               rawBmc.channels               ?? [],
+      key_activities:         rawBmc.key_activities         ?? [],
+      key_resources:          rawBmc.key_resources          ?? [],
+      key_partners:           rawBmc.key_partners           ?? [],
+      revenue_streams:        rawBmc.revenue_streams        ?? [],
+      cost_structure:         rawBmc.cost_structure         ?? [],
+    }
+  }
+  return {
+    value_propositions:     prefillTwinVP(iv),
+    customer_segments:      iv.twinSegment ? [iv.twinSegment] : [],
+    customer_relationships: [], channels: [], key_activities: [],
+    key_resources: [], key_partners: [], revenue_streams: [], cost_structure: [],
+  }
+}
+
+function prefillTwinVP(iv: TwinInterviewData): string[] {
+  if (!iv.valueMap) return []
+  const vm = iv.valueMap as { productsAndServices?: unknown; painRelievers?: unknown; gainCreators?: unknown }
+  return [
+    ...(Array.isArray(vm.productsAndServices) ? vm.productsAndServices as string[] : []),
+    ...(Array.isArray(vm.painRelievers)        ? vm.painRelievers        as string[] : []),
+    ...(Array.isArray(vm.gainCreators)         ? vm.gainCreators         as string[] : []),
+  ].filter(Boolean)
+}
+
+// ─── BMCBlock ───────────────────────────────────────────────────────────────────
 
 function BMCBlock({
   blockKey,
@@ -161,6 +281,7 @@ function BMCBlock({
   onRemove,
   style,
   borderClass = '',
+  getTwinDots,
 }: {
   blockKey: BlockKey
   items: string[]
@@ -171,6 +292,7 @@ function BMCBlock({
   onRemove: (index: number) => void
   style?: React.CSSProperties
   borderClass?: string
+  getTwinDots?: (text: string) => string[]
 }) {
   const [adding, setAdding] = useState(false)
   const [inputVal, setInputVal] = useState('')
@@ -188,16 +310,11 @@ function BMCBlock({
   }
 
   return (
-    <div
-      className={`flex flex-col overflow-hidden bg-white ${borderClass}`}
-      style={style}
-    >
+    <div className={`flex flex-col overflow-hidden bg-white ${borderClass}`} style={style}>
       {/* Header */}
       <div className="flex items-center gap-1.5 px-3 py-2.5 border-b border-gray-100 flex-shrink-0 bg-white">
         <span className="text-[#0D6E6E] flex-shrink-0">{config.icon}</span>
-        <span className="text-[11px] font-bold text-gray-800 leading-tight flex-1">
-          {config.title}
-        </span>
+        <span className="text-[11px] font-bold text-gray-800 leading-tight flex-1">{config.title}</span>
         <button
           onClick={() => setAdding((v) => !v)}
           className="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0"
@@ -207,21 +324,17 @@ function BMCBlock({
         </button>
       </div>
 
-      {/* Guiding question */}
       <p className="text-[9px] text-gray-400 italic px-3 pt-1.5 pb-1 leading-tight flex-shrink-0">
         {config.subtitle}
       </p>
 
-      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-3 pb-2.5 min-h-0 scrollbar-thin">
-        {/* Pre-filled empty note */}
         {isPreFilled && !hasItems && (
           <p className="text-[9px] text-gray-300 italic mt-1">
             Complete the VPC Canvas first to pre-fill this section.
           </p>
         )}
 
-        {/* Generate / locked state for generated blocks */}
         {!isPreFilled && !hasItems && (
           <div className="mt-1.5">
             {isGenerating ? (
@@ -240,34 +353,42 @@ function BMCBlock({
                   Generate ✨
                 </button>
                 {!isUnlocked && (
-                  <p className="text-[9px] text-gray-300 italic mt-1.5">
-                    Complete the previous block first.
-                  </p>
+                  <p className="text-[9px] text-gray-300 italic mt-1.5">Complete the previous block first.</p>
                 )}
               </>
             )}
           </div>
         )}
 
-        {/* Items */}
         {hasItems && (
           <>
             <div className="flex flex-wrap gap-1 mt-1">
-              {items.map((item, i) => (
-                <span
-                  key={i}
-                  title={item}
-                  className={`inline-flex items-start gap-1 text-[10px] font-medium px-2 py-0.5 rounded-lg whitespace-normal break-words max-w-full ${config.pillClass}`}
-                >
-                  <span className="flex-1 min-w-0">{item}</span>
-                  <button
-                    onClick={() => onRemove(i)}
-                    className="opacity-40 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
+              {items.map((item, i) => {
+                const dots = getTwinDots?.(item) ?? []
+                return (
+                  <span
+                    key={i}
+                    title={item}
+                    className={`inline-flex items-start gap-1 text-[10px] font-medium px-2 py-0.5 rounded-lg whitespace-normal break-words max-w-full ${config.pillClass}`}
                   >
-                    <X size={8} />
-                  </button>
-                </span>
-              ))}
+                    {dots.map((color, di) => (
+                      <span
+                        key={di}
+                        className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-0.5"
+                        style={{ backgroundColor: color }}
+                        title={`Twin ${di + 1}`}
+                      />
+                    ))}
+                    <span className="flex-1 min-w-0">{item}</span>
+                    <button
+                      onClick={() => onRemove(i)}
+                      className="opacity-40 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
+                    >
+                      <X size={8} />
+                    </button>
+                  </span>
+                )
+              })}
             </div>
             {!isPreFilled && (
               <button
@@ -275,18 +396,13 @@ function BMCBlock({
                 disabled={isGenerating}
                 className="flex items-center gap-1 text-[9px] text-gray-400 hover:text-gray-600 transition-colors mt-2"
               >
-                {isGenerating ? (
-                  <Loader2 size={9} className="animate-spin" />
-                ) : (
-                  <Sparkles size={9} />
-                )}
+                {isGenerating ? <Loader2 size={9} className="animate-spin" /> : <Sparkles size={9} />}
                 Regenerate
               </button>
             )}
           </>
         )}
 
-        {/* Add input */}
         {adding && (
           <div className="flex items-center gap-1 mt-2">
             <input
@@ -296,10 +412,7 @@ function BMCBlock({
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') submit()
-                if (e.key === 'Escape') {
-                  setAdding(false)
-                  setInputVal('')
-                }
+                if (e.key === 'Escape') { setAdding(false); setInputVal('') }
               }}
               placeholder="Add item…"
               className="flex-1 text-[10px] px-2 py-1 border border-gray-200 rounded-lg bg-gray-50 outline-none focus:ring-1 focus:ring-[#0D6E6E] focus:border-[#0D6E6E] min-w-0"
@@ -310,13 +423,7 @@ function BMCBlock({
             >
               Add
             </button>
-            <button
-              onClick={() => {
-                setAdding(false)
-                setInputVal('')
-              }}
-              className="flex-shrink-0"
-            >
+            <button onClick={() => { setAdding(false); setInputVal('') }} className="flex-shrink-0">
               <X size={10} className="text-gray-400 hover:text-gray-600" />
             </button>
           </div>
@@ -326,87 +433,82 @@ function BMCBlock({
   )
 }
 
-// ─── Main client component ───────────────────────────────────────────────────────
+// ─── BMC Grid ───────────────────────────────────────────────────────────────────
 
-type AggregatedInsights = { gains: string[]; pains: string[]; jobs: string[] }
-
-/**
- * Derive a concise value proposition list (max ~5 items).
- * Priority: interview-derived insights (most authentic) → VPC value map (AI-generated).
- * Never dumps the full VPC canvas — always curated to 2-3 items per dimension.
- */
-function deriveValuePropositions(
-  vpcValueMap: VPCValueMap,
-  insights: AggregatedInsights
-): string[] {
-  // Prefer interview insights when available — take top gains, pains, jobs
-  const hasInsights =
-    insights.gains.length > 0 || insights.pains.length > 0 || insights.jobs.length > 0
-
-  if (hasInsights) {
-    return [
-      ...new Set([
-        ...insights.gains.slice(0, 2),
-        ...insights.pains.slice(0, 2),
-        ...insights.jobs.slice(0, 1),
-      ].filter(Boolean)),
-    ]
-  }
-
-  // Fall back to VPC value map but take only the most curated subset
-  if (vpcValueMap) {
-    return [
-      ...new Set([
-        ...(vpcValueMap.productsAndServices ?? []).slice(0, 2),
-        ...(vpcValueMap.painRelievers ?? []).slice(0, 1),
-        ...(vpcValueMap.gainCreators ?? []).slice(0, 1),
-      ]),
-    ]
-  }
-
-  return []
+function BMCGrid({
+  data,
+  isUnlocked,
+  generating,
+  onGenerate,
+  onAdd,
+  onRemove,
+  getTwinDots,
+}: {
+  data: BMCData
+  isUnlocked: (block: BlockKey) => boolean
+  generating: Partial<Record<BlockKey, boolean>>
+  onGenerate: (block: BlockKey) => void
+  onAdd: (block: BlockKey, text: string) => void
+  onRemove: (block: BlockKey, index: number) => void
+  getTwinDots?: (block: BlockKey, text: string) => string[]
+}) {
+  return (
+    <>
+      {/* Desktop */}
+      <div className="hidden lg:block">
+        <div
+          className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1.3fr 1fr 1fr',
+            gridTemplateRows: 'minmax(200px, 1fr) minmax(170px, 1fr) minmax(140px, auto)',
+          }}
+        >
+          {(Object.keys(GRID_PLACEMENT) as BlockKey[]).map((key) => (
+            <BMCBlock
+              key={key}
+              blockKey={key}
+              items={data[key]}
+              isUnlocked={isUnlocked(key)}
+              isGenerating={!!generating[key]}
+              onGenerate={() => onGenerate(key)}
+              onAdd={(t) => onAdd(key, t)}
+              onRemove={(i) => onRemove(key, i)}
+              style={GRID_PLACEMENT[key]}
+              borderClass={GRID_BORDERS[key]}
+              getTwinDots={getTwinDots ? (text) => getTwinDots(key, text) : undefined}
+            />
+          ))}
+        </div>
+      </div>
+      {/* Mobile */}
+      <div className="lg:hidden space-y-3">
+        {MOBILE_ORDER.map((key) => (
+          <div key={key} className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm bg-white" style={{ minHeight: '140px' }}>
+            <BMCBlock
+              blockKey={key}
+              items={data[key]}
+              isUnlocked={isUnlocked(key)}
+              isGenerating={!!generating[key]}
+              onGenerate={() => onGenerate(key)}
+              onAdd={(t) => onAdd(key, t)}
+              onRemove={(i) => onRemove(key, i)}
+              getTwinDots={getTwinDots ? (text) => getTwinDots(key, text) : undefined}
+            />
+          </div>
+        ))}
+      </div>
+    </>
+  )
 }
 
-function initData(
-  existingBMC: BMCRow | null,
-  vpcValueMap: VPCValueMap,
-  twinSegments: string[],
-  insights: AggregatedInsights
-): BMCData {
-  const derivedVP = deriveValuePropositions(vpcValueMap, insights)
-  const derivedCS = twinSegments
-
-  if (existingBMC) {
-    return {
-      value_propositions:     (existingBMC.value_propositions?.length ?? 0) > 0 ? existingBMC.value_propositions : derivedVP,
-      customer_segments:      (existingBMC.customer_segments?.length ?? 0) > 0  ? existingBMC.customer_segments  : derivedCS,
-      customer_relationships: existingBMC.customer_relationships ?? [],
-      channels:               existingBMC.channels ?? [],
-      key_activities:         existingBMC.key_activities ?? [],
-      key_resources:          existingBMC.key_resources ?? [],
-      key_partners:           existingBMC.key_partners ?? [],
-      revenue_streams:        existingBMC.revenue_streams ?? [],
-      cost_structure:         existingBMC.cost_structure ?? [],
-    }
-  }
-
-  return {
-    value_propositions:     derivedVP,
-    customer_segments:      derivedCS,
-    customer_relationships: [],
-    channels:               [],
-    key_activities:         [],
-    key_resources:          [],
-    key_partners:           [],
-    revenue_streams:        [],
-    cost_structure:         [],
-  }
-}
+// ─── Main component ─────────────────────────────────────────────────────────────
 
 export default function BMCClient({
   project,
   opportunity,
   abilities,
+  twinInterviews,
   vpcValueMap,
   twinSegments,
   aggregatedInsights,
@@ -415,30 +517,53 @@ export default function BMCClient({
   project: { id: string; title: string }
   opportunity: Pick<Opportunity, 'id' | 'name' | 'description' | 'customer_segment'>
   abilities: Ability[]
-  vpcValueMap: VPCValueMap
+  twinInterviews: TwinInterviewData[]
+  vpcValueMap: unknown
   twinSegments: string[]
   aggregatedInsights: AggregatedInsights
   existingBMC: BMCRow | null
 }) {
   const supabase = createClient()
+  const finalVPC = (vpcValueMap as FinalVPC | null) ?? null
 
-  const [data, setData] = useState<BMCData>(() =>
-    initData(existingBMC, vpcValueMap, twinSegments, aggregatedInsights)
+  // tabIndex: 0..n-1 = per-twin, n = aggregated
+  const [activeTab, setActiveTab] = useState<number>(twinInterviews.length) // default: Aggregated
+
+  // ── Per-twin BMC state (array indexed by twinInterviews order) ─────────────
+  const [perTwinBmc, setPerTwinBmc] = useState<BMCData[]>(() =>
+    twinInterviews.map((iv) => initTwinBmcData(iv))
+  )
+  const [twinGenerating, setTwinGenerating] = useState<Partial<Record<string, boolean>>[]>(
+    () => twinInterviews.map(() => ({}))
+  )
+
+  // ── Aggregated BMC state ───────────────────────────────────────────────────
+  const [aggData, setAggData] = useState<BMCData>(() =>
+    initAggData(existingBMC, finalVPC, twinSegments, aggregatedInsights)
   )
   const [bmcId, setBmcId] = useState<string | null>(existingBMC?.id ?? null)
-  const [generating, setGenerating] = useState<Partial<Record<BlockKey, boolean>>>({})
+  const [aggGenerating, setAggGenerating] = useState<Partial<Record<BlockKey, boolean>>>({})
   const [exporting, setExporting] = useState(false)
 
-  // ── Unlock logic ──────────────────────────────────────────────────────────────
-  function isUnlocked(block: BlockKey): boolean {
+  // ── Unlock logic ─────────────────────────────────────────────────────────────
+  function isUnlocked(data: BMCData, block: BlockKey): boolean {
     const idx = GENERATION_ORDER.indexOf(block)
-    if (idx < 0) return true
-    if (idx === 0) return true
+    if (idx <= 0) return true
     return (data[GENERATION_ORDER[idx - 1]]?.length ?? 0) > 0
   }
 
-  // ── DB save (upsert) ──────────────────────────────────────────────────────────
-  async function save(newData: BMCData) {
+  // ── Twin-dot lookup (aggregated tab only) ────────────────────────────────────
+  function getTwinDotsForItem(block: BlockKey, text: string): string[] {
+    return twinInterviews
+      .map((iv, i) => {
+        const twinBlockItems = perTwinBmc[i]?.[block] ?? []
+        return twinBlockItems.includes(text) ? TWIN_COLORS_HEX[i % TWIN_COLORS_HEX.length] : null
+      })
+      .filter((c): c is string => c !== null)
+  }
+
+  // ── DB save: aggregated ───────────────────────────────────────────────────────
+  async function saveAgg(newData: BMCData) {
     try {
       if (bmcId) {
         await supabase
@@ -453,31 +578,72 @@ export default function BMCClient({
           .single()
         if (row?.id) setBmcId(row.id)
       }
-    } catch {
-      // silent — table may not exist yet
-    }
+    } catch { /* silent */ }
   }
 
-  // ── Mutations ─────────────────────────────────────────────────────────────────
-  function addItem(block: BlockKey, text: string) {
-    setData((prev) => {
+  // ── DB save: per-twin ────────────────────────────────────────────────────────
+  async function saveTwinBmc(twinTabIdx: number, newData: BMCData) {
+    const iv = twinInterviews[twinTabIdx]
+    if (!iv?.id) return
+    try {
+      await supabase.from('twin_interviews').update({ bmc_data: newData }).eq('id', iv.id)
+    } catch { /* silent */ }
+  }
+
+  // ── Mutations: aggregated ────────────────────────────────────────────────────
+  function addAggItem(block: BlockKey, text: string) {
+    setAggData((prev) => {
       const updated = { ...prev, [block]: [...prev[block], text] }
-      save(updated)
+      saveAgg(updated)
+      return updated
+    })
+  }
+  function removeAggItem(block: BlockKey, index: number) {
+    setAggData((prev) => {
+      const updated = { ...prev, [block]: prev[block].filter((_, i) => i !== index) }
+      saveAgg(updated)
       return updated
     })
   }
 
-  function removeItem(block: BlockKey, index: number) {
-    setData((prev) => {
-      const updated = { ...prev, [block]: prev[block].filter((_, i) => i !== index) }
-      save(updated)
+  // ── Mutations: per-twin ──────────────────────────────────────────────────────
+  function addTwinItem(tabIdx: number, block: BlockKey, text: string) {
+    setPerTwinBmc((prev) => {
+      const updated = prev.map((d, i) => {
+        if (i !== tabIdx) return d
+        const next = { ...d, [block]: [...d[block], text] }
+        saveTwinBmc(tabIdx, next)
+        return next
+      })
+      return updated
+    })
+  }
+  function removeTwinItem(tabIdx: number, block: BlockKey, index: number) {
+    setPerTwinBmc((prev) => {
+      const updated = prev.map((d, i) => {
+        if (i !== tabIdx) return d
+        const next = { ...d, [block]: d[block].filter((_, j) => j !== index) }
+        saveTwinBmc(tabIdx, next)
+        return next
+      })
       return updated
     })
   }
 
   // ── AI generation ─────────────────────────────────────────────────────────────
-  async function generateBlock(block: BlockKey) {
-    setGenerating((prev) => ({ ...prev, [block]: true }))
+  async function generateBlockForTab(tabIdx: number, block: BlockKey, data: BMCData) {
+    const isAgg = tabIdx === twinInterviews.length
+    const iv = !isAgg ? twinInterviews[tabIdx] : null
+
+    if (isAgg) setAggGenerating((prev) => ({ ...prev, [block]: true }))
+    else {
+      setTwinGenerating((prev) => {
+        const updated = [...prev]
+        updated[tabIdx] = { ...updated[tabIdx], [block]: true }
+        return updated
+      })
+    }
+
     try {
       const res = await fetch('/api/generate-bmc-block', {
         method: 'POST',
@@ -487,6 +653,8 @@ export default function BMCClient({
           opportunityName: opportunity.name,
           opportunityDescription: opportunity.description,
           abilities,
+          // pass the twin's segment as extra context when on a twin tab
+          ...(iv ? { twinSegment: iv.twinSegment } : {}),
           existingBlocks: {
             value_propositions:     data.value_propositions,
             customer_segments:      data.customer_segments,
@@ -500,38 +668,50 @@ export default function BMCClient({
         }),
       })
       const { items } = await res.json()
-      setData((prev) => {
-        const updated = { ...prev, [block]: items }
-        save(updated)
-        return updated
-      })
-    } catch {
-      // silent fail
-    } finally {
-      setGenerating((prev) => ({ ...prev, [block]: false }))
+
+      if (isAgg) {
+        setAggData((prev) => {
+          const updated = { ...prev, [block]: items }
+          saveAgg(updated)
+          return updated
+        })
+      } else {
+        setPerTwinBmc((prev) => {
+          const updated = prev.map((d, i) => {
+            if (i !== tabIdx) return d
+            const next = { ...d, [block]: items }
+            saveTwinBmc(tabIdx, next)
+            return next
+          })
+          return updated
+        })
+      }
+    } catch { /* silent */ } finally {
+      if (isAgg) setAggGenerating((prev) => ({ ...prev, [block]: false }))
+      else {
+        setTwinGenerating((prev) => {
+          const updated = [...prev]
+          updated[tabIdx] = { ...updated[tabIdx], [block]: false }
+          return updated
+        })
+      }
     }
   }
 
   // ── PDF export ────────────────────────────────────────────────────────────────
   async function downloadPDF() {
+    const data = activeTab === twinInterviews.length ? aggData : perTwinBmc[activeTab]
     setExporting(true)
     try {
       const { jsPDF } = await import('jspdf')
       const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
-
-      const W = 297
-      const H = 210
-      const MX = 8
-      const CW = (W - 2 * MX) / 5 // column width
-      const GX = MX
-      const GY = 22
-      const R1H = 58  // row 1 height
-      const R2H = 52  // row 2 height
-      const R3H = 48  // row 3 height
+      const W = 297, H = 210, MX = 8
+      const CW = (W - 2 * MX) / 5
+      const GX = MX, GY = 22
+      const R1H = 58, R2H = 52, R3H = 48
       const TEAL: [number, number, number] = [13, 110, 110]
       const BORDER: [number, number, number] = [210, 210, 210]
 
-      // Title
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(12)
       doc.setTextColor(...TEAL)
@@ -539,31 +719,20 @@ export default function BMCClient({
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(9)
       doc.setTextColor(90, 90, 90)
-      doc.text(`— ${opportunity.name}`, MX + 58, 12)
+      const tabLabel = activeTab < twinInterviews.length
+        ? ` — ${twinInterviews[activeTab].twinName}`
+        : ' — Aggregated'
+      doc.text(`${opportunity.name}${tabLabel}`, MX + 58, 12)
 
-      function drawBlock(
-        x: number,
-        y: number,
-        w: number,
-        h: number,
-        title: string,
-        items: string[]
-      ) {
-        // White fill
+      function drawBlock(x: number, y: number, w: number, h: number, title: string, items: string[]) {
         doc.setFillColor(255, 255, 255)
         doc.rect(x, y, w, h, 'F')
-
-        // Header strip
         doc.setFillColor(...TEAL)
         doc.rect(x, y, w, 7, 'F')
-
-        // Title
         doc.setFont('helvetica', 'bold')
         doc.setFontSize(6.5)
         doc.setTextColor(255, 255, 255)
         doc.text(title.toUpperCase(), x + 2.5, y + 4.8)
-
-        // Items
         doc.setFont('helvetica', 'normal')
         doc.setFontSize(6.2)
         doc.setTextColor(50, 50, 50)
@@ -579,42 +748,32 @@ export default function BMCClient({
           }
           iy += 0.6
         }
-
-        // Border
         doc.setDrawColor(...BORDER)
         doc.setLineWidth(0.3)
         doc.rect(x, y, w, h)
       }
 
       const xs = [GX, GX + CW, GX + CW * 2, GX + CW * 3, GX + CW * 4]
-      const y1 = GY
-      const y2 = GY + R1H
-      const y3 = GY + R1H + R2H
+      const y1 = GY, y2 = GY + R1H, y3 = GY + R1H + R2H
 
-      drawBlock(xs[0], y1, CW,      R1H + R2H, 'Key Partners',           data.key_partners)
-      drawBlock(xs[1], y1, CW,      R1H,       'Key Activities',         data.key_activities)
-      drawBlock(xs[2], y1, CW,      R1H + R2H, 'Value Propositions',     data.value_propositions)
-      drawBlock(xs[3], y1, CW,      R1H,       'Customer Relationships', data.customer_relationships)
-      drawBlock(xs[4], y1, CW,      R1H + R2H, 'Customer Segments',      data.customer_segments)
-      drawBlock(xs[1], y2, CW,      R2H,       'Key Resources',          data.key_resources)
-      drawBlock(xs[3], y2, CW,      R2H,       'Channels',               data.channels)
-      drawBlock(xs[0], y3, CW * 2,  R3H,       'Cost Structure',         data.cost_structure)
-      drawBlock(xs[2], y3, CW * 3,  R3H,       'Revenue Streams',        data.revenue_streams)
+      drawBlock(xs[0], y1, CW,     R1H + R2H, 'Key Partners',           data.key_partners)
+      drawBlock(xs[1], y1, CW,     R1H,       'Key Activities',         data.key_activities)
+      drawBlock(xs[2], y1, CW,     R1H + R2H, 'Value Propositions',     data.value_propositions)
+      drawBlock(xs[3], y1, CW,     R1H,       'Customer Relationships', data.customer_relationships)
+      drawBlock(xs[4], y1, CW,     R1H + R2H, 'Customer Segments',      data.customer_segments)
+      drawBlock(xs[1], y2, CW,     R2H,       'Key Resources',          data.key_resources)
+      drawBlock(xs[3], y2, CW,     R2H,       'Channels',               data.channels)
+      drawBlock(xs[0], y3, CW * 2, R3H,       'Cost Structure',         data.cost_structure)
+      drawBlock(xs[2], y3, CW * 3, R3H,       'Revenue Streams',        data.revenue_streams)
 
-      // Outer border
       doc.setDrawColor(...BORDER)
       doc.setLineWidth(0.6)
       doc.rect(GX, GY, W - 2 * MX, R1H + R2H + R3H)
 
-      // Footer
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(7)
       doc.setTextColor(180, 180, 180)
-      doc.text(
-        `${project.title} · ${new Date().toLocaleDateString()}`,
-        MX,
-        H - 5
-      )
+      doc.text(`${project.title} · ${new Date().toLocaleDateString()}`, MX, H - 5)
 
       doc.save(`bmc-${opportunity.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.pdf`)
     } finally {
@@ -623,16 +782,11 @@ export default function BMCClient({
   }
 
   // ── Render ────────────────────────────────────────────────────────────────────
+  const isAggTab = activeTab === twinInterviews.length
 
   return (
     <div className="flex min-h-screen bg-[#F4F5F0]">
-      <Sidebar
-        projectId={project.id}
-        projectTitle={project.title}
-        primaryOpportunityId={opportunity.id}
-        primaryOpportunityName={opportunity.name}
-        hasTwinInterviews={true}
-      />
+      <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-6">
         <BackButton
@@ -641,7 +795,7 @@ export default function BMCClient({
         />
 
         {/* Page header */}
-        <div className="flex items-center justify-between mb-5 mt-1">
+        <div className="flex items-center justify-between mb-4 mt-1">
           <div>
             <h1 className="text-lg font-semibold text-gray-900">Business Model Canvas</h1>
             <p className="text-sm text-gray-400 mt-0.5">{opportunity.name}</p>
@@ -651,64 +805,85 @@ export default function BMCClient({
             disabled={exporting}
             className="flex items-center gap-2 border border-gray-200 bg-white text-gray-700 py-2 px-4 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors disabled:opacity-60"
           >
-            {exporting ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Download size={14} />
-            )}
+            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
             Download PDF
           </button>
         </div>
 
-        {/* ── Desktop grid ─────────────────────────────────────────────────── */}
-        <div className="hidden lg:block">
-          <div
-            className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1.3fr 1fr 1fr',
-              gridTemplateRows: 'minmax(200px, 1fr) minmax(170px, 1fr) minmax(140px, auto)',
-            }}
-          >
-            {(Object.keys(GRID_PLACEMENT) as BlockKey[]).map((key) => (
-              <BMCBlock
-                key={key}
-                blockKey={key}
-                items={data[key]}
-                isUnlocked={isUnlocked(key)}
-                isGenerating={!!generating[key]}
-                onGenerate={() => generateBlock(key)}
-                onAdd={(t) => addItem(key, t)}
-                onRemove={(i) => removeItem(key, i)}
-                style={GRID_PLACEMENT[key]}
-                borderClass={GRID_BORDERS[key]}
-              />
+        {/* Tab bar */}
+        {twinInterviews.length > 0 && (
+          <div className="flex items-center gap-1 mb-4 bg-white border border-gray-200 rounded-xl p-1 w-fit">
+            {twinInterviews.map((iv, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveTab(i)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  activeTab === i
+                    ? 'bg-[#0D6E6E] text-white'
+                    : 'text-gray-500 hover:bg-gray-100'
+                }`}
+              >
+                <span
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: TWIN_COLORS_HEX[i % TWIN_COLORS_HEX.length] }}
+                />
+                {iv.twinName}
+              </button>
             ))}
-          </div>
-        </div>
-
-        {/* ── Mobile stacked ───────────────────────────────────────────────── */}
-        <div className="lg:hidden space-y-3">
-          {MOBILE_ORDER.map((key) => (
-            <div
-              key={key}
-              className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm bg-white"
-              style={{ minHeight: '140px' }}
+            <button
+              onClick={() => setActiveTab(twinInterviews.length)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                isAggTab
+                  ? 'bg-[#0D6E6E] text-white'
+                  : 'text-gray-500 hover:bg-gray-100'
+              }`}
             >
-              <BMCBlock
-                blockKey={key}
-                items={data[key]}
-                isUnlocked={isUnlocked(key)}
-                isGenerating={!!generating[key]}
-                onGenerate={() => generateBlock(key)}
-                onAdd={(t) => addItem(key, t)}
-                onRemove={(i) => removeItem(key, i)}
-              />
-            </div>
-          ))}
-        </div>
+              Aggregated
+            </button>
+          </div>
+        )}
 
-        {/* Generation progress hint */}
+        {/* Legend (aggregated tab only, when twins exist) */}
+        {isAggTab && twinInterviews.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3 mb-4 text-[10px] text-gray-500">
+            <span className="font-semibold text-gray-400 uppercase tracking-widest">Dots:</span>
+            {twinInterviews.map((iv, i) => (
+              <span key={i} className="flex items-center gap-1">
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: TWIN_COLORS_HEX[i % TWIN_COLORS_HEX.length] }}
+                />
+                {iv.twinName}
+              </span>
+            ))}
+            <span className="text-gray-300 italic">Dots appear when a twin has the same item in their own BMC.</span>
+          </div>
+        )}
+
+        {/* Canvas */}
+        {isAggTab ? (
+          <BMCGrid
+            data={aggData}
+            isUnlocked={(block) => isUnlocked(aggData, block)}
+            generating={aggGenerating}
+            onGenerate={(block) => generateBlockForTab(twinInterviews.length, block, aggData)}
+            onAdd={(block, text) => addAggItem(block, text)}
+            onRemove={(block, i) => removeAggItem(block, i)}
+            getTwinDots={twinInterviews.length > 0 ? getTwinDotsForItem : undefined}
+          />
+        ) : (
+          <BMCGrid
+            data={perTwinBmc[activeTab] ?? initTwinBmcData(twinInterviews[activeTab])}
+            isUnlocked={(block) => isUnlocked(perTwinBmc[activeTab] ?? initTwinBmcData(twinInterviews[activeTab]), block)}
+            generating={twinGenerating[activeTab] ?? {}}
+            onGenerate={(block) =>
+              generateBlockForTab(activeTab, block, perTwinBmc[activeTab] ?? initTwinBmcData(twinInterviews[activeTab]))
+            }
+            onAdd={(block, text) => addTwinItem(activeTab, block, text)}
+            onRemove={(block, i) => removeTwinItem(activeTab, block, i)}
+          />
+        )}
+
         <p className="text-[10px] text-gray-400 mt-4 text-center">
           Generate blocks in order — each one unlocks the next.
         </p>

@@ -37,26 +37,52 @@ export default async function BMCPage({
     .select('id, name, description')
     .eq('project_id', id)
 
-  // vpc_value_map from twin_session
+  // Final VPC (new format with FinalVPCItem[]) from twin_session
   const { data: twinSession } = await supabase
     .from('twin_sessions')
     .select('vpc_value_map')
     .eq('opportunity_id', opp_id)
     .maybeSingle()
 
-  // Unique segments from twins + interview insights for curated VP
+  // Twins (ordered) + their interviews (value_map + bmc_data)
   const { data: twinRows } = await supabase
     .from('twins')
-    .select('id, segment')
+    .select('id, name, segment')
     .eq('opportunity_id', opp_id)
+    .order('created_at', { ascending: true })
 
+  const dbTwinIds = (twinRows ?? []).map((r) => r.id)
+
+  // Use select('*') so the query never errors on optional columns (value_map,
+  // bmc_data) that may not exist yet if the migration hasn't been applied.
+  const { data: interviewRows } = dbTwinIds.length > 0
+    ? await supabase
+        .from('twin_interviews')
+        .select('*')
+        .in('twin_id', dbTwinIds)
+    : { data: [] }
+
+  // Build per-twin interview data (matched to twin order)
+  const twinInterviews = (twinRows ?? []).map((row, i) => {
+    const iv = (interviewRows ?? []).find((r) => r.twin_id === row.id)
+    return {
+      id: iv?.id ?? null,          // interview DB id (null = no interview yet)
+      twinDbId: row.id,
+      twinName: row.name,
+      twinSegment: row.segment ?? '',
+      twinIdx: i,
+      valueMap: iv?.value_map ?? null,
+      bmcData: iv?.bmc_data ?? null,
+    }
+  })
+
+  // Aggregate twin segments for the Aggregated tab
   const twinSegments = [
     ...new Set((twinRows ?? []).map((r) => r.segment as string).filter(Boolean)),
   ]
 
-  // Aggregate gains/pains/jobs from twin_interviews for curated value propositions
-  const dbTwinIds = (twinRows ?? []).map((r) => r.id)
-  const { data: interviewInsights } = dbTwinIds.length > 0
+  // Aggregate gains/pains/jobs from interviews for pre-filling aggregated VP
+  const { data: insightRows } = dbTwinIds.length > 0
     ? await supabase
         .from('twin_interviews')
         .select('gains, pains, jobs_to_be_done')
@@ -74,12 +100,12 @@ export default async function BMCPage({
   }
 
   const aggregatedInsights = {
-    gains: rankTop((interviewInsights ?? []).map((r) => r.gains), 3),
-    pains: rankTop((interviewInsights ?? []).map((r) => r.pains), 3),
-    jobs:  rankTop((interviewInsights ?? []).map((r) => r.jobs_to_be_done), 2),
+    gains: rankTop((insightRows ?? []).map((r) => r.gains), 3),
+    pains: rankTop((insightRows ?? []).map((r) => r.pains), 3),
+    jobs:  rankTop((insightRows ?? []).map((r) => r.jobs_to_be_done), 2),
   }
 
-  // Existing BMC row (null on first visit)
+  // Existing aggregated BMC
   const { data: existingBMC } = await supabase
     .from('business_model_canvases')
     .select('*')
@@ -91,6 +117,7 @@ export default async function BMCPage({
       project={project}
       opportunity={opportunity}
       abilities={abilities ?? []}
+      twinInterviews={twinInterviews}
       vpcValueMap={twinSession?.vpc_value_map ?? null}
       twinSegments={twinSegments}
       aggregatedInsights={aggregatedInsights}
