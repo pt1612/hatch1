@@ -1,27 +1,50 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #0D6E6E;
-  --color-primary-hover: #0a5555;
-  --color-background: #F4F5F0;
+  --color-primary: #C77B3A;
+  --color-primary-hover: #A8612A;
+  --color-background: #FAFAF8;
 }
 
 :root {
-  --background: #F4F5F0;
-  --foreground: #1a1a1a;
+  --color-cream: #FAFAF8;
+  --color-ink: #1A1A18;
+  --color-amber: #C77B3A;
+  --color-amber-light: #E8A96A;
+  --color-amber-bg: rgba(199, 123, 58, 0.10);
+  --color-sage: #4CAF7D;
+  --color-sage-bg: rgba(76, 175, 125, 0.10);
+  --color-warm-gray: #B4A888;
+  --color-linen: #E8E5DC;
+  --color-border: #E5E3DC;
+  --color-text-main: #1A1A18;
+  --color-text-muted: #888880;
+  --color-text-faint: #B4B2A8;
+  --background: #FAFAF8;
+  --foreground: #1A1A18;
 }
 
 body {
-  background-color: #F4F5F0;
-  color: #1a1a1a;
+  background-color: var(--color-cream);
+  color: var(--color-text-main);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+h1, h2 {
+  font-family: 'Lora', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.font-serif {
+  font-family: 'Lora', Georgia, serif;
+}
+
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
+  scrollbar-color: var(--color-linen) transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -33,6 +56,6 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: #d1d5db;
+  background-color: var(--color-linen);
   border-radius: 2px;
 }

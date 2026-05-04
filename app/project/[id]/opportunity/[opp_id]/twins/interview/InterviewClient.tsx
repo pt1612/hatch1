@@ -52,9 +52,7 @@ const QUESTION_CATEGORIES = [
 function TwinAvatar({ twin }: { twin: DigitalTwin }) {
   const colorClass = TWIN_AVATAR_COLORS[getTwinIndex(twin.id) % TWIN_AVATAR_COLORS.length]
   return (
-    <div
-      className={`w-8 h-8 rounded-full ${colorClass} flex items-center justify-center text-xs font-bold flex-shrink-0`}
-    >
+    <div className={`w-8 h-8 rounded-full ${colorClass} flex items-center justify-center text-xs font-medium flex-shrink-0`}>
       {getInitials(twin.name)}
     </div>
   )
@@ -66,10 +64,13 @@ function TypingIndicator({ twins }: { twins: DigitalTwin[] }) {
       {twins.map((twin) => (
         <div key={twin.id} className="flex items-end gap-2">
           <TwinAvatar twin={twin} />
-          <div className="flex items-center gap-1 px-4 py-3 bg-white border border-gray-200 rounded-2xl rounded-bl-sm">
-            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
-            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
-            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+          <div
+            className="flex items-center gap-1 px-4 py-3 rounded-2xl"
+            style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={{ backgroundColor: 'var(--color-warm-gray)' }} />
+            <span className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={{ backgroundColor: 'var(--color-warm-gray)' }} />
+            <span className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={{ backgroundColor: 'var(--color-warm-gray)' }} />
           </div>
         </div>
       ))}
@@ -82,11 +83,21 @@ function ChatBubble({ message, twins }: { message: TwinMessage; twins: DigitalTw
     return (
       <div className="flex justify-end">
         <div className="max-w-[70%]">
-          <div className="bg-[#0D6E6E] text-white px-4 py-3 rounded-2xl rounded-tr-sm text-sm leading-relaxed">
+          <div
+            className="px-4 py-3 text-sm leading-relaxed"
+            style={{
+              backgroundColor: 'var(--color-amber-bg)',
+              border: '0.5px solid rgba(199,123,58,0.2)',
+              borderRadius: '12px 12px 2px 12px',
+              color: 'var(--color-ink)',
+            }}
+          >
             {message.content}
           </div>
           {message.timestamp && (
-            <p className="text-[10px] text-gray-400 mt-1 text-right">{message.timestamp}</p>
+            <p style={{ fontSize: 10, color: 'var(--color-text-faint)', marginTop: 4, textAlign: 'right' }}>
+              {message.timestamp}
+            </p>
           )}
         </div>
       </div>
@@ -101,21 +112,31 @@ function ChatBubble({ message, twins }: { message: TwinMessage; twins: DigitalTw
     <div className="flex items-end gap-2">
       {twin && <TwinAvatar twin={twin} />}
       {!twin && (
-        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold flex-shrink-0 text-gray-500">
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+          style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-text-muted)' }}
+        >
           ?
         </div>
       )}
       <div className="max-w-[70%]">
         {message.twinName && (
-          <p className="text-[10px] font-semibold text-gray-500 mb-1 ml-1">{message.twinName}</p>
+          <p style={{ fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4, marginLeft: 4 }}>
+            {message.twinName}
+          </p>
         )}
         <div
-          className={`border px-4 py-3 rounded-2xl rounded-bl-sm text-sm leading-relaxed text-gray-800 ${bubbleClass}`}
+          className={`border px-4 py-3 text-sm leading-relaxed ${bubbleClass}`}
+          style={{ borderRadius: '12px 12px 12px 2px', color: 'var(--color-ink)' }}
         >
-          {message.content}
+          <span style={{ fontFamily: "'Lora', Georgia, serif", fontWeight: 400 }}>
+            {message.content}
+          </span>
         </div>
         {message.timestamp && (
-          <p className="text-[10px] text-gray-400 mt-1 ml-1">{message.timestamp}</p>
+          <p style={{ fontSize: 10, color: 'var(--color-text-faint)', marginTop: 4, marginLeft: 4 }}>
+            {message.timestamp}
+          </p>
         )}
       </div>
     </div>
@@ -145,7 +166,6 @@ export default function InterviewClient({
   const [selectedTwinId, setSelectedTwinId] = useState<'all' | string>('all')
   const [loading, setLoading] = useState(false)
   const [guidelinesOpen, setGuidelinesOpen] = useState(false)
-  // Track interview IDs that were created this session (so we can update them)
   const [interviewIds, setInterviewIds] = useState<Record<string, string>>(existingInterviewIds)
 
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -177,7 +197,6 @@ export default function InterviewClient({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [guidelinesOpen])
 
-
   async function persistMessages(newMessages: TwinMessage[]) {
     const newIds: Record<string, string> = { ...interviewIds }
     for (const twin of twins) {
@@ -185,18 +204,11 @@ export default function InterviewClient({
       if (!dbTwinId) continue
       const existingId = newIds[twin.id]
       if (existingId) {
-        await supabase
-          .from('twin_interviews')
-          .update({ messages: newMessages, updated_at: new Date().toISOString() })
-          .eq('id', existingId)
+        await supabase.from('twin_interviews').update({ messages: newMessages, updated_at: new Date().toISOString() }).eq('id', existingId)
       } else {
         const { data } = await supabase
           .from('twin_interviews')
-          .insert({
-            twin_id: dbTwinId,
-            opportunity_id: opportunity.id,
-            messages: newMessages,
-          })
+          .insert({ twin_id: dbTwinId, opportunity_id: opportunity.id, messages: newMessages })
           .select('id')
           .single()
         if (data?.id) newIds[twin.id] = data.id
@@ -208,41 +220,25 @@ export default function InterviewClient({
   async function sendMessage(text: string) {
     if (!text.trim() || loading) return
     setLoading(true)
-
-    const userMsg: TwinMessage = {
-      role: 'user',
-      content: text.trim(),
-      timestamp: formatTime(),
-    }
+    const userMsg: TwinMessage = { role: 'user', content: text.trim(), timestamp: formatTime() }
     const withUser = [...messages, userMsg]
     setMessages(withUser)
     setInput('')
-
     const projectInfo = {
       name: opportunity.name,
       problem: opportunity.description,
       target: opportunity.customer_segment,
       solution: opportunity.application,
     }
-
     try {
       if (selectedTwinId === 'all') {
-        // Group mode: non-streaming, parallel responses
         const res = await fetch('/api/twin-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            projectInfo,
-            twins,
-            selectedTwinId: 'all',
-            messages, // history before this user message
-            userMessage: text.trim(),
-          }),
+          body: JSON.stringify({ projectInfo, twins, selectedTwinId: 'all', messages, userMessage: text.trim() }),
         })
         const { responses } = await res.json()
-        const assistantMsgs: TwinMessage[] = (
-          responses as { twinId: string; twinName: string; text: string }[]
-        ).map((r) => ({
+        const assistantMsgs: TwinMessage[] = (responses as { twinId: string; twinName: string; text: string }[]).map((r) => ({
           role: 'assistant' as const,
           content: r.text,
           twinId: r.twinId,
@@ -253,33 +249,17 @@ export default function InterviewClient({
         setMessages(finalMessages)
         await persistMessages(finalMessages)
       } else {
-        // Individual mode: SSE streaming
         const twin = twins.find((t) => t.id === selectedTwinId)
         const res = await fetch('/api/twin-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            projectInfo,
-            twins,
-            selectedTwinId,
-            messages,
-            userMessage: text.trim(),
-          }),
+          body: JSON.stringify({ projectInfo, twins, selectedTwinId, messages, userMessage: text.trim() }),
         })
-
-        const placeholderMsg: TwinMessage = {
-          role: 'assistant',
-          content: '',
-          twinId: selectedTwinId,
-          twinName: twin?.name,
-          timestamp: formatTime(),
-        }
+        const placeholderMsg: TwinMessage = { role: 'assistant', content: '', twinId: selectedTwinId, twinName: twin?.name, timestamp: formatTime() }
         setMessages((prev) => [...prev, placeholderMsg])
-
         const reader = res.body?.getReader()
         const decoder = new TextDecoder()
         let accumulated = ''
-
         if (reader) {
           while (true) {
             const { done, value } = await reader.read()
@@ -297,64 +277,73 @@ export default function InterviewClient({
                   updated[updated.length - 1] = { ...placeholderMsg, content: accumulated }
                   return updated
                 })
-              } catch {
-                // ignore parse errors on partial chunks
-              }
+              } catch {}
             }
           }
         }
-
         const finalMessages = [...withUser, { ...placeholderMsg, content: accumulated }]
         await persistMessages(finalMessages)
       }
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: 'Sorry, something went wrong. Please try again.',
-          timestamp: formatTime(),
-        },
-      ])
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.', timestamp: formatTime() }])
     } finally {
       setLoading(false)
       inputRef.current?.focus()
     }
   }
 
-  const selectedTwin =
-    selectedTwinId !== 'all' ? twins.find((t) => t.id === selectedTwinId) ?? null : null
+  const selectedTwin = selectedTwinId !== 'all' ? twins.find((t) => t.id === selectedTwinId) ?? null : null
   const typingTwins = selectedTwinId === 'all' ? twins : selectedTwin ? [selectedTwin] : []
 
   return (
-    <div className="ml-60 flex min-h-screen">
+    <div className="ml-60 flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <Sidebar projectId={project.id} projectTitle={project.title} />
 
       {/* Twin list sidebar */}
-      <div className="w-56 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 h-screen sticky top-0">
-        <div className="p-4 border-b border-gray-100 flex-1 overflow-y-auto scrollbar-thin">
-          <h2 className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+      <div
+        className="w-56 flex flex-col flex-shrink-0 h-screen sticky top-0"
+        style={{ backgroundColor: '#FFFFFF', borderRight: '0.5px solid var(--color-border)' }}
+      >
+        <div className="p-4 flex-1 overflow-y-auto scrollbar-thin" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
+          <h2
+            className="mb-3"
+            style={{
+              fontSize: 10,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: 'var(--color-text-muted)',
+            }}
+          >
             Participants
           </h2>
 
-          {/* Group interview */}
           <button
             onClick={() => setSelectedTwinId('all')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors mb-1 ${
-              selectedTwinId === 'all'
-                ? 'bg-[#0D6E6E] text-white'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors mb-1"
+            style={{
+              backgroundColor: selectedTwinId === 'all' ? 'var(--color-amber-bg)' : 'transparent',
+              color: selectedTwinId === 'all' ? 'var(--color-amber)' : 'var(--color-text-muted)',
+              border: selectedTwinId === 'all' ? '0.5px solid rgba(199,123,58,0.2)' : '0.5px solid transparent',
+            }}
+            onMouseEnter={(e) => {
+              if (selectedTwinId !== 'all') e.currentTarget.style.backgroundColor = 'var(--color-cream)'
+            }}
+            onMouseLeave={(e) => {
+              if (selectedTwinId !== 'all') e.currentTarget.style.backgroundColor = 'transparent'
+            }}
           >
-            <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 flex-shrink-0">
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+              style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-text-muted)' }}
+            >
               G
             </div>
-            <span className="text-xs">Group Interview</span>
+            <span style={{ fontSize: 12 }}>Group Interview</span>
           </button>
 
-          <div className="border-t border-gray-100 my-2" />
+          <div className="my-2" style={{ borderTop: '0.5px solid var(--color-border)' }} />
 
-          {/* Individual twins */}
           {twins.map((twin) => {
             const colorClass = TWIN_AVATAR_COLORS[getTwinIndex(twin.id) % TWIN_AVATAR_COLORS.length]
             const isSelected = selectedTwinId === twin.id
@@ -362,21 +351,27 @@ export default function InterviewClient({
               <button
                 key={twin.id}
                 onClick={() => setSelectedTwinId(twin.id)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors mb-1 ${
-                  isSelected ? 'bg-[#0D6E6E] text-white' : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors mb-1"
+                style={{
+                  backgroundColor: isSelected ? 'var(--color-amber-bg)' : 'transparent',
+                  color: isSelected ? 'var(--color-amber)' : 'var(--color-text-muted)',
+                  border: isSelected ? '0.5px solid rgba(199,123,58,0.2)' : '0.5px solid transparent',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) e.currentTarget.style.backgroundColor = 'var(--color-cream)'
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent'
+                }}
               >
-                <div
-                  className={`w-7 h-7 rounded-full ${colorClass} flex items-center justify-center text-xs font-bold flex-shrink-0`}
-                >
+                <div className={`w-7 h-7 rounded-full ${colorClass} flex items-center justify-center text-xs font-medium flex-shrink-0`}>
                   {getInitials(twin.name)}
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <p className="text-xs font-semibold truncate">{twin.name}</p>
+                  <p className="truncate" style={{ fontSize: 12, fontWeight: 500 }}>{twin.name}</p>
                   <p
-                    className={`text-[10px] truncate ${
-                      isSelected ? 'text-white/70' : 'text-gray-400'
-                    }`}
+                    className="truncate"
+                    style={{ fontSize: 10, color: isSelected ? 'var(--color-amber-light)' : 'var(--color-text-faint)' }}
                   >
                     {twin.segment}
                   </p>
@@ -386,38 +381,37 @@ export default function InterviewClient({
           })}
         </div>
 
-        {/* Progress + Generate button */}
-        <div className="p-4 border-t border-gray-100">
+        {/* Progress + Generate */}
+        <div className="p-4" style={{ borderTop: '0.5px solid var(--color-border)' }}>
           <div className="mb-3">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
+              <span style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)' }}>
                 Progress
               </span>
-              <span className="text-[10px] font-semibold text-gray-500">
+              <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)' }}>
                 {userQCount}/6 questions
               </span>
             </div>
-            <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+            <div className="w-full rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'var(--color-linen)' }}>
               <div
-                className="h-full bg-[#0D6E6E] rounded-full transition-all duration-500"
-                style={{ width: `${sessionPct}%` }}
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${sessionPct}%`, backgroundColor: 'var(--color-amber)' }}
               />
             </div>
           </div>
           <button
-            onClick={() =>
-              router.push(
-                `/project/${project.id}/opportunity/${opportunity.id}/twins/results`
-              )
-            }
+            onClick={() => router.push(`/project/${project.id}/opportunity/${opportunity.id}/twins/results`)}
             disabled={!canReport}
-            className="w-full flex items-center justify-center gap-1.5 bg-[#0D6E6E] text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-[#0a5555] transition-colors disabled:opacity-40"
+            className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium transition-colors disabled:opacity-40"
+            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', border: 'none' }}
+            onMouseEnter={(e) => canReport && ((e.currentTarget).style.backgroundColor = '#A8612A')}
+            onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
           >
             Generate Results
             <ChevronRight size={12} />
           </button>
           {!canReport && (
-            <p className="text-[10px] text-gray-400 text-center mt-1.5">
+            <p style={{ fontSize: 10, color: 'var(--color-text-faint)', textAlign: 'center', marginTop: 6 }}>
               {2 - userQCount} more question{2 - userQCount !== 1 ? 's' : ''} to unlock
             </p>
           )}
@@ -426,22 +420,30 @@ export default function InterviewClient({
 
       {/* Main chat area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Chat header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-end flex-shrink-0">
+        {/* Header */}
+        <div
+          className="px-6 py-3 flex items-center justify-end flex-shrink-0"
+          style={{ backgroundColor: 'var(--color-cream)', borderBottom: '0.5px solid var(--color-border)' }}
+        >
           <BackButton
             href={`/project/${project.id}/opportunity/${opportunity.id}/twins/setup`}
             label="Back to setup"
           />
         </div>
 
-        {/* Messages area */}
+        {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center pb-10">
-              <div className="text-5xl mb-4">💬</div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-1">Start the interview</h3>
-              <p className="text-xs text-gray-400 max-w-sm leading-relaxed">
-                Ask about pain points, desired outcomes, and jobs to be done. Use Question Ideas 💡 for prompts.
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4">
+                <circle cx="50" cy="50" r="30" fill="var(--color-amber-bg)" />
+                <path d="M38 50 Q50 38 62 50 Q50 62 38 50" fill="var(--color-amber-light)" opacity="0.5" />
+              </svg>
+              <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4 }}>
+                Start the interview
+              </h3>
+              <p style={{ fontSize: 12, color: 'var(--color-text-muted)', maxWidth: 320, lineHeight: '1.6' }}>
+                Ask about pain points, desired outcomes, and jobs to be done. Use Question Ideas for prompts.
               </p>
             </div>
           ) : (
@@ -451,14 +453,19 @@ export default function InterviewClient({
           <div ref={bottomRef} />
         </div>
 
-        {/* Input area */}
-        <div className="bg-white border-t border-gray-200 px-6 py-4 flex-shrink-0">
-          {/* Question Ideas button */}
+        {/* Input */}
+        <div
+          className="px-6 py-4 flex-shrink-0"
+          style={{ backgroundColor: 'var(--color-cream)', borderTop: '0.5px solid var(--color-border)' }}
+        >
           <div className="relative mb-3">
             <button
               ref={guidelinesButtonRef}
               onClick={() => setGuidelinesOpen((o) => !o)}
-              className="flex items-center gap-2 bg-[#0D6E6E] text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-[#0a5555] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-colors"
+              style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', border: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
               Question Ideas 💡
               {guidelinesOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -467,12 +474,22 @@ export default function InterviewClient({
             {guidelinesOpen && (
               <div
                 ref={guidelinesPanelRef}
-                className="absolute bottom-full left-0 mb-2 w-96 bg-white border border-gray-200 rounded-xl shadow-lg p-4 z-20 max-h-[60vh] overflow-y-auto scrollbar-thin"
+                className="absolute bottom-full left-0 mb-2 w-96 rounded-xl shadow-lg p-4 z-20 max-h-[60vh] overflow-y-auto scrollbar-thin"
+                style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
               >
                 <div className="space-y-4">
                   {QUESTION_CATEGORIES.map((cat) => (
                     <div key={cat.label}>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                      <p
+                        className="mb-2"
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.1em',
+                          color: 'var(--color-text-muted)',
+                        }}
+                      >
                         {cat.label}
                       </p>
                       <div className="space-y-1.5">
@@ -484,10 +501,30 @@ export default function InterviewClient({
                               setGuidelinesOpen(false)
                               setTimeout(() => inputRef.current?.focus(), 50)
                             }}
-                            className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-[#0D6E6E]/5 border border-gray-100 hover:border-[#0D6E6E]/20 transition-colors"
+                            className="w-full text-left px-3 py-2 rounded-lg transition-colors"
+                            style={{
+                              backgroundColor: 'var(--color-cream)',
+                              border: '0.5px solid var(--color-border)',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = 'var(--color-amber-bg)'
+                              e.currentTarget.style.borderColor = 'rgba(199,123,58,0.3)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'var(--color-cream)'
+                              e.currentTarget.style.borderColor = 'var(--color-border)'
+                            }}
                           >
-                            <p className="text-xs text-gray-700 leading-snug mb-0.5">{q.text}</p>
-                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
+                            <p style={{ fontSize: 12, color: 'var(--color-ink)', lineHeight: '1.4', marginBottom: 2 }}>{q.text}</p>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 500,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.06em',
+                                color: 'var(--color-text-muted)',
+                              }}
+                            >
                               {q.hint}
                             </span>
                           </button>
@@ -506,30 +543,35 @@ export default function InterviewClient({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  sendMessage(input)
-                }
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input) }
               }}
-              placeholder={
-                selectedTwinId === 'all'
-                  ? 'Ask all twins…'
-                  : `Ask ${selectedTwin?.name ?? 'twin'}…`
-              }
-              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-sm resize-none focus:ring-2 focus:ring-[#0D6E6E] focus:border-transparent outline-none transition scrollbar-thin"
-              style={{ minHeight: '42px', maxHeight: '120px' }}
+              placeholder={selectedTwinId === 'all' ? 'Ask all twins…' : `Ask ${selectedTwin?.name ?? 'twin'}…`}
+              className="flex-1 px-4 py-3 text-sm resize-none outline-none transition-colors scrollbar-thin"
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '0.5px solid var(--color-border)',
+                borderRadius: 10,
+                color: 'var(--color-ink)',
+                minHeight: 42,
+                maxHeight: 120,
+              }}
               rows={1}
               disabled={loading}
+              onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
+              onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
             />
             <button
               onClick={() => sendMessage(input)}
               disabled={loading || !input.trim()}
-              className="flex items-center justify-center w-10 h-10 bg-[#0D6E6E] text-white rounded-xl hover:bg-[#0a5555] transition-colors disabled:opacity-40 flex-shrink-0"
+              className="flex items-center justify-center w-10 h-10 rounded-xl transition-colors disabled:opacity-40 flex-shrink-0"
+              style={{ backgroundColor: 'var(--color-amber)', border: 'none' }}
+              onMouseEnter={(e) => !(loading || !input.trim()) && ((e.currentTarget).style.backgroundColor = '#A8612A')}
+              onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
             >
-              <Send size={16} />
+              <Send size={16} className="text-white" />
             </button>
           </div>
-          <p className="text-[10px] text-gray-400 mt-2">
+          <p style={{ fontSize: 10, color: 'var(--color-text-faint)', marginTop: 8 }}>
             Enter to send · Shift+Enter for new line
           </p>
         </div>

@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Hatch — From opportunity to venture',
-  description: 'From opportunity to venture — step by step.',
+  title: 'Hatch — From idea to venture',
+  description: 'From idea to venture — step by step.',
 }
 
 export default function RootLayout({
@@ -15,13 +15,17 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap"
           rel="stylesheet"
         />
       </head>
       <body
-        className="min-h-full bg-[#F4F5F0] text-gray-900 antialiased"
-        style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
+        className="min-h-full antialiased"
+        style={{
+          backgroundColor: 'var(--color-cream)',
+          color: 'var(--color-text-main)',
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        }}
       >
         {children}
       </body>

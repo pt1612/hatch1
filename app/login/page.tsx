@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
@@ -29,30 +30,78 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F4F5F0] p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ backgroundColor: 'var(--color-cream)' }}
+    >
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-[#0D6E6E] rounded-xl inline-flex items-center justify-center mb-4">
-            <span className="text-white text-xl font-bold">H</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome to Hatch</h1>
-          <p className="text-sm text-gray-500 mt-1">From opportunity to venture — step by step.</p>
-        </div>
-
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Sign in to your account</h2>
+        <div
+          className="rounded-2xl p-10"
+          style={{
+            backgroundColor: '#FFFFFF',
+            border: '0.5px solid var(--color-border)',
+          }}
+        >
+          {/* Logo + wordmark */}
+          <div className="flex flex-col items-center mb-6">
+            <Image
+              src="/hatch_logo.svg"
+              alt="Hatch"
+              width={40}
+              height={40}
+              style={{ height: 40, width: 'auto', marginBottom: 12 }}
+            />
+            <h1
+              style={{
+                fontFamily: "'Lora', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 26,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-ink)',
+                marginBottom: 4,
+              }}
+            >
+              Hatch
+            </h1>
+            <p
+              style={{
+                fontFamily: "'Lora', Georgia, serif",
+                fontStyle: 'italic',
+                fontWeight: 400,
+                fontSize: 16,
+                color: 'var(--color-text-muted)',
+              }}
+            >
+              From idea to venture.
+            </p>
+          </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-3 text-sm mb-5">
+            <div
+              className="rounded-lg p-3 text-sm mb-5"
+              style={{
+                backgroundColor: '#FEF2F2',
+                border: '0.5px solid #FECACA',
+                color: '#DC2626',
+              }}
+            >
               {error}
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+              <label
+                className="block mb-1.5"
+                style={{
+                  fontSize: 11,
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: 'var(--color-text-muted)',
+                }}
+              >
                 Email
               </label>
               <input
@@ -61,11 +110,28 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-[#0D6E6E] focus:border-transparent text-sm text-gray-900 placeholder-gray-400 outline-none transition"
+                className="w-full px-3.5 py-2.5 text-sm outline-none transition-colors"
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '0.5px solid var(--color-border)',
+                  borderRadius: 8,
+                  color: 'var(--color-ink)',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+              <label
+                className="block mb-1.5"
+                style={{
+                  fontSize: 11,
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: 'var(--color-text-muted)',
+                }}
+              >
                 Password
               </label>
               <input
@@ -74,21 +140,43 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-[#0D6E6E] focus:border-transparent text-sm text-gray-900 placeholder-gray-400 outline-none transition"
+                className="w-full px-3.5 py-2.5 text-sm outline-none transition-colors"
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '0.5px solid var(--color-border)',
+                  borderRadius: 8,
+                  color: 'var(--color-ink)',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#0D6E6E] text-white py-2.5 px-4 rounded-lg text-sm font-semibold hover:bg-[#0a5555] transition-colors disabled:opacity-60 mt-2"
+              className="w-full py-2.5 px-4 text-sm font-medium transition-colors disabled:opacity-60 mt-2"
+              style={{
+                backgroundColor: 'var(--color-amber)',
+                color: '#FFFFFF',
+                borderRadius: 8,
+                border: 'none',
+              }}
+              onMouseEnter={(e) => !loading && ((e.target as HTMLElement).style.backgroundColor = '#A8612A')}
+              onMouseLeave={(e) => !loading && ((e.target as HTMLElement).style.backgroundColor = 'var(--color-amber)')}
             >
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
 
-          <p className="text-sm text-gray-500 text-center mt-5">
+          <p
+            className="text-center mt-5"
+            style={{ fontSize: 13, color: 'var(--color-text-muted)' }}
+          >
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-[#0D6E6E] font-semibold hover:underline">
+            <Link
+              href="/register"
+              style={{ color: 'var(--color-amber)', fontWeight: 500 }}
+            >
               Create one
             </Link>
           </p>

@@ -62,55 +62,55 @@ const BLOCK_CONFIG: Record<
     title: 'Value Propositions',
     subtitle: 'What value do we deliver to the customer?',
     icon: <Gift size={13} />,
-    pillClass: 'bg-[#0D6E6E]/10 text-[#0D6E6E]',
+    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
   },
   customer_segments: {
     title: 'Customer Segments',
     subtitle: 'For whom are we creating value?',
     icon: <Users size={13} />,
-    pillClass: 'bg-[#0D6E6E]/10 text-[#0D6E6E]',
+    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
   },
   customer_relationships: {
     title: 'Customer Relationships',
     subtitle: 'What relationship does each segment expect?',
     icon: <Heart size={13} />,
-    pillClass: 'bg-blue-50 text-blue-700',
+    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
   },
   channels: {
     title: 'Channels',
     subtitle: 'How do we reach our customer segments?',
     icon: <Truck size={13} />,
-    pillClass: 'bg-blue-50 text-blue-700',
+    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
   },
   key_activities: {
     title: 'Key Activities',
     subtitle: 'What key activities does our value proposition require?',
     icon: <Zap size={13} />,
-    pillClass: 'bg-purple-50 text-purple-700',
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
   },
   key_resources: {
     title: 'Key Resources',
     subtitle: 'What key resources does our value proposition require?',
     icon: <Package size={13} />,
-    pillClass: 'bg-purple-50 text-purple-700',
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
   },
   key_partners: {
     title: 'Key Partners',
     subtitle: 'Who are our key partners and suppliers?',
     icon: <Handshake size={13} />,
-    pillClass: 'bg-purple-50 text-purple-700',
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
   },
   revenue_streams: {
     title: 'Revenue Streams',
     subtitle: 'For what value are customers willing to pay?',
     icon: <DollarSign size={13} />,
-    pillClass: 'bg-green-50 text-green-700',
+    pillClass: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]',
   },
   cost_structure: {
     title: 'Cost Structure',
     subtitle: 'What are the most important costs in our model?',
     icon: <Tag size={13} />,
-    pillClass: 'bg-orange-50 text-orange-700',
+    pillClass: 'bg-[#E8E5DC] text-[#888880] border border-[#E5E3DC]',
   },
 }
 
@@ -139,14 +139,14 @@ const GRID_PLACEMENT: Record<BlockKey, React.CSSProperties> = {
 }
 
 const GRID_BORDERS: Record<BlockKey, string> = {
-  key_partners:           'border-r border-b border-gray-200',
-  key_activities:         'border-r border-b border-gray-200',
-  value_propositions:     'border-r border-b border-gray-200',
-  customer_relationships: 'border-r border-b border-gray-200',
-  customer_segments:      'border-b border-gray-200',
-  key_resources:          'border-r border-b border-gray-200',
-  channels:               'border-r border-b border-gray-200',
-  cost_structure:         'border-r border-gray-200',
+  key_partners:           'border-r border-b border-[var(--color-border)]',
+  key_activities:         'border-r border-b border-[var(--color-border)]',
+  value_propositions:     'border-r border-b border-[var(--color-border)]',
+  customer_relationships: 'border-r border-b border-[var(--color-border)]',
+  customer_segments:      'border-b border-[var(--color-border)]',
+  key_resources:          'border-r border-b border-[var(--color-border)]',
+  channels:               'border-r border-b border-[var(--color-border)]',
+  cost_structure:         'border-r border-[var(--color-border)]',
   revenue_streams:        '',
 }
 
@@ -310,27 +310,30 @@ function BMCBlock({
   }
 
   return (
-    <div className={`flex flex-col overflow-hidden bg-white ${borderClass}`} style={style}>
+    <div className={`flex flex-col overflow-hidden ${borderClass}`} style={{ backgroundColor: '#FFFFFF', ...style }}>
       {/* Header */}
-      <div className="flex items-center gap-1.5 px-3 py-2.5 border-b border-gray-100 flex-shrink-0 bg-white">
-        <span className="text-[#0D6E6E] flex-shrink-0">{config.icon}</span>
-        <span className="text-[11px] font-bold text-gray-800 leading-tight flex-1">{config.title}</span>
+      <div className="flex items-center gap-1.5 px-3 py-2.5 flex-shrink-0" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
+        <span style={{ color: 'var(--color-amber)' }} className="flex-shrink-0">{config.icon}</span>
+        <span className="text-[11px] font-semibold leading-tight flex-1" style={{ color: 'var(--color-ink)' }}>{config.title}</span>
         <button
           onClick={() => setAdding((v) => !v)}
-          className="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0"
+          className="w-5 h-5 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
+          style={{ backgroundColor: 'var(--color-linen)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
           title="Add item"
         >
-          <Plus size={9} className="text-gray-500" />
+          <Plus size={9} style={{ color: 'var(--color-text-muted)' }} />
         </button>
       </div>
 
-      <p className="text-[9px] text-gray-400 italic px-3 pt-1.5 pb-1 leading-tight flex-shrink-0">
+      <p className="text-[9px] italic px-3 pt-1.5 pb-1 leading-tight flex-shrink-0" style={{ color: 'var(--color-text-faint)' }}>
         {config.subtitle}
       </p>
 
       <div className="flex-1 overflow-y-auto px-3 pb-2.5 min-h-0 scrollbar-thin">
         {isPreFilled && !hasItems && (
-          <p className="text-[9px] text-gray-300 italic mt-1">
+          <p className="text-[9px] italic mt-1" style={{ color: 'var(--color-text-faint)' }}>
             Complete the VPC Canvas first to pre-fill this section.
           </p>
         )}
@@ -338,8 +341,8 @@ function BMCBlock({
         {!isPreFilled && !hasItems && (
           <div className="mt-1.5">
             {isGenerating ? (
-              <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
-                <Loader2 size={11} className="animate-spin text-[#0D6E6E]" />
+              <div className="flex items-center gap-1.5 text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
+                <Loader2 size={11} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
                 Generating…
               </div>
             ) : (
@@ -347,13 +350,16 @@ function BMCBlock({
                 <button
                   onClick={onGenerate}
                   disabled={!isUnlocked}
-                  className="flex items-center gap-1.5 bg-[#0D6E6E] text-white px-2.5 py-1.5 rounded-lg text-[10px] font-semibold hover:bg-[#0a5555] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
+                  onMouseEnter={(e) => isUnlocked && (e.currentTarget.style.backgroundColor = '#A8612A')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
                 >
                   <Sparkles size={9} />
                   Generate ✨
                 </button>
                 {!isUnlocked && (
-                  <p className="text-[9px] text-gray-300 italic mt-1.5">Complete the previous block first.</p>
+                  <p className="text-[9px] italic mt-1.5" style={{ color: 'var(--color-text-faint)' }}>Complete the previous block first.</p>
                 )}
               </>
             )}
@@ -394,7 +400,10 @@ function BMCBlock({
               <button
                 onClick={onGenerate}
                 disabled={isGenerating}
-                className="flex items-center gap-1 text-[9px] text-gray-400 hover:text-gray-600 transition-colors mt-2"
+                className="flex items-center gap-1 text-[9px] transition-colors mt-2"
+                style={{ color: 'var(--color-text-muted)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-ink)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
               >
                 {isGenerating ? <Loader2 size={9} className="animate-spin" /> : <Sparkles size={9} />}
                 Regenerate
@@ -415,16 +424,22 @@ function BMCBlock({
                 if (e.key === 'Escape') { setAdding(false); setInputVal('') }
               }}
               placeholder="Add item…"
-              className="flex-1 text-[10px] px-2 py-1 border border-gray-200 rounded-lg bg-gray-50 outline-none focus:ring-1 focus:ring-[#0D6E6E] focus:border-[#0D6E6E] min-w-0"
+              className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
+              style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
+              onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
+              onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
             />
             <button
               onClick={submit}
-              className="text-[10px] px-2 py-1 bg-[#0D6E6E] text-white rounded-lg hover:bg-[#0a5555] transition-colors flex-shrink-0"
+              className="text-[10px] px-2 py-1 rounded-lg transition-colors flex-shrink-0"
+              style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
               Add
             </button>
             <button onClick={() => { setAdding(false); setInputVal('') }} className="flex-shrink-0">
-              <X size={10} className="text-gray-400 hover:text-gray-600" />
+              <X size={10} style={{ color: 'var(--color-text-faint)' }} />
             </button>
           </div>
         )}
@@ -457,8 +472,9 @@ function BMCGrid({
       {/* Desktop */}
       <div className="hidden lg:block">
         <div
-          className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm"
+          className="rounded-2xl overflow-hidden"
           style={{
+            border: '0.5px solid var(--color-border)',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr 1.3fr 1fr 1fr',
             gridTemplateRows: 'minmax(200px, 1fr) minmax(170px, 1fr) minmax(140px, auto)',
@@ -484,7 +500,7 @@ function BMCGrid({
       {/* Mobile */}
       <div className="lg:hidden space-y-3">
         {MOBILE_ORDER.map((key) => (
-          <div key={key} className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm bg-white" style={{ minHeight: '140px' }}>
+          <div key={key} className="rounded-2xl overflow-hidden" style={{ border: '0.5px solid var(--color-border)', backgroundColor: '#FFFFFF', minHeight: '140px' }}>
             <BMCBlock
               blockKey={key}
               items={data[key]}
@@ -709,7 +725,7 @@ export default function BMCClient({
       const CW = (W - 2 * MX) / 5
       const GX = MX, GY = 22
       const R1H = 58, R2H = 52, R3H = 48
-      const TEAL: [number, number, number] = [13, 110, 110]
+      const TEAL: [number, number, number] = [199, 123, 58]
       const BORDER: [number, number, number] = [210, 210, 210]
 
       doc.setFont('helvetica', 'bold')
@@ -785,7 +801,7 @@ export default function BMCClient({
   const isAggTab = activeTab === twinInterviews.length
 
   return (
-    <div className="flex min-h-screen bg-[#F4F5F0]">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-6">
@@ -797,13 +813,26 @@ export default function BMCClient({
         {/* Page header */}
         <div className="flex items-center justify-between mb-4 mt-1">
           <div>
-            <h1 className="text-lg font-semibold text-gray-900">Business Model Canvas</h1>
-            <p className="text-sm text-gray-400 mt-0.5">{opportunity.name}</p>
+            <h1
+              style={{
+                fontFamily: "'Lora', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 26,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-ink)',
+              }}
+            >
+              Business Model Canvas
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
           </div>
           <button
             onClick={downloadPDF}
             disabled={exporting}
-            className="flex items-center gap-2 border border-gray-200 bg-white text-gray-700 py-2 px-4 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 py-2 px-4 rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
+            style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', color: 'var(--color-ink)' }}
+            onMouseEnter={(e) => !exporting && (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
           >
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
             Download PDF
@@ -812,16 +841,18 @@ export default function BMCClient({
 
         {/* Tab bar */}
         {twinInterviews.length > 0 && (
-          <div className="flex items-center gap-1 mb-4 bg-white border border-gray-200 rounded-xl p-1 w-fit">
+          <div className="flex items-center gap-1 mb-4 rounded-xl p-1 w-fit" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
             {twinInterviews.map((iv, i) => (
               <button
                 key={i}
                 onClick={() => setActiveTab(i)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  activeTab === i
-                    ? 'bg-[#0D6E6E] text-white'
-                    : 'text-gray-500 hover:bg-gray-100'
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                style={{
+                  backgroundColor: activeTab === i ? 'var(--color-amber)' : 'transparent',
+                  color: activeTab === i ? '#FFFFFF' : 'var(--color-text-muted)',
+                }}
+                onMouseEnter={(e) => activeTab !== i && (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+                onMouseLeave={(e) => activeTab !== i && (e.currentTarget.style.backgroundColor = 'transparent')}
               >
                 <span
                   className="w-2 h-2 rounded-full flex-shrink-0"
@@ -832,11 +863,13 @@ export default function BMCClient({
             ))}
             <button
               onClick={() => setActiveTab(twinInterviews.length)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                isAggTab
-                  ? 'bg-[#0D6E6E] text-white'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+              style={{
+                backgroundColor: isAggTab ? 'var(--color-amber)' : 'transparent',
+                color: isAggTab ? '#FFFFFF' : 'var(--color-text-muted)',
+              }}
+              onMouseEnter={(e) => !isAggTab && (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+              onMouseLeave={(e) => !isAggTab && (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               Aggregated
             </button>
@@ -845,8 +878,8 @@ export default function BMCClient({
 
         {/* Legend (aggregated tab only, when twins exist) */}
         {isAggTab && twinInterviews.length > 0 && (
-          <div className="flex flex-wrap items-center gap-3 mb-4 text-[10px] text-gray-500">
-            <span className="font-semibold text-gray-400 uppercase tracking-widest">Dots:</span>
+          <div className="flex flex-wrap items-center gap-3 mb-4" style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
+            <span style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-faint)' }}>Dots:</span>
             {twinInterviews.map((iv, i) => (
               <span key={i} className="flex items-center gap-1">
                 <span
@@ -856,7 +889,7 @@ export default function BMCClient({
                 {iv.twinName}
               </span>
             ))}
-            <span className="text-gray-300 italic">Dots appear when a twin has the same item in their own BMC.</span>
+            <span style={{ fontStyle: 'italic', color: 'var(--color-text-faint)' }}>Dots appear when a twin has the same item in their own BMC.</span>
           </div>
         )}
 
@@ -884,7 +917,7 @@ export default function BMCClient({
           />
         )}
 
-        <p className="text-[10px] text-gray-400 mt-4 text-center">
+        <p className="mt-4 text-center" style={{ fontSize: 10, color: 'var(--color-text-faint)' }}>
           Generate blocks in order — each one unlocks the next.
         </p>
       </div>

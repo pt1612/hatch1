@@ -36,12 +36,12 @@ type Ability = { id: string; name: string; description: string }
 type TwinInterviewWithId = TwinInterview & { twinSequentialId: string }
 
 // ─── Pill colour classes ────────────────────────────────────────────────────────
-const PRODUCT_CLASS  = 'bg-teal-50 text-teal-700 border border-teal-100'
-const RELIEVER_CLASS = 'bg-rose-50 text-rose-700 border border-rose-100'
-const CREATOR_CLASS  = 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-const JOB_CLASS      = 'bg-[#0D6E6E]/10 text-[#0D6E6E] border border-[#0D6E6E]/10'
-const PAIN_CLASS     = 'bg-orange-50 text-orange-700 border border-orange-100'
-const GAIN_CLASS     = 'bg-green-50 text-green-700 border border-green-100'
+const PRODUCT_CLASS  = 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]'
+const RELIEVER_CLASS = 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]'
+const CREATOR_CLASS  = 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]'
+const JOB_CLASS      = 'bg-[rgba(199,123,58,0.10)] text-[#C77B3A] border border-[rgba(199,123,58,0.15)]'
+const PAIN_CLASS     = 'bg-[rgba(232,169,106,0.15)] text-[#7A3D10] border border-[rgba(232,169,106,0.25)]'
+const GAIN_CLASS     = 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]'
 
 // ─── Normalise incoming vpc_value_map (old string[] or new FinalVPCItem[]) ──────
 const EMPTY_FINAL: FinalVPC = {
@@ -172,18 +172,21 @@ function VPCSubCol({
   return (
     <div className="mb-3 last:mb-0">
       <div className="flex items-center gap-1 mb-1">
-        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{title}</p>
+        <p style={{ fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)' }}>{title}</p>
         <button
           onClick={() => setAdding(true)}
-          className="w-3 h-3 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0"
+          className="w-3 h-3 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
+          style={{ backgroundColor: 'var(--color-linen)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
         >
-          <Plus size={7} className="text-gray-500" />
+          <Plus size={7} style={{ color: 'var(--color-text-muted)' }} />
         </button>
       </div>
       {items.length > 0 ? (
         <div className="flex flex-wrap gap-1">{items.map(renderPill)}</div>
       ) : (
-        !adding && <p className="text-[10px] text-gray-300 italic">{emptyText}</p>
+        !adding && <p style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>{emptyText}</p>
       )}
       {adding && (
         <div className="flex items-center gap-1 mt-1">
@@ -197,16 +200,20 @@ function VPCSubCol({
               if (e.key === 'Escape') { setAdding(false); setVal('') }
             }}
             placeholder="Add…"
-            className="flex-1 text-[10px] px-2 py-1 border border-gray-200 rounded-lg bg-gray-50 outline-none focus:ring-1 focus:ring-[#0D6E6E] min-w-0"
+            className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
+            style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
+            onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
           />
           <button
             onClick={submit}
-            className="text-[10px] px-1.5 py-1 bg-[#0D6E6E] text-white rounded-lg flex-shrink-0"
+            className="text-[10px] px-1.5 py-1 rounded-lg flex-shrink-0"
+            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
           >
             Add
           </button>
           <button onClick={() => { setAdding(false); setVal('') }} className="flex-shrink-0">
-            <X size={10} className="text-gray-400" />
+            <X size={10} style={{ color: 'var(--color-text-faint)' }} />
           </button>
         </div>
       )}
@@ -243,12 +250,15 @@ function FinalSubCol({
   return (
     <div className="mb-3 last:mb-0">
       <div className="flex items-center gap-1 mb-1">
-        <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">{title}</p>
+        <p style={{ fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)' }}>{title}</p>
         <button
           onClick={() => setAdding(true)}
-          className="w-3 h-3 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0"
+          className="w-3 h-3 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
+          style={{ backgroundColor: 'var(--color-linen)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
         >
-          <Plus size={7} className="text-gray-500" />
+          <Plus size={7} style={{ color: 'var(--color-text-muted)' }} />
         </button>
       </div>
       {items.length > 0 ? (
@@ -258,7 +268,7 @@ function FinalSubCol({
           ))}
         </div>
       ) : (
-        !adding && <p className="text-[10px] text-gray-300 italic">{emptyText}</p>
+        !adding && <p style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>{emptyText}</p>
       )}
       {adding && (
         <div className="flex items-center gap-1 mt-1">
@@ -272,16 +282,20 @@ function FinalSubCol({
               if (e.key === 'Escape') { setAdding(false); setVal('') }
             }}
             placeholder="Add…"
-            className="flex-1 text-[10px] px-2 py-1 border border-gray-200 rounded-lg bg-gray-50 outline-none focus:ring-1 focus:ring-[#0D6E6E] min-w-0"
+            className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
+            style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
+            onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
           />
           <button
             onClick={submit}
-            className="text-[10px] px-1.5 py-1 bg-[#0D6E6E] text-white rounded-lg flex-shrink-0"
+            className="text-[10px] px-1.5 py-1 rounded-lg flex-shrink-0"
+            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
           >
             Add
           </button>
           <button onClick={() => { setAdding(false); setVal('') }} className="flex-shrink-0">
-            <X size={10} className="text-gray-400" />
+            <X size={10} style={{ color: 'var(--color-text-faint)' }} />
           </button>
         </div>
       )}
@@ -464,7 +478,7 @@ export default function VPCClient({
   const hasFinalData = Object.values(finalVPC).some((arr) => arr.length > 0)
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-8">
@@ -474,22 +488,42 @@ export default function VPCClient({
         />
 
         <div className="mb-6">
-          <h1 className="text-lg font-semibold text-gray-900">Value Proposition Canvas</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{opportunity.name}</p>
+          <h1
+            style={{
+              fontFamily: "'Lora', Georgia, serif",
+              fontWeight: 400,
+              fontSize: 26,
+              letterSpacing: '-0.02em',
+              color: 'var(--color-ink)',
+            }}
+          >
+            Value Proposition Canvas
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
         </div>
 
         {!hasInterviews ? (
-          /* ── Empty state ────────────────────────────────────────────────── */
-          <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center max-w-lg">
-            <div className="text-5xl mb-4">🗂️</div>
-            <h3 className="text-sm font-semibold text-gray-800 mb-2">No VPC data yet</h3>
-            <p className="text-xs text-gray-400 mb-5 leading-relaxed">
+          <div
+            className="rounded-2xl p-10 text-center max-w-lg"
+            style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+          >
+            <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
+              <rect x="20" y="25" width="60" height="50" rx="8" fill="var(--color-amber-bg)" />
+              <rect x="30" y="35" width="40" height="5" rx="2" fill="var(--color-linen)" />
+              <rect x="30" y="45" width="30" height="5" rx="2" fill="var(--color-linen)" />
+              <rect x="30" y="55" width="35" height="5" rx="2" fill="var(--color-linen)" />
+            </svg>
+            <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 8 }}>No VPC data yet</h3>
+            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20, lineHeight: '1.6' }}>
               Complete at least one twin interview and generate results to start building your Value
               Proposition Canvas.
             </p>
             <Link
               href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`}
-              className="inline-flex items-center gap-2 bg-[#0D6E6E] text-white py-2.5 px-5 rounded-xl text-sm font-semibold hover:bg-[#0a5555] transition-colors"
+              className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-medium transition-colors"
+              style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
               Go to Twin Interviews
             </Link>
@@ -499,7 +533,7 @@ export default function VPCClient({
 
             {/* ── Section 1: Per-twin VPC cards ────────────────────────────── */}
             <div>
-              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <h2 style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', marginBottom: 12, fontFamily: 'inherit' }}>
                 Per-Twin VPC
               </h2>
               <div className="space-y-4">
@@ -515,9 +549,9 @@ export default function VPCClient({
                   const twinColor = TWIN_COLORS_HEX[twinIdx % TWIN_COLORS_HEX.length]
 
                   return (
-                    <div key={twin.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                    <div key={twin.id} className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
                       {/* Twin header */}
-                      <div className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100">
+                      <div className="flex items-center gap-3 px-5 py-3.5" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
                         <div
                           className={`w-8 h-8 rounded-xl ${avatarColor} flex items-center justify-center text-sm font-bold flex-shrink-0`}
                         >
@@ -525,11 +559,11 @@ export default function VPCClient({
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className="text-sm font-bold text-gray-900">{twin.name}</p>
-                            <span className="text-xs text-gray-400">{twin.role}</span>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-ink)' }}>{twin.name}</p>
+                            <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{twin.role}</span>
                           </div>
                           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#0D6E6E]/10 text-[#0D6E6E]">
+                            <span className="text-[10px] font-medium uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--color-amber-bg)', color: 'var(--color-amber)' }}>
                               {twin.segment}
                             </span>
                             <span
@@ -548,21 +582,24 @@ export default function VPCClient({
                       </div>
 
                       {!ivId ? (
-                        <p className="text-xs text-gray-300 italic px-5 py-4">
+                        <p style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--color-text-faint)', padding: '16px 20px' }}>
                           No interview data — complete this twin&apos;s interview first.
                         </p>
                       ) : (
-                        <div className="grid grid-cols-2 divide-x divide-gray-100">
+                        <div className="grid grid-cols-2" style={{ borderTop: '0.5px solid var(--color-border)' }}>
                           {/* LEFT: Value Map ─────────────────────────────── */}
-                          <div className="bg-teal-50/30 p-4">
+                          <div className="p-4" style={{ backgroundColor: 'var(--color-amber-bg)', borderRight: '0.5px solid var(--color-border)' }}>
                             <div className="flex items-center justify-between mb-3">
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-[#0D6E6E]">
+                              <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-amber)' }}>
                                 Value Map
                               </p>
                               <button
                                 onClick={() => generateTwinVM(ivId)}
                                 disabled={isGenerating}
-                                className="flex items-center gap-1 bg-[#0D6E6E] text-white px-2.5 py-1 rounded-lg text-[10px] font-semibold hover:bg-[#0a5555] transition-colors disabled:opacity-60"
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-colors disabled:opacity-60"
+                                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
+                                onMouseEnter={(e) => !isGenerating && (e.currentTarget.style.backgroundColor = '#A8612A')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
                               >
                                 {isGenerating ? (
                                   <><Loader2 size={9} className="animate-spin" /> Generating…</>
@@ -574,13 +611,13 @@ export default function VPCClient({
 
                             {isGenerating && !vm && (
                               <div className="flex items-center gap-2 py-4 justify-center">
-                                <Loader2 size={13} className="animate-spin text-[#0D6E6E]" />
-                                <span className="text-xs text-gray-400">Generating…</span>
+                                <Loader2 size={13} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
+                                <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Generating…</span>
                               </div>
                             )}
 
                             {!vm && !isGenerating && (
-                              <p className="text-[10px] text-gray-300 italic">
+                              <p style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>
                                 Click &ldquo;Generate&rdquo; to create the value map from this twin&apos;s profile.
                               </p>
                             )}
@@ -641,7 +678,7 @@ export default function VPCClient({
 
                           {/* RIGHT: Customer Profile ─────────────────────── */}
                           <div className="p-4">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                            <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)', marginBottom: 12 }}>
                               Customer Profile
                             </p>
                             <VPCSubCol
@@ -703,10 +740,10 @@ export default function VPCClient({
 
             {/* ── Section 2: Final VPC ─────────────────────────────────────── */}
             <div>
-              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+              <h2 style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', marginBottom: 4, fontFamily: 'inherit' }}>
                 Your Final Value Proposition Canvas
               </h2>
-              <p className="text-[10px] text-gray-400 mb-3">
+              <p style={{ fontSize: 10, color: 'var(--color-text-faint)', marginBottom: 12 }}>
                 Click the <Plus size={8} className="inline" /> on any per-twin pill to curate it here.
               </p>
 
@@ -714,7 +751,7 @@ export default function VPCClient({
               {twins.length > 0 && (
                 <div className="flex flex-wrap gap-3 mb-4">
                   {twins.map((twin, i) => (
-                    <span key={twin.id} className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                    <span key={twin.id} className="flex items-center gap-1.5" style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
                       <span
                         className="w-2 h-2 rounded-full flex-shrink-0"
                         style={{ backgroundColor: TWIN_COLORS_HEX[i % TWIN_COLORS_HEX.length] }}
@@ -722,23 +759,23 @@ export default function VPCClient({
                       {twin.name}
                     </span>
                   ))}
-                  <span className="flex items-center gap-1.5 text-[10px] text-gray-400">
-                    <span className="w-2 h-2 rounded-full bg-slate-300 flex-shrink-0" />
+                  <span className="flex items-center gap-1.5" style={{ fontSize: 10, color: 'var(--color-text-faint)' }}>
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--color-warm-gray)' }} />
                     Custom
                   </span>
                 </div>
               )}
 
-              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+              <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
                 {!hasFinalData && (
-                  <div className="px-5 py-4 text-xs text-gray-300 italic">
+                  <div className="px-5 py-4" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>
                     Canvas is empty — click <Plus size={9} className="inline" /> on any twin pill above to add items here, or use the + buttons below.
                   </div>
                 )}
-                <div className="grid grid-cols-2 divide-x divide-gray-100">
+                <div className="grid grid-cols-2" style={{ borderTop: hasFinalData ? undefined : '0.5px solid var(--color-border)' }}>
                   {/* LEFT: Value Map */}
-                  <div className="bg-teal-50/20 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#0D6E6E] mb-3">
+                  <div className="p-4" style={{ backgroundColor: 'var(--color-amber-bg)', borderRight: '0.5px solid var(--color-border)' }}>
+                    <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-amber)', marginBottom: 12 }}>
                       Value Map
                     </p>
                     <FinalSubCol
@@ -769,7 +806,7 @@ export default function VPCClient({
 
                   {/* RIGHT: Customer Profile */}
                   <div className="p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-3">
+                    <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)', marginBottom: 12 }}>
                       Customer Profile
                     </p>
                     <FinalSubCol
@@ -805,7 +842,10 @@ export default function VPCClient({
             <div className="flex justify-end pt-2">
               <Link
                 href={`/project/${project.id}/opportunity/${opportunity.id}/bmc`}
-                className="flex items-center gap-2 bg-[#0D6E6E] text-white py-2.5 px-5 rounded-lg text-sm font-semibold hover:bg-[#0a5555] transition-colors"
+                className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium transition-colors"
+                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, textDecoration: 'none' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
               >
                 Continue to Business Model Canvas →
               </Link>

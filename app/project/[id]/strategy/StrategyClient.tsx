@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Sidebar from '@/components/Sidebar'
 import { ChevronRight, Check, Loader2, Plus, X } from 'lucide-react'
-import { POTENTIAL_BADGE, CHALLENGE_BADGE } from '@/lib/constants'
 import { computeCategory } from '@/lib/types'
 import type { Opportunity, Strategy, Classification } from '@/lib/types'
 
@@ -33,7 +32,6 @@ export default function StrategyClient({
 
   const evaluatedOpps = opportunities.filter((o) => !!o.potential_score)
   const pursueNowOpps = opportunities.filter((o) => pursueNowIds.includes(o.id))
-  // non-pursue-now opps available to classify
   const otherOpps = opportunities.filter((o) => !pursueNowIds.includes(o.id))
 
   function togglePursueNow(oppId: string) {
@@ -42,11 +40,7 @@ export default function StrategyClient({
     )
   }
 
-  function handleToggleClassification(
-    oppId: string,
-    field: 'product_fit' | 'market_fit',
-    value: boolean
-  ) {
+  function handleToggleClassification(oppId: string, field: 'product_fit' | 'market_fit', value: boolean) {
     setClassifications((prev) => {
       const current = prev[oppId] ?? { product_fit: false, market_fit: false, category: 'storage' }
       const updated = { ...current, [field]: value }
@@ -82,27 +76,39 @@ export default function StrategyClient({
   )
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-lg font-semibold text-gray-900">Strategic Prioritization</h1>
-            <p className="text-xs text-gray-400 mt-0.5">Agile Focus Dartboard</p>
+            <h1
+              style={{
+                fontFamily: "'Lora', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 26,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-ink)',
+              }}
+            >
+              Strategic Prioritization
+            </h1>
+            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
+              Agile Focus Dartboard
+            </p>
           </div>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 bg-[#0D6E6E] text-white py-2.5 px-4 rounded-lg text-sm font-semibold hover:bg-[#0a5555] transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium transition-colors disabled:opacity-60"
+            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8, border: 'none' }}
+            onMouseEnter={(e) => !saving && ((e.currentTarget).style.backgroundColor = '#A8612A')}
+            onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
           >
             {saving ? (
               <Loader2 size={15} className="animate-spin" />
             ) : saved ? (
-              <>
-                <Check size={15} />
-                Saved
-              </>
+              <><Check size={15} />Saved</>
             ) : (
               'Save strategy'
             )}
@@ -110,11 +116,11 @@ export default function StrategyClient({
         </div>
 
         {opportunities.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <p className="text-sm">No opportunities yet.</p>
+          <div className="text-center py-16">
+            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>No opportunities yet.</p>
             <Link
               href={`/project/${project.id}/opportunities`}
-              className="text-xs text-[#0D6E6E] hover:underline mt-1 block"
+              style={{ fontSize: 12, color: 'var(--color-amber)', marginTop: 4, display: 'block' }}
             >
               Add opportunities first
             </Link>
@@ -122,39 +128,60 @@ export default function StrategyClient({
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {/* ── Column 1: Pursue Now ── */}
+            {/* Column 1: Pursue Now */}
             <div>
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+              <h2
+                className="mb-3"
+                style={{
+                  fontFamily: 'inherit',
+                  fontSize: 10,
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: 'var(--color-text-muted)',
+                }}
+              >
                 Pursue Now
               </h2>
 
-              {/* Active pursue-now cards */}
               {pursueNowOpps.length > 0 && (
                 <div className="space-y-3 mb-4">
                   {pursueNowOpps.map((opp) => (
-                    <div key={opp.id} className="bg-[#0D6E6E] text-white rounded-2xl p-4">
+                    <div
+                      key={opp.id}
+                      className="rounded-2xl p-4"
+                      style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
+                    >
                       <div className="flex items-start justify-between gap-2 mb-1">
-                        <p className="text-sm font-semibold leading-snug">{opp.name}</p>
+                        <p style={{ fontSize: 13, fontWeight: 500 }}>{opp.name}</p>
                         <button
                           onClick={() => togglePursueNow(opp.id)}
-                          className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
-                          title="Remove from Pursue Now"
+                          className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-colors"
+                          style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)')}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)')}
                         >
                           <X size={11} className="text-white" />
                         </button>
                       </div>
-                      <p className="text-[11px] text-white/60 mb-3">
+                      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginBottom: 12 }}>
                         {opp.customer_segment} · {opp.application}
                       </p>
                       {(opp.potential_score || opp.challenge_score) && (
                         <div className="flex gap-1.5 flex-wrap mb-3">
                           {opp.potential_score && (
-                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/20 text-white">
+                            <span
+                              className="px-2 py-0.5 rounded-full"
+                              style={{ fontSize: 10, fontWeight: 500, backgroundColor: 'rgba(255,255,255,0.2)', color: '#FFFFFF' }}
+                            >
                               Potential: {opp.potential_score.replace('_', ' ')}
                             </span>
                           )}
                           {opp.challenge_score && (
-                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/20 text-white">
+                            <span
+                              className="px-2 py-0.5 rounded-full"
+                              style={{ fontSize: 10, fontWeight: 500, backgroundColor: 'rgba(255,255,255,0.2)', color: '#FFFFFF' }}
+                            >
                               Challenge: {opp.challenge_score.replace('_', ' ')}
                             </span>
                           )}
@@ -162,7 +189,10 @@ export default function StrategyClient({
                       )}
                       <Link
                         href={`/project/${project.id}/opportunity/${opp.id}/twins/setup`}
-                        className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors w-fit"
+                        className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors w-fit"
+                        style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: '#FFFFFF', textDecoration: 'none' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)')}
                       >
                         Enter Twin phase
                         <ChevronRight size={12} />
@@ -172,10 +202,18 @@ export default function StrategyClient({
                 </div>
               )}
 
-              {/* Evaluated opportunities to add */}
               {evaluatedOpps.length > 0 && (
                 <div>
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-2">
+                  <p
+                    className="mb-2"
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      color: 'var(--color-text-faint)',
+                    }}
+                  >
                     {pursueNowOpps.length === 0 ? 'Select opportunities to pursue' : 'Add more'}
                   </p>
                   <div className="space-y-2">
@@ -185,107 +223,119 @@ export default function StrategyClient({
                         <button
                           key={opp.id}
                           onClick={() => togglePursueNow(opp.id)}
-                          className="w-full text-left bg-white border border-gray-200 rounded-xl p-3 hover:border-[#0D6E6E] hover:bg-[#0D6E6E]/5 transition-colors group"
+                          className="w-full text-left rounded-xl p-3 transition-colors group"
+                          style={{
+                            backgroundColor: '#FFFFFF',
+                            border: '0.5px solid var(--color-border)',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--color-amber)'
+                            e.currentTarget.style.backgroundColor = 'var(--color-amber-bg)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--color-border)'
+                            e.currentTarget.style.backgroundColor = '#FFFFFF'
+                          }}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-gray-800 truncate">{opp.name}</p>
-                              <p className="text-[10px] text-gray-400 truncate">
+                              <p className="truncate" style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-ink)' }}>{opp.name}</p>
+                              <p className="truncate" style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
                                 {opp.customer_segment} · {opp.application}
                               </p>
                             </div>
-                            <Plus
-                              size={14}
-                              className="flex-shrink-0 ml-2 text-gray-300 group-hover:text-[#0D6E6E] transition-colors"
-                            />
+                            <Plus size={14} style={{ flexShrink: 0, marginLeft: 8, color: 'var(--color-amber)' }} />
                           </div>
                         </button>
                       ))}
                   </div>
                   {evaluatedOpps.filter((o) => !pursueNowIds.includes(o.id)).length === 0 && (
-                    <p className="text-xs text-gray-300 italic">All evaluated opportunities are in Pursue Now.</p>
+                    <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
+                      All evaluated opportunities are in Pursue Now.
+                    </p>
                   )}
                 </div>
               )}
 
               {evaluatedOpps.length === 0 && (
-                <p className="text-xs text-gray-300 italic">
+                <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
                   Evaluate opportunities first to select them here.
                 </p>
               )}
             </div>
 
-            {/* ── Column 2: Keep Options Open ── */}
+            {/* Column 2: Keep Options Open */}
             <div>
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+              <h2
+                className="mb-3"
+                style={{
+                  fontFamily: 'inherit',
+                  fontSize: 10,
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: 'var(--color-text-muted)',
+                }}
+              >
                 Keep Options Open
               </h2>
               {otherOpps.length === 0 ? (
-                <p className="text-xs text-gray-300 italic">No other opportunities.</p>
+                <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>No other opportunities.</p>
               ) : (
                 <div className="space-y-3">
                   {otherOpps.map((opp) => {
-                    const cls = classifications[opp.id] ?? {
-                      product_fit: false,
-                      market_fit: false,
-                      category: 'storage',
-                    }
-                    const catColor =
+                    const cls = classifications[opp.id] ?? { product_fit: false, market_fit: false, category: 'storage' }
+                    const catStyle =
                       cls.category === 'growth'
-                        ? 'bg-blue-100 text-blue-700'
+                        ? { bg: 'var(--color-sage-bg)', color: '#2D7A57' }
                         : cls.category === 'backup'
-                        ? 'bg-orange-100 text-orange-700'
-                        : 'bg-gray-100 text-gray-500'
+                        ? { bg: 'var(--color-amber-bg)', color: 'var(--color-amber)' }
+                        : { bg: 'var(--color-linen)', color: 'var(--color-text-muted)' }
                     const isEvaluated = !!opp.potential_score
 
                     return (
-                      <div key={opp.id} className="bg-white border border-gray-200 rounded-2xl p-4">
+                      <div
+                        key={opp.id}
+                        className="rounded-2xl p-4"
+                        style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+                      >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-gray-800 truncate">{opp.name}</p>
-                            <p className="text-[10px] text-gray-400">{opp.customer_segment}</p>
+                            <p className="truncate" style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-ink)' }}>{opp.name}</p>
+                            <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>{opp.customer_segment}</p>
                           </div>
                           <div className="flex items-center gap-1.5 ml-2 flex-shrink-0">
                             {!isEvaluated && (
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-400">
+                              <span
+                                className="px-2 py-0.5 rounded-full"
+                                style={{ fontSize: 10, fontWeight: 500, backgroundColor: 'var(--color-linen)', color: 'var(--color-text-muted)' }}
+                              >
                                 Not evaluated
                               </span>
                             )}
-                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${catColor}`}>
+                            <span
+                              className="px-2 py-0.5 rounded-full"
+                              style={{ fontSize: 10, fontWeight: 500, backgroundColor: catStyle.bg, color: catStyle.color }}
+                            >
                               {cls.category}
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                          <span>Product fit</span>
-                          <button
-                            onClick={() => handleToggleClassification(opp.id, 'product_fit', !cls.product_fit)}
-                            className={`w-9 h-5 rounded-full transition-colors relative flex-shrink-0 ${
-                              cls.product_fit ? 'bg-[#0D6E6E]' : 'bg-gray-200'
-                            }`}
-                          >
-                            <span
-                              className={`absolute top-0.5 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                                cls.product_fit ? 'translate-x-4' : 'translate-x-0.5'
-                              }`}
-                            />
-                          </button>
-                        </div>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>Market fit</span>
-                          <button
-                            onClick={() => handleToggleClassification(opp.id, 'market_fit', !cls.market_fit)}
-                            className={`w-9 h-5 rounded-full transition-colors relative flex-shrink-0 ${
-                              cls.market_fit ? 'bg-[#0D6E6E]' : 'bg-gray-200'
-                            }`}
-                          >
-                            <span
-                              className={`absolute top-0.5 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                                cls.market_fit ? 'translate-x-4' : 'translate-x-0.5'
-                              }`}
-                            />
-                          </button>
-                        </div>
+                        {['product_fit', 'market_fit'].map((field) => (
+                          <div key={field} className="flex items-center justify-between mb-1" style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                            <span>{field === 'product_fit' ? 'Product fit' : 'Market fit'}</span>
+                            <button
+                              onClick={() => handleToggleClassification(opp.id, field as 'product_fit' | 'market_fit', !cls[field as keyof typeof cls])}
+                              className="relative flex-shrink-0 w-9 h-5 rounded-full transition-colors"
+                              style={{ backgroundColor: cls[field as keyof typeof cls] ? 'var(--color-amber)' : 'var(--color-linen)' }}
+                            >
+                              <span
+                                className="absolute top-0.5 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform"
+                                style={{ transform: cls[field as keyof typeof cls] ? 'translateX(16px)' : 'translateX(2px)' }}
+                              />
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     )
                   })}
@@ -293,80 +343,74 @@ export default function StrategyClient({
               )}
             </div>
 
-            {/* ── Column 3: Strategy Summary ── */}
+            {/* Column 3: Strategy Summary */}
             <div>
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+              <h2
+                className="mb-3"
+                style={{
+                  fontFamily: 'inherit',
+                  fontSize: 10,
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: 'var(--color-text-muted)',
+                }}
+              >
                 Strategy Summary
               </h2>
 
               <div className="space-y-4">
-                {/* Pursue Now summary */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-4">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Pursue Now ({pursueNowOpps.length})
-                  </p>
-                  {pursueNowOpps.length === 0 ? (
-                    <p className="text-xs text-gray-300 italic">None selected</p>
-                  ) : (
-                    <div className="space-y-1">
-                      {pursueNowOpps.map((o) => (
-                        <p key={o.id} className="text-xs font-semibold text-gray-800 flex items-center gap-1.5">
-                          <span className="inline-block w-2 h-2 rounded-full bg-[#0D6E6E] flex-shrink-0" />
-                          {o.name}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Keep Options Open summary */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-4">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Keep Options Open
-                  </p>
-                  {growthOpps.length === 0 && backupOpps.length === 0 ? (
-                    <p className="text-xs text-gray-300 italic">None yet</p>
-                  ) : (
-                    <div className="space-y-1">
-                      {growthOpps.map((o) => (
-                        <p key={o.id} className="text-xs text-gray-700">
-                          <span className="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1.5" />
-                          {o.name}
-                        </p>
-                      ))}
-                      {backupOpps.map((o) => (
-                        <p key={o.id} className="text-xs text-gray-700">
-                          <span className="inline-block w-2 h-2 rounded-full bg-orange-400 mr-1.5" />
-                          {o.name}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Place in Storage */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-4">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Place in Storage
-                  </p>
-                  {storageOpps.length === 0 ? (
-                    <p className="text-xs text-gray-300 italic">None</p>
-                  ) : (
-                    <div className="space-y-1">
-                      {storageOpps.map((o) => (
-                        <div key={o.id} className="flex items-center gap-1.5">
-                          <span className="inline-block w-2 h-2 rounded-full bg-gray-300 flex-shrink-0" />
-                          <p className="text-xs text-gray-500 flex-1 truncate">{o.name}</p>
-                          {!o.potential_score && (
-                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-400 flex-shrink-0">
-                              Not evaluated
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {[
+                  {
+                    title: `Pursue Now (${pursueNowOpps.length})`,
+                    items: pursueNowOpps,
+                    dotColor: 'var(--color-amber)',
+                    emptyText: 'None selected',
+                  },
+                  {
+                    title: 'Keep Options Open',
+                    items: [...growthOpps, ...backupOpps],
+                    dotColor: 'var(--color-sage)',
+                    emptyText: 'None yet',
+                  },
+                  {
+                    title: 'Place in Storage',
+                    items: storageOpps,
+                    dotColor: 'var(--color-linen)',
+                    emptyText: 'None',
+                  },
+                ].map(({ title, items, dotColor, emptyText }) => (
+                  <div
+                    key={title}
+                    className="rounded-2xl p-4"
+                    style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+                  >
+                    <p
+                      className="mb-2"
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 500,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                        color: 'var(--color-text-muted)',
+                      }}
+                    >
+                      {title}
+                    </p>
+                    {items.length === 0 ? (
+                      <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>{emptyText}</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {items.map((o) => (
+                          <p key={o.id} className="flex items-center gap-1.5" style={{ fontSize: 12, color: 'var(--color-ink)' }}>
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: dotColor, display: 'inline-block', flexShrink: 0 }} />
+                            {o.name}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 

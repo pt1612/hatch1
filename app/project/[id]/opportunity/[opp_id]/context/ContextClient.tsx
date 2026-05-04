@@ -36,22 +36,46 @@ export default function ContextClient({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-8">
         <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
 
         <div className="max-w-2xl">
-          <h1 className="text-lg font-semibold text-gray-900 mb-1">{opportunity.name}</h1>
-          <p className="text-sm text-gray-500 mb-6">
+          <h1
+            style={{
+              fontFamily: "'Lora', Georgia, serif",
+              fontWeight: 400,
+              fontSize: 22,
+              letterSpacing: '-0.02em',
+              color: 'var(--color-ink)',
+              marginBottom: 4,
+            }}
+          >
+            {opportunity.name}
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 24 }}>
             {opportunity.customer_segment} · {opportunity.application}
           </p>
 
           {/* Context textarea */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
-            <h2 className="text-sm font-semibold text-gray-800 mb-1">Add context (optional)</h2>
-            <p className="text-xs text-gray-400 mb-4">
+          <div
+            className="rounded-2xl p-6 mb-6"
+            style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+          >
+            <h2
+              style={{
+                fontFamily: "'Lora', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 16,
+                color: 'var(--color-ink)',
+                marginBottom: 4,
+              }}
+            >
+              Add context (optional)
+            </h2>
+            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 16 }}>
               Tell the AI anything it should know before evaluating this opportunity — e.g. existing
               customers, team experience, partnerships, unfair advantages.
             </p>
@@ -60,22 +84,44 @@ export default function ContextClient({
               onChange={(e) => setContext(e.target.value)}
               placeholder="e.g. We already have 3 paying customers in this segment. Our team has 5 years of experience in manufacturing software."
               rows={5}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:ring-2 focus:ring-[#0D6E6E] focus:border-transparent text-sm resize-none outline-none transition"
+              className="w-full px-4 py-3 text-sm resize-none outline-none transition-colors"
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '0.5px solid var(--color-border)',
+                borderRadius: 8,
+                color: 'var(--color-ink)',
+              }}
+              onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
+              onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
             />
           </div>
 
           {/* Dimensions preview */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
-            <h2 className="text-sm font-semibold text-gray-800 mb-4">
+          <div
+            className="rounded-2xl p-6 mb-6"
+            style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+          >
+            <h2
+              style={{
+                fontFamily: "'Lora', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 16,
+                color: 'var(--color-ink)',
+                marginBottom: 16,
+              }}
+            >
               The AI will evaluate across 6 dimensions
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {DIMENSIONS.map((d) => (
                 <div key={d.label} className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#0D6E6E] flex-shrink-0 mt-1.5" />
+                  <div
+                    className="flex-shrink-0 mt-1.5"
+                    style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: 'var(--color-sage)' }}
+                  />
                   <div>
-                    <p className="text-xs font-semibold text-gray-700">{d.label}</p>
-                    <p className="text-xs text-gray-400">{d.desc}</p>
+                    <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-ink)' }}>{d.label}</p>
+                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>{d.desc}</p>
                   </div>
                 </div>
               ))}
@@ -85,7 +131,10 @@ export default function ContextClient({
           <button
             onClick={handleGenerate}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-[#0D6E6E] text-white py-3.5 px-6 rounded-xl text-sm font-semibold hover:bg-[#0a5555] transition-colors disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-sm font-medium transition-colors disabled:opacity-60"
+            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
+            onMouseEnter={(e) => !loading && ((e.currentTarget).style.backgroundColor = '#A8612A')}
+            onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
           >
             {loading ? (
               <Loader2 size={16} className="animate-spin" />

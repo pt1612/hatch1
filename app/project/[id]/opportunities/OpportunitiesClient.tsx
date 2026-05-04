@@ -21,33 +21,21 @@ export default function OpportunitiesClient({
   const supabase = createClient()
 
   const [showAddForm, setShowAddForm] = useState(false)
-  const [newOpp, setNewOpp] = useState({
-    name: '',
-    application: '',
-    customer_segment: '',
-    description: '',
-  })
+  const [newOpp, setNewOpp] = useState({ name: '', application: '', customer_segment: '', description: '' })
   const [adding, setAdding] = useState(false)
   const [collapsedApps, setCollapsedApps] = useState<Set<string>>(new Set())
 
-  const evalMap = evaluations.reduce<Record<string, { id: string; report: unknown }>>(
-    (acc, e) => {
-      acc[e.opportunity_id] = e
-      return acc
-    },
-    {}
-  )
+  const evalMap = evaluations.reduce<Record<string, { id: string; report: unknown }>>((acc, e) => {
+    acc[e.opportunity_id] = e
+    return acc
+  }, {})
   const evaluatedCount = evaluations.filter((e) => e.report !== null).length
 
-  // Group opportunities by application, preserving insertion order
   const grouped = opportunities.reduce<{ app: string; opps: Opportunity[] }[]>((acc, opp) => {
     const appName = opp.application?.trim() || 'Other'
     const existing = acc.find((g) => g.app === appName)
-    if (existing) {
-      existing.opps.push(opp)
-    } else {
-      acc.push({ app: appName, opps: [opp] })
-    }
+    if (existing) existing.opps.push(opp)
+    else acc.push({ app: appName, opps: [opp] })
     return acc
   }, [])
 
@@ -78,7 +66,7 @@ export default function OpportunitiesClient({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 flex overflow-hidden min-h-screen">
@@ -86,21 +74,42 @@ export default function OpportunitiesClient({
         <div className="flex-1 overflow-y-auto p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-lg font-semibold text-gray-900">Opportunities</h1>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <h1
+                style={{
+                  fontFamily: "'Lora', Georgia, serif",
+                  fontWeight: 400,
+                  fontSize: 26,
+                  letterSpacing: '-0.02em',
+                  color: 'var(--color-ink)',
+                }}
+              >
+                Opportunities
+              </h1>
+              <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
                 {opportunities.length} identified · {evaluatedCount} evaluated
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Link
                 href={`/project/${project.id}/abilities`}
-                className="border border-gray-200 text-gray-700 py-2 px-3 rounded-lg text-xs font-semibold hover:bg-gray-50 transition-colors"
+                className="py-2 px-3 rounded-lg text-xs font-medium transition-colors"
+                style={{
+                  border: '0.5px solid var(--color-border)',
+                  color: 'var(--color-ink)',
+                  textDecoration: 'none',
+                  backgroundColor: 'transparent',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-amber)')}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
               >
                 ← Back to chat
               </Link>
               <button
                 onClick={() => setShowAddForm((v) => !v)}
-                className="flex items-center gap-1.5 bg-[#0D6E6E] text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-[#0a5555] transition-colors"
+                className="flex items-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium transition-colors"
+                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', border: 'none' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
               >
                 <Plus size={14} />
                 Add manually
@@ -110,11 +119,15 @@ export default function OpportunitiesClient({
 
           {/* Progress bar */}
           {opportunities.length > 0 && (
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-6">
+            <div
+              className="rounded-full overflow-hidden mb-6"
+              style={{ height: 4, backgroundColor: 'var(--color-linen)' }}
+            >
               <div
-                className="h-full bg-[#0D6E6E] rounded-full transition-all"
+                className="h-full rounded-full transition-all"
                 style={{
                   width: `${(evaluatedCount / opportunities.length) * 100}%`,
+                  backgroundColor: 'var(--color-amber)',
                 }}
               />
             </div>
@@ -122,11 +135,19 @@ export default function OpportunitiesClient({
 
           {/* Manual add form */}
           {showAddForm && (
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-5">
+            <div
+              className="rounded-2xl p-5 mb-5"
+              style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+            >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-gray-800">Add opportunity manually</h3>
-                <button onClick={() => setShowAddForm(false)}>
-                  <X size={16} className="text-gray-400 hover:text-gray-600" />
+                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }}>
+                  Add opportunity manually
+                </h3>
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  style={{ color: 'var(--color-text-faint)' }}
+                >
+                  <X size={16} />
                 </button>
               </div>
               <div className="space-y-3">
@@ -137,21 +158,41 @@ export default function OpportunitiesClient({
                   { key: 'description', label: 'Description', placeholder: '1-2 sentences' },
                 ].map(({ key, label, placeholder }) => (
                   <div key={key}>
-                    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                    <label
+                      className="block mb-1"
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 500,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        color: 'var(--color-text-muted)',
+                      }}
+                    >
                       {label}
                     </label>
                     <input
                       value={newOpp[key as keyof typeof newOpp]}
                       onChange={(e) => setNewOpp((prev) => ({ ...prev, [key]: e.target.value }))}
                       placeholder={placeholder}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-[#0D6E6E] focus:border-transparent text-sm outline-none transition"
+                      className="w-full px-3 py-2 text-sm outline-none transition-colors"
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        border: '0.5px solid var(--color-border)',
+                        borderRadius: 8,
+                        color: 'var(--color-ink)',
+                      }}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
+                      onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
                     />
                   </div>
                 ))}
                 <button
                   onClick={handleAddOpportunity}
                   disabled={adding || !newOpp.name.trim()}
-                  className="flex items-center gap-2 bg-[#0D6E6E] text-white py-2 px-4 rounded-lg text-xs font-semibold hover:bg-[#0a5555] transition-colors disabled:opacity-60"
+                  className="flex items-center gap-2 py-2 px-4 rounded-lg text-xs font-medium transition-colors disabled:opacity-60"
+                  style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', border: 'none' }}
+                  onMouseEnter={(e) => !(adding || !newOpp.name.trim()) && ((e.currentTarget).style.backgroundColor = '#A8612A')}
+                  onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
                 >
                   {adding ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
                   Add opportunity
@@ -162,9 +203,17 @@ export default function OpportunitiesClient({
 
           {/* Opportunity cards grouped by application */}
           {opportunities.length === 0 ? (
-            <div className="text-center py-16 text-gray-400">
-              <p className="text-sm">No opportunities yet.</p>
-              <p className="text-xs mt-1">Go back to the abilities chat or add one manually.</p>
+            <div className="text-center py-16">
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
+                <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="var(--color-amber-bg)" />
+                <circle cx="50" cy="50" r="14" fill="var(--color-linen)" />
+              </svg>
+              <p style={{ fontSize: 13, fontFamily: "'Lora', Georgia, serif", fontStyle: 'italic', color: 'var(--color-text-muted)' }}>
+                No opportunities yet.
+              </p>
+              <p style={{ fontSize: 12, color: 'var(--color-text-faint)', marginTop: 4 }}>
+                Go back to the abilities chat or add one manually.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -172,69 +221,110 @@ export default function OpportunitiesClient({
                 const isCollapsed = collapsedApps.has(app)
                 const evaluatedInGroup = opps.filter((o) => !!evalMap[o.id]?.report).length
                 return (
-                  <div key={app} className="border border-gray-200 rounded-2xl overflow-hidden">
-                    {/* Application group header */}
+                  <div
+                    key={app}
+                    className="rounded-2xl overflow-hidden"
+                    style={{ border: '0.5px solid var(--color-border)' }}
+                  >
                     <button
                       onClick={() => toggleApp(app)}
-                      className="w-full flex items-center justify-between px-5 py-3.5 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                      className="w-full flex items-center justify-between px-5 py-3.5 text-left transition-colors"
+                      style={{ backgroundColor: 'var(--color-cream)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-cream)')}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-sm font-semibold text-gray-800 truncate">{app}</span>
-                        <span className="text-[10px] font-semibold text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded-full flex-shrink-0">
+                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }} className="truncate">
+                          {app}
+                        </span>
+                        <span
+                          className="px-2 py-0.5 rounded-full flex-shrink-0"
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 500,
+                            backgroundColor: '#FFFFFF',
+                            color: 'var(--color-text-muted)',
+                            border: '0.5px solid var(--color-border)',
+                          }}
+                        >
                           {evaluatedInGroup}/{opps.length} evaluated
                         </span>
                       </div>
                       <ChevronDown
                         size={14}
-                        className={`text-gray-400 flex-shrink-0 ml-2 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
+                        style={{
+                          color: 'var(--color-text-faint)',
+                          flexShrink: 0,
+                          marginLeft: 8,
+                          transform: isCollapsed ? 'rotate(-90deg)' : 'none',
+                        }}
                       />
                     </button>
 
-                    {/* Segment opportunity rows */}
                     {!isCollapsed && (
-                      <div className="divide-y divide-gray-100">
-                        {opps.map((opp) => {
+                      <div style={{ borderTop: '0.5px solid var(--color-border)' }}>
+                        {opps.map((opp, idx) => {
                           const evaluation = evalMap[opp.id]
                           const isEvaluated = !!evaluation?.report
                           return (
                             <div
                               key={opp.id}
-                              className="bg-white px-5 py-4 flex items-start gap-4"
+                              className="px-5 py-4 flex items-start gap-4"
+                              style={{
+                                backgroundColor: '#FFFFFF',
+                                borderTop: idx > 0 ? '0.5px solid var(--color-border)' : undefined,
+                              }}
                             >
                               <div className="flex-shrink-0 mt-0.5">
                                 {isEvaluated ? (
-                                  <CheckCircle2 size={16} className="text-[#0D6E6E]" />
+                                  <CheckCircle2 size={16} style={{ color: 'var(--color-sage)' }} />
                                 ) : (
-                                  <Clock size={16} className="text-gray-300" />
+                                  <Clock size={16} style={{ color: 'var(--color-linen)' }} />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="min-w-0">
-                                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
+                                    <p
+                                      className="mb-0.5"
+                                      style={{
+                                        fontSize: 10,
+                                        fontWeight: 500,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.06em',
+                                        color: 'var(--color-text-faint)',
+                                      }}
+                                    >
                                       {opp.customer_segment}
                                     </p>
-                                    <h3 className="text-sm font-semibold text-gray-900">{opp.name}</h3>
+                                    <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }}>
+                                      {opp.name}
+                                    </h3>
                                   </div>
                                   <span
-                                    className={`flex-shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                                      isEvaluated
-                                        ? 'bg-[#0D6E6E]/10 text-[#0D6E6E]'
-                                        : 'bg-gray-100 text-gray-400'
-                                    }`}
+                                    className="flex-shrink-0 px-2.5 py-0.5 rounded-full"
+                                    style={{
+                                      fontSize: 11,
+                                      fontWeight: 500,
+                                      backgroundColor: isEvaluated ? 'var(--color-sage-bg)' : 'var(--color-linen)',
+                                      color: isEvaluated ? '#2D7A57' : 'var(--color-text-muted)',
+                                    }}
                                   >
                                     {isEvaluated ? 'Evaluated' : 'Pending'}
                                   </span>
                                 </div>
                                 {opp.description && (
-                                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{opp.description}</p>
+                                  <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 4, lineHeight: '1.6' }}>
+                                    {opp.description}
+                                  </p>
                                 )}
                               </div>
                               <div className="flex-shrink-0">
                                 {isEvaluated ? (
                                   <Link
                                     href={`/project/${project.id}/opportunity/${opp.id}/report`}
-                                    className="flex items-center gap-1 text-xs font-semibold text-[#0D6E6E] hover:underline"
+                                    className="flex items-center gap-1 text-xs font-medium transition-colors"
+                                    style={{ color: 'var(--color-amber)', textDecoration: 'none' }}
                                   >
                                     View report
                                     <ChevronRight size={12} />
@@ -242,7 +332,14 @@ export default function OpportunitiesClient({
                                 ) : (
                                   <Link
                                     href={`/project/${project.id}/opportunity/${opp.id}/context`}
-                                    className="flex items-center gap-1 bg-[#0D6E6E] text-white py-1.5 px-3 rounded-lg text-xs font-semibold hover:bg-[#0a5555] transition-colors"
+                                    className="flex items-center gap-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors"
+                                    style={{
+                                      backgroundColor: 'var(--color-amber)',
+                                      color: '#FFFFFF',
+                                      textDecoration: 'none',
+                                    }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
                                   >
                                     Evaluate
                                     <ChevronRight size={12} />
@@ -261,13 +358,30 @@ export default function OpportunitiesClient({
           )}
         </div>
 
-        {/* Right sidebar — progress */}
-        <div className="w-72 border-l border-gray-200 bg-white p-5 overflow-auto flex-shrink-0">
-          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">
+        {/* Right sidebar */}
+        <div
+          className="w-72 p-5 overflow-auto flex-shrink-0"
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderLeft: '0.5px solid var(--color-border)',
+          }}
+        >
+          <h2
+            className="mb-4"
+            style={{
+              fontSize: 10,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'var(--color-text-muted)',
+            }}
+          >
             Evaluation progress
           </h2>
           {opportunities.length === 0 ? (
-            <p className="text-xs text-gray-300 italic">No opportunities yet.</p>
+            <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
+              No opportunities yet.
+            </p>
           ) : (
             <div className="space-y-2">
               {opportunities.map((opp) => {
@@ -275,11 +389,16 @@ export default function OpportunitiesClient({
                 return (
                   <div key={opp.id} className="flex items-center gap-2">
                     {isEvaluated ? (
-                      <CheckCircle2 size={14} className="text-[#0D6E6E] flex-shrink-0" />
+                      <CheckCircle2 size={14} style={{ color: 'var(--color-sage)', flexShrink: 0 }} />
                     ) : (
-                      <Clock size={14} className="text-gray-300 flex-shrink-0" />
+                      <Clock size={14} style={{ color: 'var(--color-linen)', flexShrink: 0 }} />
                     )}
-                    <span className="text-xs text-gray-600 truncate">{opp.name}</span>
+                    <span
+                      className="truncate"
+                      style={{ fontSize: 12, color: 'var(--color-text-main)' }}
+                    >
+                      {opp.name}
+                    </span>
                   </div>
                 )
               })}
@@ -289,7 +408,14 @@ export default function OpportunitiesClient({
           {opportunities.length > 0 && evaluatedCount === opportunities.length && (
             <Link
               href={`/project/${project.id}/map`}
-              className="flex items-center justify-center gap-2 w-full mt-5 bg-[#0D6E6E] text-white py-2.5 px-4 rounded-lg text-xs font-semibold hover:bg-[#0a5555] transition-colors"
+              className="flex items-center justify-center gap-2 w-full mt-5 py-2.5 px-4 rounded-lg text-xs font-medium transition-colors"
+              style={{
+                backgroundColor: 'var(--color-amber)',
+                color: '#FFFFFF',
+                textDecoration: 'none',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
               View map
               <ChevronRight size={14} />

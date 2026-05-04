@@ -5,8 +5,6 @@ import Sidebar from '@/components/Sidebar'
 import { CheckCircle2, ChevronRight, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
-// ─── Types ──────────────────────────────────────────────────────────────────────
-
 type OppWithStatus = {
   id: string
   name: string
@@ -21,23 +19,16 @@ type OppWithStatus = {
 }
 
 const STEPS: { label: string; short: string }[] = [
-  { label: 'Evaluation',      short: 'Eval' },
-  { label: 'Twin Setup',      short: 'Twins' },
-  { label: 'Interviews',      short: 'Intrvw' },
-  { label: 'Results',         short: 'Results' },
-  { label: 'VPC Canvas',      short: 'VPC' },
-  { label: 'Business Model',  short: 'BMC' },
+  { label: 'Evaluation',     short: 'Eval' },
+  { label: 'Twin Setup',     short: 'Twins' },
+  { label: 'Interviews',     short: 'Intrvw' },
+  { label: 'Results',        short: 'Results' },
+  { label: 'VPC Canvas',     short: 'VPC' },
+  { label: 'Business Model', short: 'BMC' },
 ]
 
 function getStepDone(opp: OppWithStatus): boolean[] {
-  return [
-    opp.isEvaluated,
-    opp.hasTwins,
-    opp.hasInterviews,
-    opp.hasResults,
-    opp.hasVPC,
-    opp.hasBMC,
-  ]
+  return [opp.isEvaluated, opp.hasTwins, opp.hasInterviews, opp.hasResults, opp.hasVPC, opp.hasBMC]
 }
 
 function getStepHref(opp: OppWithStatus, projectId: string, step: number): string {
@@ -54,20 +45,17 @@ function getStepHref(opp: OppWithStatus, projectId: string, step: number): strin
 }
 
 function getActiveStepHref(opp: OppWithStatus, projectId: string): { href: string; label: string } {
-  if (!opp.isEvaluated)  return { href: getStepHref(opp, projectId, 0), label: 'Start Evaluation' }
-  if (!opp.hasTwins)     return { href: getStepHref(opp, projectId, 1), label: 'Set Up Twins' }
-  if (!opp.hasInterviews)return { href: getStepHref(opp, projectId, 2), label: 'Run Interviews' }
-  if (!opp.hasResults)   return { href: getStepHref(opp, projectId, 3), label: 'Generate Results' }
-  if (!opp.hasVPC)       return { href: getStepHref(opp, projectId, 4), label: 'Build VPC Canvas' }
-  if (!opp.hasBMC)       return { href: getStepHref(opp, projectId, 5), label: 'Build Business Model' }
+  if (!opp.isEvaluated)   return { href: getStepHref(opp, projectId, 0), label: 'Start Evaluation' }
+  if (!opp.hasTwins)      return { href: getStepHref(opp, projectId, 1), label: 'Set Up Twins' }
+  if (!opp.hasInterviews) return { href: getStepHref(opp, projectId, 2), label: 'Run Interviews' }
+  if (!opp.hasResults)    return { href: getStepHref(opp, projectId, 3), label: 'Generate Results' }
+  if (!opp.hasVPC)        return { href: getStepHref(opp, projectId, 4), label: 'Build VPC Canvas' }
+  if (!opp.hasBMC)        return { href: getStepHref(opp, projectId, 5), label: 'Build Business Model' }
   return { href: getStepHref(opp, projectId, 5), label: 'View Business Model' }
 }
 
-// ─── Step indicator ─────────────────────────────────────────────────────────────
-
 function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: string }) {
   const done = getStepDone(opp)
-  // first undone step that is accessible
   const activeIdx = done.findIndex((d) => !d)
 
   return (
@@ -81,24 +69,26 @@ function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: strin
         const circleEl = (
           <div className="flex flex-col items-center gap-0.5">
             <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
-                isDone
-                  ? 'bg-[#0D6E6E] text-white'
-                  : isActive
-                  ? 'bg-white border-2 border-[#0D6E6E] text-[#0D6E6E]'
-                  : 'bg-white border-2 border-gray-200 text-gray-300'
-              }`}
+              className="w-6 h-6 rounded-full flex items-center justify-center transition-colors"
+              style={{
+                backgroundColor: isDone ? 'var(--color-amber)' : '#FFFFFF',
+                border: `2px solid ${isDone ? 'var(--color-amber)' : isActive ? 'var(--color-amber)' : 'var(--color-linen)'}`,
+                color: isDone ? '#FFFFFF' : isActive ? 'var(--color-amber)' : 'var(--color-text-faint)',
+              }}
             >
               {isDone ? (
                 <CheckCircle2 size={12} className="fill-current" />
               ) : (
-                <span className="text-[9px] font-bold">{i + 1}</span>
+                <span style={{ fontSize: 9, fontWeight: 600 }}>{i + 1}</span>
               )}
             </div>
             <span
-              className={`text-[9px] font-medium whitespace-nowrap ${
-                isDone ? 'text-[#0D6E6E]' : isActive ? 'text-gray-700' : 'text-gray-300'
-              }`}
+              style={{
+                fontSize: 9,
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+                color: isDone ? 'var(--color-amber)' : isActive ? 'var(--color-ink)' : 'var(--color-text-faint)',
+              }}
             >
               {step.short}
             </span>
@@ -114,12 +104,14 @@ function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: strin
             ) : (
               <div>{circleEl}</div>
             )}
-            {/* Connector line */}
             {i < STEPS.length - 1 && (
               <div
-                className={`h-0.5 w-5 mb-3 flex-shrink-0 ${
-                  done[i] && (done[i + 1] || i + 1 === activeIdx) ? 'bg-[#0D6E6E]' : 'bg-gray-200'
-                }`}
+                className="h-0.5 w-5 mb-3 flex-shrink-0"
+                style={{
+                  backgroundColor: done[i] && (done[i + 1] || i + 1 === activeIdx)
+                    ? 'var(--color-amber)'
+                    : 'var(--color-linen)',
+                }}
               />
             )}
           </div>
@@ -128,8 +120,6 @@ function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: strin
     </div>
   )
 }
-
-// ─── Main component ─────────────────────────────────────────────────────────────
 
 export default function EvaluationsClient({
   project,
@@ -165,37 +155,56 @@ export default function EvaluationsClient({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-8">
         <div className="max-w-3xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-lg font-semibold text-gray-900">Evaluation & Validation</h1>
-            <span className="text-sm font-semibold text-[#0D6E6E]">
+            <h1
+              style={{
+                fontFamily: "'Lora', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 26,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-ink)',
+              }}
+            >
+              Evaluation & Validation
+            </h1>
+            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-amber)' }}>
               {progressPct}% complete
             </span>
           </div>
-          <p className="text-xs text-gray-400 mb-5">
+          <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20 }}>
             Move each opportunity through all 6 stages — from evaluation to business model canvas.
           </p>
 
           {/* Overall progress */}
-          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-7">
+          <div
+            className="rounded-full overflow-hidden mb-7"
+            style={{ height: 4, backgroundColor: 'var(--color-linen)' }}
+          >
             <div
-              className="h-full bg-[#0D6E6E] rounded-full transition-all"
-              style={{ width: `${progressPct}%` }}
+              className="h-full rounded-full transition-all"
+              style={{ width: `${progressPct}%`, backgroundColor: 'var(--color-amber)' }}
             />
           </div>
 
           {/* Opportunities */}
           {opportunities.length === 0 ? (
-            <div className="text-center py-16 text-gray-400">
-              <p className="text-sm">No opportunities found.</p>
+            <div className="text-center py-16">
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
+                <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="var(--color-amber-bg)" />
+                <circle cx="50" cy="50" r="14" fill="var(--color-linen)" />
+              </svg>
+              <p style={{ fontSize: 13, fontFamily: "'Lora', Georgia, serif", fontStyle: 'italic', color: 'var(--color-text-muted)' }}>
+                No opportunities yet.
+              </p>
               <Link
                 href={`/project/${project.id}/abilities`}
-                className="text-xs text-[#0D6E6E] hover:underline mt-1 block"
+                style={{ fontSize: 12, color: 'var(--color-amber)', marginTop: 4, display: 'block' }}
               >
                 Go to abilities chat to generate opportunities
               </Link>
@@ -204,63 +213,113 @@ export default function EvaluationsClient({
             <div className="space-y-4">
               {grouped.map(({ app, opps }) => {
                 const isCollapsed = collapsedApps.has(app)
-                const groupDoneSteps = opps.reduce(
-                  (acc, o) => acc + getStepDone(o).filter(Boolean).length,
-                  0
-                )
+                const groupDoneSteps = opps.reduce((acc, o) => acc + getStepDone(o).filter(Boolean).length, 0)
                 const groupTotalSteps = opps.length * STEPS.length
                 return (
-                  <div key={app} className="border border-gray-200 rounded-2xl overflow-hidden">
-                    {/* App group header */}
+                  <div
+                    key={app}
+                    className="rounded-2xl overflow-hidden"
+                    style={{ border: '0.5px solid var(--color-border)' }}
+                  >
                     <button
                       onClick={() => toggleApp(app)}
-                      className="w-full flex items-center justify-between px-5 py-3.5 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                      className="w-full flex items-center justify-between px-5 py-3.5 text-left transition-colors"
+                      style={{ backgroundColor: 'var(--color-cream)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-cream)')}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-sm font-semibold text-gray-800 truncate">{app}</span>
-                        <span className="text-[10px] font-semibold text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded-full flex-shrink-0">
+                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }} className="truncate">
+                          {app}
+                        </span>
+                        <span
+                          className="px-2 py-0.5 rounded-full flex-shrink-0"
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 500,
+                            backgroundColor: '#FFFFFF',
+                            color: 'var(--color-text-muted)',
+                            border: '0.5px solid var(--color-border)',
+                          }}
+                        >
                           {groupDoneSteps}/{groupTotalSteps} steps
                         </span>
                       </div>
                       <ChevronDown
                         size={14}
-                        className={`text-gray-400 flex-shrink-0 ml-2 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
+                        style={{
+                          color: 'var(--color-text-faint)',
+                          flexShrink: 0,
+                          marginLeft: 8,
+                          transform: isCollapsed ? 'rotate(-90deg)' : 'none',
+                          transition: 'transform 0.15s',
+                        }}
                       />
                     </button>
 
                     {!isCollapsed && (
-                      <div className="divide-y divide-gray-100">
-                        {opps.map((opp) => {
+                      <div style={{ borderTop: '0.5px solid var(--color-border)' }}>
+                        {opps.map((opp, idx) => {
                           const { href, label } = getActiveStepHref(opp, project.id)
                           const allDone = getStepDone(opp).every(Boolean)
                           return (
-                            <div key={opp.id} className="bg-white px-5 py-4">
-                              {/* Opp name + segment */}
+                            <div
+                              key={opp.id}
+                              className="px-5 py-4"
+                              style={{
+                                backgroundColor: '#FFFFFF',
+                                borderTop: idx > 0 ? '0.5px solid var(--color-border)' : undefined,
+                              }}
+                            >
                               <div className="flex items-start justify-between gap-3 mb-3">
                                 <div className="min-w-0">
-                                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-0.5">
+                                  <p
+                                    className="mb-0.5"
+                                    style={{
+                                      fontSize: 10,
+                                      fontWeight: 500,
+                                      textTransform: 'uppercase',
+                                      letterSpacing: '0.06em',
+                                      color: 'var(--color-text-faint)',
+                                    }}
+                                  >
                                     {opp.customer_segment}
                                   </p>
-                                  <p className="text-sm font-semibold text-gray-900 leading-snug">
+                                  <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }}>
                                     {opp.name}
                                   </p>
                                 </div>
                                 {allDone ? (
-                                  <span className="flex-shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#0D6E6E]/10 text-[#0D6E6E] mt-0.5">
+                                  <span
+                                    className="flex-shrink-0 px-2.5 py-1 rounded-full"
+                                    style={{
+                                      fontSize: 10,
+                                      fontWeight: 600,
+                                      backgroundColor: 'var(--color-sage-bg)',
+                                      color: '#2D7A57',
+                                      marginTop: 2,
+                                    }}
+                                  >
                                     Complete ✓
                                   </span>
                                 ) : (
                                   <Link
                                     href={href}
-                                    className="flex-shrink-0 flex items-center gap-1 bg-[#0D6E6E] text-white py-1.5 px-3 rounded-lg text-xs font-semibold hover:bg-[#0a5555] transition-colors mt-0.5"
+                                    className="flex-shrink-0 flex items-center gap-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors"
+                                    style={{
+                                      backgroundColor: 'var(--color-amber)',
+                                      color: '#FFFFFF',
+                                      marginTop: 2,
+                                      textDecoration: 'none',
+                                    }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
                                   >
                                     {label}
                                     <ChevronRight size={11} />
                                   </Link>
                                 )}
                               </div>
-
-                              {/* 6-step pipeline */}
                               <StepPipeline opp={opp} projectId={project.id} />
                             </div>
                           )
@@ -273,12 +332,19 @@ export default function EvaluationsClient({
             </div>
           )}
 
-          {/* CTA when all done */}
           {opportunities.length > 0 && opportunities.every((o) => getStepDone(o).every(Boolean)) && (
             <div className="mt-6">
               <Link
                 href={`/project/${project.id}/map`}
-                className="flex items-center justify-center gap-2 w-full bg-[#0D6E6E] text-white py-3 px-4 rounded-xl text-sm font-semibold hover:bg-[#0a5555] transition-colors"
+                className="flex items-center justify-center gap-2 w-full py-3 px-4 text-sm font-medium transition-colors"
+                style={{
+                  backgroundColor: 'var(--color-amber)',
+                  color: '#FFFFFF',
+                  borderRadius: 10,
+                  textDecoration: 'none',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
               >
                 View attractiveness map
                 <ChevronRight size={16} />

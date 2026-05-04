@@ -79,5 +79,5 @@ export default async function DashboardPage() {
     })
   )
 
-  return <DashboardClient projects={enriched} userId={user.id} />
+  return <DashboardClient projects={enriched} userId={user.id} userName={user.user_metadata?.full_name ?? ''} />
 }

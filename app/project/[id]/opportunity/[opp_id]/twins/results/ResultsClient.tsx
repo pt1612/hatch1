@@ -13,54 +13,50 @@ const VERDICT_CONFIG = {
     headline: 'Market viability confirmed with high resonance.',
     label: 'Strong Fit',
     tagline: 'Strong alignment between problem and proposed solution.',
-    bg: 'bg-[#0D6E6E]',
-    badge: 'bg-emerald-100 text-emerald-700',
+    bgColor: 'var(--color-sage)',
+    badgeStyle: { backgroundColor: 'rgba(76,175,125,0.15)', color: '#2D7A57' },
   },
   weak_fit: {
     headline: 'Partial resonance detected — refinement required.',
     label: 'Weak Fit',
     tagline: 'Some alignment exists but the fit needs significant improvement.',
-    bg: 'bg-amber-600',
-    badge: 'bg-amber-100 text-amber-700',
+    bgColor: 'var(--color-amber)',
+    badgeStyle: { backgroundColor: 'rgba(232,169,106,0.2)', color: '#7A4A20' },
   },
   pivot_needed: {
     headline: 'Market mismatch identified — strategic pivot advised.',
     label: 'Pivot Needed',
     tagline: 'A fundamental rethink of the problem or solution is recommended.',
-    bg: 'bg-red-600',
-    badge: 'bg-red-100 text-red-700',
+    bgColor: '#C0392B',
+    badgeStyle: { backgroundColor: 'rgba(220,38,38,0.1)', color: '#DC2626' },
   },
 }
 
-function MetricCard({
-  label,
-  score,
-  description,
-}: {
-  label: string
-  score: number
-  description: string
-}) {
+function MetricCard({ label, score, description }: { label: string; score: number; description: string }) {
   const displayScore = (score / 10).toFixed(1)
-  const color =
-    score >= 70 ? 'text-emerald-600' : score >= 40 ? 'text-amber-600' : 'text-red-500'
+  const color = score >= 70 ? 'var(--color-sage)' : score >= 40 ? 'var(--color-amber)' : '#DC2626'
+  const barColor = score >= 70 ? 'var(--color-sage)' : score >= 40 ? 'var(--color-amber)' : '#EF4444'
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-5">
-      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+    <div
+      className="rounded-2xl p-5"
+      style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+    >
+      <p
+        className="mb-3"
+        style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)' }}
+      >
         {label}
       </p>
-      <p className={`text-4xl font-black mb-1 ${color}`}>{displayScore}</p>
-      <p className="text-xs text-gray-400 mb-3">out of 10</p>
-      <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+      <p style={{ fontSize: 36, fontWeight: 700, marginBottom: 2, color }}>{displayScore}</p>
+      <p style={{ fontSize: 11, color: 'var(--color-text-faint)', marginBottom: 12 }}>out of 10</p>
+      <div className="w-full rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'var(--color-linen)' }}>
         <div
-          className={`h-full rounded-full transition-all duration-700 ${
-            score >= 70 ? 'bg-emerald-500' : score >= 40 ? 'bg-amber-500' : 'bg-red-500'
-          }`}
-          style={{ width: `${score}%` }}
+          className="h-full rounded-full transition-all duration-700"
+          style={{ width: `${score}%`, backgroundColor: barColor }}
         />
       </div>
-      <p className="text-xs text-gray-500 mt-3 leading-relaxed">{description}</p>
+      <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 12, lineHeight: '1.6' }}>{description}</p>
     </div>
   )
 }
@@ -68,13 +64,12 @@ function MetricCard({
 function LoadingSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <div className="h-40 bg-gray-200 rounded-2xl" />
+      <div className="h-40 rounded-2xl" style={{ backgroundColor: 'var(--color-linen)' }} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="h-36 bg-gray-200 rounded-2xl" />
-        <div className="h-36 bg-gray-200 rounded-2xl" />
+        <div className="h-36 rounded-2xl" style={{ backgroundColor: 'var(--color-linen)' }} />
+        <div className="h-36 rounded-2xl" style={{ backgroundColor: 'var(--color-linen)' }} />
       </div>
-      <div className="h-32 bg-gray-200 rounded-2xl" />
-      <div className="h-32 bg-gray-200 rounded-2xl" />
+      <div className="h-32 rounded-2xl" style={{ backgroundColor: 'var(--color-linen)' }} />
     </div>
   )
 }
@@ -106,82 +101,40 @@ export default function ResultsClient({
     }
     setGenerating(true)
     setError(null)
-
     try {
       const res = await fetch('/api/generate-twin-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           opportunityId: opportunity.id,
-          projectInfo: {
-            name: opportunity.name,
-            problem: opportunity.description,
-            target: opportunity.customer_segment,
-            solution: opportunity.application,
-          },
+          projectInfo: { name: opportunity.name, problem: opportunity.description, target: opportunity.customer_segment, solution: opportunity.application },
           twins,
           messages,
         }),
       })
-
       if (!res.ok) throw new Error('Generation failed')
       const { report: generated } = await res.json()
       setReport(generated)
-
-      // Save report to twin_sessions
       if (twinSessionId) {
-        await supabase
-          .from('twin_sessions')
-          .update({ report: generated })
-          .eq('id', twinSessionId)
+        await supabase.from('twin_sessions').update({ report: generated }).eq('id', twinSessionId)
       } else {
-        await supabase.from('twin_sessions').insert({
-          opportunity_id: opportunity.id,
-          report: generated,
-        })
+        await supabase.from('twin_sessions').insert({ opportunity_id: opportunity.id, report: generated })
       }
-
-      // Update twin_interviews with extracted gains/pains/jobs per twin
-      console.log('[ResultsClient] whereToPlay:', JSON.stringify(generated.whereToPlay ?? null))
-
       if (generated.whereToPlay && Array.isArray(generated.whereToPlay)) {
         for (const entry of generated.whereToPlay) {
-          // Find the DB twin id for this twin
           const twinIdx = parseInt((entry.twinId as string).replace('twin', '')) - 1
           const { data: twinRow } = await supabase
-            .from('twins')
-            .select('id')
-            .eq('opportunity_id', opportunity.id)
-            .order('created_at', { ascending: true })
-            .range(twinIdx, twinIdx)
-            .maybeSingle()
-
-          console.log(`[ResultsClient] entry ${entry.twinId} (idx ${twinIdx}):`, JSON.stringify({
-            gains: entry.gains,
-            pains: entry.pains,
-            jobsToBeDone: entry.jobsToBeDone,
-          }))
-          console.log(`[ResultsClient] twinRow:`, twinRow)
-
+            .from('twins').select('id').eq('opportunity_id', opportunity.id)
+            .order('created_at', { ascending: true }).range(twinIdx, twinIdx).maybeSingle()
           if (twinRow) {
-            // Fallback to top-level aggregated values if per-twin fields are empty
             const entryGains = (entry.gains?.length > 0) ? entry.gains : (generated.gains ?? []).slice(0, 3)
             const entryPains = (entry.pains?.length > 0) ? entry.pains : (generated.pains ?? []).slice(0, 3)
             const entryJobs = (entry.jobsToBeDone?.length > 0) ? entry.jobsToBeDone : (generated.jobsToBeDone ?? []).slice(0, 3)
-
-            const { data: updated, error: updateErr } = await supabase
-              .from('twin_interviews')
-              .update({
-                segment_attractiveness: entry.segmentAttractiveness,
-                ability_to_serve: entry.abilityToServe,
-                gains: entryGains,
-                pains: entryPains,
-                jobs_to_be_done: entryJobs,
-              })
-              .eq('twin_id', twinRow.id)
-              .select('id, gains, pains, jobs_to_be_done')
-
-            console.log(`[ResultsClient] update result:`, JSON.stringify(updated), 'error:', updateErr)
+            await supabase.from('twin_interviews').update({
+              segment_attractiveness: entry.segmentAttractiveness,
+              ability_to_serve: entry.abilityToServe,
+              gains: entryGains, pains: entryPains, jobs_to_be_done: entryJobs,
+            }).eq('twin_id', twinRow.id).select('id, gains, pains, jobs_to_be_done')
           }
         }
       }
@@ -195,36 +148,47 @@ export default function ResultsClient({
   const verdict = report ? VERDICT_CONFIG[report.verdict] : null
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <Sidebar projectId={project.id} projectTitle={project.title} />
 
       <div className="ml-60 flex-1 overflow-auto p-8 max-w-3xl">
-        <BackButton
-          href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`}
-          label="Back to interviews"
-        />
+        <BackButton href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`} label="Back to interviews" />
 
         <div className="mb-6">
-          <h1 className="text-lg font-semibold text-gray-900">Validation Results</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{opportunity.name}</p>
+          <h1
+            style={{
+              fontFamily: "'Lora', Georgia, serif",
+              fontWeight: 400,
+              fontSize: 26,
+              letterSpacing: '-0.02em',
+              color: 'var(--color-ink)',
+            }}
+          >
+            Validation Results
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
         </div>
 
         {generating && (
           <div className="mb-6">
             <LoadingSkeleton />
-            <div className="flex items-center gap-2 text-sm text-gray-500 mt-4">
-              <Loader2 size={14} className="animate-spin" />
+            <div className="flex items-center gap-2 mt-4" style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+              <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
               Analyzing interview transcripts…
             </div>
           </div>
         )}
 
         {error && !generating && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-5 mb-6">
-            <p className="text-sm text-red-700 mb-3">{error}</p>
+          <div
+            className="rounded-2xl p-5 mb-6"
+            style={{ backgroundColor: '#FEF2F2', border: '0.5px solid #FECACA' }}
+          >
+            <p style={{ fontSize: 13, color: '#DC2626', marginBottom: 12 }}>{error}</p>
             <button
               onClick={generateReport}
-              className="flex items-center gap-2 text-xs font-semibold text-red-600 hover:text-red-800"
+              className="flex items-center gap-2"
+              style={{ fontSize: 12, color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               <RefreshCw size={12} /> Try again
             </button>
@@ -232,16 +196,28 @@ export default function ResultsClient({
         )}
 
         {!report && !generating && !error && (
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center mb-6">
-            <div className="text-4xl mb-4">📊</div>
-            <h3 className="text-sm font-semibold text-gray-800 mb-2">Ready to generate results</h3>
-            <p className="text-xs text-gray-400 mb-5 max-w-sm mx-auto leading-relaxed">
-              AI will analyze your interview transcripts and produce a validation verdict, problem
-              intensity score, and value resonance score.
+          <div
+            className="rounded-2xl p-8 text-center mb-6"
+            style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+          >
+            <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
+              <rect x="20" y="20" width="60" height="60" rx="8" fill="var(--color-amber-bg)" />
+              <rect x="30" y="60" width="10" height="20" rx="2" fill="var(--color-amber-light)" opacity="0.7" />
+              <rect x="45" y="45" width="10" height="35" rx="2" fill="var(--color-amber)" opacity="0.7" />
+              <rect x="60" y="35" width="10" height="45" rx="2" fill="var(--color-amber)" />
+            </svg>
+            <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 8 }}>
+              Ready to generate results
+            </h3>
+            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20, maxWidth: 320, margin: '0 auto 20px', lineHeight: '1.6' }}>
+              AI will analyze your interview transcripts and produce a validation verdict, problem intensity score, and value resonance score.
             </p>
             <button
               onClick={generateReport}
-              className="inline-flex items-center gap-2 bg-[#0D6E6E] text-white py-2.5 px-5 rounded-xl text-sm font-semibold hover:bg-[#0a5555] transition-colors"
+              className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-medium transition-colors"
+              style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
               Generate Results
               <ChevronRight size={15} />
@@ -252,51 +228,70 @@ export default function ResultsClient({
         {report && verdict && (
           <div className="space-y-5">
             {/* Verdict card */}
-            <div className={`${verdict.bg} text-white rounded-2xl p-6`}>
+            <div className="rounded-2xl p-6 text-white" style={{ backgroundColor: verdict.bgColor }}>
               <div className="flex items-start justify-between mb-3">
                 <span
-                  className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${verdict.badge}`}
+                  className="px-2.5 py-1 rounded-full text-xs font-medium"
+                  style={verdict.badgeStyle}
                 >
                   {verdict.label}
                 </span>
                 <button
                   onClick={generateReport}
                   disabled={generating}
-                  className="flex items-center gap-1 text-xs text-white/60 hover:text-white transition-colors"
+                  className="flex items-center gap-1 transition-colors"
+                  style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', background: 'none', border: 'none', cursor: 'pointer' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#FFFFFF')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
                 >
                   <RefreshCw size={11} />
                   Regenerate
                 </button>
               </div>
-              <h2 className="text-xl font-black leading-tight mb-2">{verdict.headline}</h2>
-              <p className="text-sm text-white/70 leading-relaxed">{report.summary}</p>
+              <h2
+                style={{
+                  fontFamily: "'Lora', Georgia, serif",
+                  fontWeight: 400,
+                  fontSize: 20,
+                  lineHeight: '1.4',
+                  marginBottom: 8,
+                }}
+              >
+                {verdict.headline}
+              </h2>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: '1.6' }}>{report.summary}</p>
             </div>
 
             {/* Metric cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <MetricCard
-                label="Problem Intensity"
-                score={report.problemIntensity}
-                description="How intensely the target customers experience the problem based on interview signals."
-              />
-              <MetricCard
-                label="Value Resonance"
-                score={report.valueResonance}
-                description="How well the proposed solution resonates with customers' expressed needs and WTP."
-              />
+              <MetricCard label="Problem Intensity" score={report.problemIntensity} description="How intensely the target customers experience the problem based on interview signals." />
+              <MetricCard label="Value Resonance" score={report.valueResonance} description="How well the proposed solution resonates with customers' expressed needs and WTP." />
             </div>
 
             {/* Recurring themes */}
             {report.recurringThemes?.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-2xl p-5">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <div
+                className="rounded-2xl p-5"
+                style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+              >
+                <h3
+                  className="mb-3"
+                  style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
+                >
                   Recurring Themes
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {report.recurringThemes.map((theme, i) => (
                     <span
                       key={i}
-                      className="px-3 py-1.5 rounded-full border border-[#0D6E6E]/20 text-xs font-semibold text-[#0D6E6E] bg-[#0D6E6E]/5"
+                      className="px-3 py-1.5 rounded-full"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        backgroundColor: 'var(--color-amber-bg)',
+                        color: 'var(--color-amber)',
+                        border: '0.5px solid rgba(199,123,58,0.2)',
+                      }}
                     >
                       {theme}
                     </span>
@@ -307,15 +302,28 @@ export default function ResultsClient({
 
             {/* Main objections */}
             {report.mainObjections?.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-2xl p-5">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <div
+                className="rounded-2xl p-5"
+                style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+              >
+                <h3
+                  className="mb-3"
+                  style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
+                >
                   Main Objections
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {report.mainObjections.map((obj, i) => (
                     <span
                       key={i}
-                      className="px-3 py-1.5 rounded-full border border-amber-200 text-xs font-semibold text-amber-700 bg-amber-50"
+                      className="px-3 py-1.5 rounded-full"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 500,
+                        backgroundColor: 'var(--color-linen)',
+                        color: 'var(--color-text-main)',
+                        border: '0.5px solid var(--color-border)',
+                      }}
                     >
                       {obj}
                     </span>
@@ -326,27 +334,43 @@ export default function ResultsClient({
 
             {/* Next steps */}
             {report.nextSteps?.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-2xl p-5">
-                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <div
+                className="rounded-2xl p-5"
+                style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+              >
+                <h3
+                  className="mb-3"
+                  style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
+                >
                   Recommended Next Steps
                 </h3>
                 <ol className="space-y-2">
                   {report.nextSteps.map((step, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <span className="w-5 h-5 rounded-full bg-[#0D6E6E] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span
+                        className="w-5 h-5 rounded-full text-white flex items-center justify-center flex-shrink-0 mt-0.5"
+                        style={{ fontSize: 10, fontWeight: 600, backgroundColor: 'var(--color-amber)' }}
+                      >
                         {i + 1}
                       </span>
-                      <p className="text-sm text-gray-700 leading-relaxed">{step}</p>
+                      <p style={{ fontSize: 13, color: 'var(--color-ink)', lineHeight: '1.6' }}>{step}</p>
                     </li>
                   ))}
                 </ol>
               </div>
             )}
 
-            {/* CTA to VPC */}
             <Link
               href={`/project/${project.id}/opportunity/${opportunity.id}/vpc`}
-              className="flex items-center justify-center gap-2 w-full bg-[#0D6E6E] text-white py-3 px-6 rounded-xl text-sm font-semibold hover:bg-[#0a5555] transition-colors"
+              className="flex items-center justify-center gap-2 w-full py-3 px-6 text-sm font-medium transition-colors"
+              style={{
+                backgroundColor: 'var(--color-amber)',
+                color: '#FFFFFF',
+                borderRadius: 10,
+                textDecoration: 'none',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
               View Value Proposition Canvas
               <ChevronRight size={15} />
