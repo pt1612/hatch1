@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Sidebar from '@/components/Sidebar'
@@ -43,6 +43,22 @@ export default function AbilitiesClient({ project }: { project: { id: string; ti
   const [saving, setSaving] = useState(false)
   const [collapsedApps, setCollapsedApps] = useState<Set<string>>(new Set())
 
+  // Keep a ref to the latest abilities so beforeunload can read it synchronously
+  const abilitiesRef = useRef<Ability[]>([])
+  useEffect(() => { abilitiesRef.current = abilities }, [abilities])
+
+  const saveAbilitiesToDB = useCallback(async (abilitiesToSave: Ability[]) => {
+    if (abilitiesToSave.length === 0) return
+    try {
+      await supabase.from('abilities').delete().eq('project_id', project.id)
+      await supabase.from('abilities').insert(
+        abilitiesToSave.map((a) => ({ project_id: project.id, name: a.name, description: a.description }))
+      )
+    } catch (err) {
+      console.error('[AbilitiesClient] Failed to save abilities to DB:', err)
+    }
+  }, [project.id, supabase]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const stored = localStorage.getItem(`hatch_abilities_${project.id}`)
     if (stored) {
@@ -57,6 +73,20 @@ export default function AbilitiesClient({ project }: { project: { id: string; ti
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // Save on page unload so navigation away doesn't lose extracted abilities
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (abilitiesRef.current.length > 0) {
+        // Kick off async save — best-effort on unload
+        saveAbilitiesToDB(abilitiesRef.current).catch((err) =>
+          console.error('[AbilitiesClient] beforeunload save error:', err)
+        )
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [saveAbilitiesToDB])
 
   function persistMessages(msgs: ChatMessage[]) {
     localStorage.setItem(`hatch_abilities_${project.id}`, JSON.stringify(msgs))
@@ -130,16 +160,24 @@ export default function AbilitiesClient({ project }: { project: { id: string; ti
 
   async function extractFromConversation(msgs: ChatMessage[]) {
     const conversation = msgs.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n')
-    const [abilitiesRes, oppsRes] = await Promise.all([
-      fetch('/api/extract-abilities', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversation }) }),
-      fetch('/api/extract-opportunities', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversation }) }),
-    ])
-    const abilitiesData = await abilitiesRes.json()
-    const oppsData = await oppsRes.json()
-    const extractedAbilities: Ability[] = abilitiesData.abilities ?? []
-    const extractedOpps: ExtractedOpportunity[] = oppsData.opportunities ?? []
-    if (extractedAbilities.length > 0) setAbilities(extractedAbilities)
-    if (extractedOpps.length > 0) setOpportunities(extractedOpps)
+    try {
+      const [abilitiesRes, oppsRes] = await Promise.all([
+        fetch('/api/extract-abilities', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversation }) }),
+        fetch('/api/extract-opportunities', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversation }) }),
+      ])
+      const abilitiesData = await abilitiesRes.json()
+      const oppsData = await oppsRes.json()
+      const extractedAbilities: Ability[] = abilitiesData.abilities ?? []
+      const extractedOpps: ExtractedOpportunity[] = oppsData.opportunities ?? []
+      if (extractedAbilities.length > 0) {
+        setAbilities(extractedAbilities)
+        // Persist to DB on every AI message — don't wait for the explicit "Generate" button
+        await saveAbilitiesToDB(extractedAbilities)
+      }
+      if (extractedOpps.length > 0) setOpportunities(extractedOpps)
+    } catch (err) {
+      console.error('[AbilitiesClient] extractFromConversation error:', err)
+    }
   }
 
   async function handleGenerateOpportunities() {

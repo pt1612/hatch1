@@ -151,6 +151,7 @@ function VPCSubCol({
   emptyText,
   onAdd,
   renderPill,
+  onAddAll,
 }: {
   title: string
   items: string[]
@@ -158,15 +159,24 @@ function VPCSubCol({
   emptyText: string
   onAdd: (text: string) => void
   renderPill: (text: string, index: number) => React.ReactNode
+  onAddAll?: () => void
 }) {
   const [adding, setAdding] = useState(false)
   const [val, setVal] = useState('')
+  const [addedAll, setAddedAll] = useState(false)
 
   function submit() {
     const t = val.trim()
     if (t) onAdd(t)
     setVal('')
     setAdding(false)
+  }
+
+  function handleAddAll() {
+    if (!onAddAll) return
+    onAddAll()
+    setAddedAll(true)
+    setTimeout(() => setAddedAll(false), 2000)
   }
 
   return (
@@ -182,6 +192,21 @@ function VPCSubCol({
         >
           <Plus size={7} style={{ color: 'var(--color-text-muted)' }} />
         </button>
+        {onAddAll && items.length > 0 && (
+          <button
+            onClick={handleAddAll}
+            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full transition-colors flex-shrink-0"
+            style={{
+              fontSize: 8,
+              fontWeight: 500,
+              backgroundColor: addedAll ? 'rgba(76,175,125,0.15)' : 'var(--color-amber-bg)',
+              color: addedAll ? 'var(--color-sage)' : 'var(--color-amber)',
+              border: addedAll ? '0.5px solid rgba(76,175,125,0.3)' : '0.5px solid rgba(199,123,58,0.2)',
+            }}
+          >
+            {addedAll ? '✓ Added' : '+ Add all to VPC'}
+          </button>
+        )}
       </div>
       {items.length > 0 ? (
         <div className="flex flex-wrap gap-1">{items.map(renderPill)}</div>
@@ -443,8 +468,22 @@ export default function VPCClient({
     addToFinalVPC(col, text, -1)
   }
 
+  // ── Batch-add an entire VM section to final VPC (no duplicates) ─────────────
+  function addSectionToFinalVPC(col: keyof FinalVPC, items: string[], twinIdx: number) {
+    setFinalVPC((prev) => {
+      const existingTexts = new Set(prev[col].map((item) => item.text))
+      const newItems = items
+        .filter((text) => !existingTexts.has(text))
+        .map((text) => ({ text, twinIdx }))
+      if (newItems.length === 0) return prev
+      const updated = { ...prev, [col]: [...prev[col], ...newItems] }
+      saveFinalVPC(updated)
+      return updated
+    })
+  }
+
   // ── AI generate per-twin value map ─────────────────────────────────────────
-  async function generateTwinVM(ivId: string) {
+  async function generateTwinVM(ivId: string, twin: DigitalTwin) {
     setGeneratingVM((prev) => ({ ...prev, [ivId]: true }))
     try {
       const profile = profiles[ivId] ?? { jobs: [], pains: [], gains: [] }
@@ -458,6 +497,12 @@ export default function VPCClient({
           aggregatedPains: profile.pains,
           aggregatedGains: profile.gains,
           aggregatedJobs:  profile.jobs,
+          twinProfile: { name: twin.name, role: twin.role, segment: twin.segment },
+          existingVPCItems: {
+            productsAndServices: finalVPC.productsAndServices.map((i) => i.text),
+            painRelievers: finalVPC.painRelievers.map((i) => i.text),
+            gainCreators: finalVPC.gainCreators.map((i) => i.text),
+          },
         }),
       })
       const { valueMap: generated } = await res.json()
@@ -594,7 +639,7 @@ export default function VPCClient({
                                 Value Map
                               </p>
                               <button
-                                onClick={() => generateTwinVM(ivId)}
+                                onClick={() => generateTwinVM(ivId, twin)}
                                 disabled={isGenerating}
                                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-colors disabled:opacity-60"
                                 style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
@@ -630,6 +675,7 @@ export default function VPCClient({
                                   pillClass={PRODUCT_CLASS}
                                   emptyText="None yet"
                                   onAdd={(t) => addVMItem(ivId, 'productsAndServices', t)}
+                                  onAddAll={() => addSectionToFinalVPC('productsAndServices', vm.productsAndServices, twinIdx)}
                                   renderPill={(text, i) => (
                                     <TwinPill
                                       key={i}
@@ -646,6 +692,7 @@ export default function VPCClient({
                                   pillClass={RELIEVER_CLASS}
                                   emptyText="None yet"
                                   onAdd={(t) => addVMItem(ivId, 'painRelievers', t)}
+                                  onAddAll={() => addSectionToFinalVPC('painRelievers', vm.painRelievers, twinIdx)}
                                   renderPill={(text, i) => (
                                     <TwinPill
                                       key={i}
@@ -662,6 +709,7 @@ export default function VPCClient({
                                   pillClass={CREATOR_CLASS}
                                   emptyText="None yet"
                                   onAdd={(t) => addVMItem(ivId, 'gainCreators', t)}
+                                  onAddAll={() => addSectionToFinalVPC('gainCreators', vm.gainCreators, twinIdx)}
                                   renderPill={(text, i) => (
                                     <TwinPill
                                       key={i}
