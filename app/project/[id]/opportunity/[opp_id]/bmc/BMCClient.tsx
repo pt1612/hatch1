@@ -36,9 +36,10 @@ type FinalVPC = {
   gains?:               (string | FinalVPCItem)[]
 }
 
+type AggAttribution = Partial<Record<BlockKey, Record<string, number[]>>>
+
 type Ability = { id: string; name: string; description: string }
 
-type AggregatedInsights = { gains: string[]; pains: string[]; jobs: string[] }
 
 type TwinInterviewData = {
   id: string | null
@@ -50,7 +51,7 @@ type TwinInterviewData = {
   bmcData: Record<string, unknown> | null
 }
 
-type BMCRow = BMCData & { id: string }
+type BMCRow = BMCData & { id: string; agg_attribution?: AggAttribution }
 
 // ─── Block static config ────────────────────────────────────────────────────────
 
@@ -172,42 +173,32 @@ function extractTexts(arr: (string | FinalVPCItem)[] | undefined): string[] {
   return (arr ?? []).map(toText).filter(Boolean)
 }
 
-/** Derive value propositions from the FinalVPC or aggregated insights */
-function deriveValuePropositions(
-  vpcValueMap: FinalVPC | null,
-  insights: AggregatedInsights
-): string[] {
-  const hasInsights =
-    insights.gains.length > 0 || insights.pains.length > 0 || insights.jobs.length > 0
-  if (hasInsights) {
-    return [
-      ...new Set([
-        ...insights.gains.slice(0, 2),
-        ...insights.pains.slice(0, 2),
-        ...insights.jobs.slice(0, 1),
-      ].filter(Boolean)),
-    ]
-  }
-  if (vpcValueMap) {
-    return [
-      ...new Set([
-        ...extractTexts(vpcValueMap.productsAndServices).slice(0, 2),
-        ...extractTexts(vpcValueMap.painRelievers).slice(0, 1),
-        ...extractTexts(vpcValueMap.gainCreators).slice(0, 1),
-      ]),
-    ]
-  }
-  return []
+/** Derive value propositions exclusively from the aggregate VPC (left-side items) */
+function deriveValuePropositions(vpcValueMap: FinalVPC | null): string[] {
+  if (!vpcValueMap) return []
+  return [
+    ...new Set([
+      ...extractTexts(vpcValueMap.productsAndServices).slice(0, 2),
+      ...extractTexts(vpcValueMap.painRelievers).slice(0, 1),
+      ...extractTexts(vpcValueMap.gainCreators).slice(0, 1),
+    ]),
+  ]
+}
+
+/** Extract FinalVPCItem array from a FinalVPC section for AI attribution context */
+function extractVPCSection(arr: (string | FinalVPCItem)[] | undefined): { text: string; twinIdx: number }[] {
+  return (arr ?? []).map((item) =>
+    typeof item === 'string' ? { text: item, twinIdx: -1 } : item
+  )
 }
 
 /** Init aggregated BMC data from existing row or fresh */
 function initAggData(
   existingBMC: BMCRow | null,
   vpcValueMap: FinalVPC | null,
-  twinSegments: string[],
-  insights: AggregatedInsights
+  twinSegments: string[]
 ): BMCData {
-  const vp = deriveValuePropositions(vpcValueMap, insights)
+  const vp = deriveValuePropositions(vpcValueMap)
   const cs = twinSegments
   if (existingBMC) {
     return {
@@ -527,7 +518,6 @@ export default function BMCClient({
   twinInterviews,
   vpcValueMap,
   twinSegments,
-  aggregatedInsights,
   existingBMC,
 }: {
   project: { id: string; title: string }
@@ -536,7 +526,6 @@ export default function BMCClient({
   twinInterviews: TwinInterviewData[]
   vpcValueMap: unknown
   twinSegments: string[]
-  aggregatedInsights: AggregatedInsights
   existingBMC: BMCRow | null
 }) {
   const supabase = createClient()
@@ -555,10 +544,13 @@ export default function BMCClient({
 
   // ── Aggregated BMC state ───────────────────────────────────────────────────
   const [aggData, setAggData] = useState<BMCData>(() =>
-    initAggData(existingBMC, finalVPC, twinSegments, aggregatedInsights)
+    initAggData(existingBMC, finalVPC, twinSegments)
   )
   const [bmcId, setBmcId] = useState<string | null>(existingBMC?.id ?? null)
   const [aggGenerating, setAggGenerating] = useState<Partial<Record<BlockKey, boolean>>>({})
+  const [aggAttribution, setAggAttribution] = useState<AggAttribution>(() =>
+    (existingBMC?.agg_attribution as AggAttribution | null | undefined) ?? {}
+  )
   const [exporting, setExporting] = useState(false)
 
   // ── Unlock logic ─────────────────────────────────────────────────────────────
@@ -568,28 +560,25 @@ export default function BMCClient({
     return (data[GENERATION_ORDER[idx - 1]]?.length ?? 0) > 0
   }
 
-  // ── Twin-dot lookup (aggregated tab only) ────────────────────────────────────
+  // ── Twin-dot lookup (aggregated tab) — reads stored AI attribution ─────────
   function getTwinDotsForItem(block: BlockKey, text: string): string[] {
-    return twinInterviews
-      .map((iv, i) => {
-        const twinBlockItems = perTwinBmc[i]?.[block] ?? []
-        return twinBlockItems.includes(text) ? TWIN_COLORS_HEX[i % TWIN_COLORS_HEX.length] : null
-      })
-      .filter((c): c is string => c !== null)
+    const blockAttr = aggAttribution[block]
+    return (blockAttr?.[text] ?? []).map((idx) => TWIN_COLORS_HEX[idx % TWIN_COLORS_HEX.length])
   }
 
   // ── DB save: aggregated ───────────────────────────────────────────────────────
-  async function saveAgg(newData: BMCData) {
+  async function saveAgg(newData: BMCData, newAttribution?: AggAttribution) {
     try {
+      const extra = newAttribution !== undefined ? { agg_attribution: newAttribution } : {}
       if (bmcId) {
         await supabase
           .from('business_model_canvases')
-          .update({ ...newData, updated_at: new Date().toISOString() })
+          .update({ ...newData, ...extra, updated_at: new Date().toISOString() })
           .eq('id', bmcId)
       } else {
         const { data: row } = await supabase
           .from('business_model_canvases')
-          .insert({ opportunity_id: opportunity.id, ...newData })
+          .insert({ opportunity_id: opportunity.id, ...newData, ...extra })
           .select('id')
           .single()
         if (row?.id) setBmcId(row.id)
@@ -661,6 +650,18 @@ export default function BMCClient({
     }
 
     try {
+      // Build VPC attribution context for aggregate generation
+      const vpcWithAttribution = isAgg && finalVPC
+        ? {
+            productsAndServices: extractVPCSection(finalVPC.productsAndServices),
+            painRelievers:       extractVPCSection(finalVPC.painRelievers),
+            gainCreators:        extractVPCSection(finalVPC.gainCreators),
+            jobs:                extractVPCSection(finalVPC.jobs),
+            pains:               extractVPCSection(finalVPC.pains),
+            gains:               extractVPCSection(finalVPC.gains),
+          }
+        : undefined
+
       const res = await fetch('/api/generate-bmc-block', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -669,8 +670,8 @@ export default function BMCClient({
           opportunityName: opportunity.name,
           opportunityDescription: opportunity.description,
           abilities,
-          // pass the twin's segment as extra context when on a twin tab
           ...(iv ? { twinSegment: iv.twinSegment } : {}),
+          ...(isAgg ? { isAggregate: true, vpcWithAttribution } : {}),
           existingBlocks: {
             value_propositions:     data.value_propositions,
             customer_segments:      data.customer_segments,
@@ -683,12 +684,19 @@ export default function BMCClient({
           },
         }),
       })
-      const { items } = await res.json()
+      const json = await res.json()
+      const items: string[] = json.items
 
       if (isAgg) {
+        // Build attribution map for this block
+        const blockAttr: Record<string, number[]> = {}
+        for (const a of (json.attribution ?? []) as { text: string; source_twins: number[] }[]) {
+          blockAttr[a.text] = a.source_twins
+        }
+        setAggAttribution((prev) => ({ ...prev, [block]: blockAttr }))
         setAggData((prev) => {
           const updated = { ...prev, [block]: items }
-          saveAgg(updated)
+          saveAgg(updated, { ...aggAttribution, [block]: blockAttr })
           return updated
         })
       } else {
@@ -889,7 +897,7 @@ export default function BMCClient({
                 {iv.twinName}
               </span>
             ))}
-            <span style={{ fontStyle: 'italic', color: 'var(--color-text-faint)' }}>Dots appear when a twin has the same item in their own BMC.</span>
+            <span style={{ fontStyle: 'italic', color: 'var(--color-text-faint)' }}>Dots show which twins&apos; VPC elements inspired each item.</span>
           </div>
         )}
 
@@ -914,6 +922,7 @@ export default function BMCClient({
             }
             onAdd={(block, text) => addTwinItem(activeTab, block, text)}
             onRemove={(block, i) => removeTwinItem(activeTab, block, i)}
+            getTwinDots={(_block, _text) => [TWIN_COLORS_HEX[activeTab % TWIN_COLORS_HEX.length]]}
           />
         )}
 

@@ -76,11 +76,13 @@ function normalizeFinalVPC(raw: unknown): FinalVPC {
 function TwinPill({
   text,
   pillClass,
+  dotColor,
   onAddToFinal,
   onRemove,
 }: {
   text: string
   pillClass: string
+  dotColor?: string
   onAddToFinal?: () => void
   onRemove?: () => void
 }) {
@@ -88,6 +90,12 @@ function TwinPill({
     <span
       className={`inline-flex items-start gap-1 text-xs font-medium px-2.5 py-1 rounded-lg whitespace-normal break-words max-w-full ${pillClass}`}
     >
+      {dotColor && (
+        <span
+          className="w-2 h-2 rounded-full flex-shrink-0 mt-0.5"
+          style={{ backgroundColor: dotColor }}
+        />
+      )}
       <span className="flex-1 min-w-0">{text}</span>
       {onAddToFinal && (
         <button
@@ -380,6 +388,7 @@ export default function VPCClient({
     return s
   })
   const [generatingVM, setGeneratingVM] = useState<Record<string, boolean>>({})
+  const [vmError, setVmError] = useState<Record<string, boolean>>({})
 
   // ── Final VPC ───────────────────────────────────────────────────────────────
   const [finalVPC, setFinalVPC] = useState<FinalVPC>(() => normalizeFinalVPC(existingFinalVPC))
@@ -485,7 +494,9 @@ export default function VPCClient({
   // ── AI generate per-twin value map ─────────────────────────────────────────
   async function generateTwinVM(ivId: string, twin: DigitalTwin) {
     setGeneratingVM((prev) => ({ ...prev, [ivId]: true }))
+    setVmError((prev) => ({ ...prev, [ivId]: false }))
     try {
+      console.log('[VPC generate] starting for twin:', twin.name, ivId)
       const profile = profiles[ivId] ?? { jobs: [], pains: [], gains: [] }
       const res = await fetch('/api/generate-vpc-value-map', {
         method: 'POST',
@@ -505,11 +516,16 @@ export default function VPCClient({
           },
         }),
       })
-      const { valueMap: generated } = await res.json()
+      console.log('[VPC generate] response status:', res.status)
+      const json = await res.json()
+      console.log('[VPC generate] parsed response:', json)
+      if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`)
+      const { valueMap: generated } = json
       setTwinVMs((prev) => ({ ...prev, [ivId]: generated }))
       await saveTwinVM(ivId, generated)
-    } catch {
-      // silent — user can retry
+    } catch (err) {
+      console.error('[VPC generate] error:', err)
+      setVmError((prev) => ({ ...prev, [ivId]: true }))
     } finally {
       setGeneratingVM((prev) => ({ ...prev, [ivId]: false }))
     }
@@ -667,6 +683,12 @@ export default function VPCClient({
                               </p>
                             )}
 
+                            {vmError[ivId] && (
+                              <p style={{ fontSize: 10, color: '#DC2626', marginTop: 4 }}>
+                                Generation failed — check console and retry.
+                              </p>
+                            )}
+
                             {vm && (
                               <>
                                 <VPCSubCol
@@ -681,6 +703,7 @@ export default function VPCClient({
                                       key={i}
                                       text={text}
                                       pillClass={PRODUCT_CLASS}
+                                      dotColor={twinColor}
                                       onAddToFinal={() => addToFinalVPC('productsAndServices', text, twinIdx)}
                                       onRemove={() => removeVMItem(ivId, 'productsAndServices', i)}
                                     />
@@ -698,6 +721,7 @@ export default function VPCClient({
                                       key={i}
                                       text={text}
                                       pillClass={RELIEVER_CLASS}
+                                      dotColor={twinColor}
                                       onAddToFinal={() => addToFinalVPC('painRelievers', text, twinIdx)}
                                       onRemove={() => removeVMItem(ivId, 'painRelievers', i)}
                                     />
@@ -715,6 +739,7 @@ export default function VPCClient({
                                       key={i}
                                       text={text}
                                       pillClass={CREATOR_CLASS}
+                                      dotColor={twinColor}
                                       onAddToFinal={() => addToFinalVPC('gainCreators', text, twinIdx)}
                                       onRemove={() => removeVMItem(ivId, 'gainCreators', i)}
                                     />
@@ -735,11 +760,13 @@ export default function VPCClient({
                               pillClass={JOB_CLASS}
                               emptyText="No jobs extracted"
                               onAdd={(t) => addProfileItem(ivId, 'jobs', t)}
+                              onAddAll={() => addSectionToFinalVPC('jobs', profile?.jobs ?? [], twinIdx)}
                               renderPill={(text, i) => (
                                 <TwinPill
                                   key={i}
                                   text={text}
                                   pillClass={JOB_CLASS}
+                                  dotColor={twinColor}
                                   onAddToFinal={() => addToFinalVPC('jobs', text, twinIdx)}
                                   onRemove={() => removeProfileItem(ivId, 'jobs', i)}
                                 />
@@ -751,11 +778,13 @@ export default function VPCClient({
                               pillClass={PAIN_CLASS}
                               emptyText="No pains extracted"
                               onAdd={(t) => addProfileItem(ivId, 'pains', t)}
+                              onAddAll={() => addSectionToFinalVPC('pains', profile?.pains ?? [], twinIdx)}
                               renderPill={(text, i) => (
                                 <TwinPill
                                   key={i}
                                   text={text}
                                   pillClass={PAIN_CLASS}
+                                  dotColor={twinColor}
                                   onAddToFinal={() => addToFinalVPC('pains', text, twinIdx)}
                                   onRemove={() => removeProfileItem(ivId, 'pains', i)}
                                 />
@@ -767,11 +796,13 @@ export default function VPCClient({
                               pillClass={GAIN_CLASS}
                               emptyText="No gains extracted"
                               onAdd={(t) => addProfileItem(ivId, 'gains', t)}
+                              onAddAll={() => addSectionToFinalVPC('gains', profile?.gains ?? [], twinIdx)}
                               renderPill={(text, i) => (
                                 <TwinPill
                                   key={i}
                                   text={text}
                                   pillClass={GAIN_CLASS}
+                                  dotColor={twinColor}
                                   onAddToFinal={() => addToFinalVPC('gains', text, twinIdx)}
                                   onRemove={() => removeProfileItem(ivId, 'gains', i)}
                                 />

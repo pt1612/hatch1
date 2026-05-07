@@ -13,8 +13,12 @@ const BLOCK_LABELS: Record<string, string> = {
   cost_structure: 'Cost Structure',
 }
 
+type VPCSection = { text: string; twinIdx: number }[]
+type VPCWithAttribution = Record<string, VPCSection>
+
 export async function POST(request: NextRequest) {
-  const { block, opportunityName, opportunityDescription, abilities, existingBlocks } =
+  const { block, opportunityName, opportunityDescription, abilities, existingBlocks,
+          isAggregate, vpcWithAttribution, twinSegment } =
     await request.json()
 
   const abilitiesText =
@@ -49,11 +53,48 @@ export async function POST(request: NextRequest) {
     .filter(Boolean)
     .join('\n')
 
-  const prompt = `You are a business model expert helping a founder build a Business Model Canvas for a specific market opportunity.
+  let prompt: string
+
+  if (isAggregate && vpcWithAttribution) {
+    // Build a labelled VPC context string tagging each item with its source twin
+    const vpc = vpcWithAttribution as VPCWithAttribution
+    const vpcContext = Object.entries(vpc)
+      .filter(([, items]) => items.length > 0)
+      .map(([section, items]) =>
+        `${section}: ${items.map((i) => i.twinIdx >= 0 ? `[Twin${i.twinIdx}] ${i.text}` : i.text).join(', ')}`
+      )
+      .join('\n')
+
+    prompt = `You are a business model expert helping a founder build a Business Model Canvas for a specific market opportunity.
 
 Opportunity: ${opportunityName}
 Description: ${opportunityDescription}
 
+Their core abilities:
+${abilitiesText}
+
+Already defined blocks:
+${definedLines}
+
+The aggregate Value Proposition Canvas (each item tagged with its source twin in [TwinN]):
+${vpcContext || '(no VPC items yet)'}
+
+Generate 4-6 specific, concrete items for the "${BLOCK_LABELS[block]}" block.
+Items must be consistent with the defined blocks and inspired by the VPC above.
+Be specific and actionable — avoid generic items.
+Each item must be a short phrase of at most 8 words — no full sentences.
+For each item, identify which twin indices (0-based) from the VPC influenced it.
+Detect the language from the opportunity description and respond in that language.
+
+Return only valid complete JSON. Never truncate.
+Respond ONLY with a JSON array of objects, no other text.
+Example: [{ "text": "Item 1", "source_twins": [0, 1] }, { "text": "Item 2", "source_twins": [0] }]`
+  } else {
+    prompt = `You are a business model expert helping a founder build a Business Model Canvas for a specific market opportunity.
+
+Opportunity: ${opportunityName}
+Description: ${opportunityDescription}
+${twinSegment ? `\nFocusing on customer segment: ${twinSegment}\n` : ''}
 Their core abilities:
 ${abilitiesText}
 
@@ -69,6 +110,7 @@ Detect the language from the opportunity description and respond in that languag
 Return only valid complete JSON. Never truncate. If content is too long, shorten individual items rather than cutting the JSON structure.
 Respond ONLY with a JSON array of strings, no other text.
 Example: ["Item 1", "Item 2", "Item 3"]`
+  }
 
   const msg = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
@@ -77,8 +119,14 @@ Example: ["Item 1", "Item 2", "Item 3"]`
   })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '[]'
-  const match = raw.match(/\[[\s\S]*\]/)
-  const items = match ? JSON.parse(match[0]) : []
 
-  return Response.json({ items })
+  if (isAggregate && vpcWithAttribution) {
+    const match = raw.match(/\[[\s\S]*\]/)
+    const attribution: { text: string; source_twins: number[] }[] = match ? JSON.parse(match[0]) : []
+    return Response.json({ items: attribution.map((a) => a.text), attribution })
+  } else {
+    const match = raw.match(/\[[\s\S]*\]/)
+    const items = match ? JSON.parse(match[0]) : []
+    return Response.json({ items })
+  }
 }

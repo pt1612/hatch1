@@ -16,6 +16,7 @@ type TwinProfile = {
 }
 
 export async function POST(request: NextRequest) {
+  try {
   const {
     opportunityName,
     opportunityDescription,
@@ -36,6 +37,15 @@ export async function POST(request: NextRequest) {
     existingVPCItems?: ExistingVPCItems
   } = await request.json()
 
+  console.log('[VPC API] params received:', {
+    opportunityName,
+    hasTwinProfile: !!twinProfile,
+    hasExistingVPCItems: !!existingVPCItems,
+    painsCount: aggregatedPains?.length ?? 0,
+    gainsCount: aggregatedGains?.length ?? 0,
+    jobsCount: aggregatedJobs?.length ?? 0,
+  })
+
   const abilitiesText =
     abilities && abilities.length > 0
       ? abilities.map((a) => `- ${a.name}: ${a.description}`).join('\n')
@@ -46,6 +56,8 @@ export async function POST(request: NextRequest) {
     ((existingVPCItems.productsAndServices?.length ?? 0) > 0 ||
       (existingVPCItems.painRelievers?.length ?? 0) > 0 ||
       (existingVPCItems.gainCreators?.length ?? 0) > 0)
+
+  console.log('[VPC API] mode:', hasExistingItems && twinProfile ? 'subset-selection' : 'generation')
 
   let prompt: string
 
@@ -111,6 +123,8 @@ Respond ONLY with a JSON object, no other text:
 }`
   }
 
+  console.log('[VPC API] prompt built, length:', prompt.length)
+
   const msg = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
@@ -118,8 +132,15 @@ Respond ONLY with a JSON object, no other text:
   })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
+  console.log('[VPC API] AI raw response:', raw)
+
   const match = raw.match(/\{[\s\S]*\}/)
   const valueMap = match ? JSON.parse(match[0]) : { productsAndServices: [], painRelievers: [], gainCreators: [] }
+  console.log('[VPC API] parsed valueMap:', valueMap)
 
   return Response.json({ valueMap })
+  } catch (err) {
+    console.error('[VPC API] unhandled error:', err)
+    return Response.json({ error: String(err) }, { status: 500 })
+  }
 }

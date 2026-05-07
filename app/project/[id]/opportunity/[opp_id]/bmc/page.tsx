@@ -81,30 +81,6 @@ export default async function BMCPage({
     ...new Set((twinRows ?? []).map((r) => r.segment as string).filter(Boolean)),
   ]
 
-  // Aggregate gains/pains/jobs from interviews for pre-filling aggregated VP
-  const { data: insightRows } = dbTwinIds.length > 0
-    ? await supabase
-        .from('twin_interviews')
-        .select('gains, pains, jobs_to_be_done')
-        .in('twin_id', dbTwinIds)
-    : { data: [] }
-
-  function rankTop(lists: (string[] | null)[], n: number): string[] {
-    const all = (lists ?? []).flatMap((l) => l ?? []).map((s) => s.trim()).filter(Boolean)
-    const counts: Record<string, number> = {}
-    for (const item of all) counts[item.toLowerCase()] = (counts[item.toLowerCase()] ?? 0) + 1
-    const unique = [...new Set(all)]
-    return unique
-      .sort((a, b) => (counts[b.toLowerCase()] ?? 0) - (counts[a.toLowerCase()] ?? 0))
-      .slice(0, n)
-  }
-
-  const aggregatedInsights = {
-    gains: rankTop((insightRows ?? []).map((r) => r.gains), 3),
-    pains: rankTop((insightRows ?? []).map((r) => r.pains), 3),
-    jobs:  rankTop((insightRows ?? []).map((r) => r.jobs_to_be_done), 2),
-  }
-
   // Existing aggregated BMC
   const { data: existingBMC } = await supabase
     .from('business_model_canvases')
@@ -120,7 +96,6 @@ export default async function BMCPage({
       twinInterviews={twinInterviews}
       vpcValueMap={twinSession?.vpc_value_map ?? null}
       twinSegments={twinSegments}
-      aggregatedInsights={aggregatedInsights}
       existingBMC={existingBMC}
     />
   )
