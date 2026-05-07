@@ -230,7 +230,7 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
   const [projectId, setProjectId] = useState<string | null>(null)
   const [opportunityName, setOpportunityName] = useState('')
   const [blocks, setBlocks] = useState<Record<BlockKey, string[]>>(
-    Object.fromEntries(BMC_BLOCKS.map((b) => [b.key, []])) as Record<BlockKey, string[]>
+    Object.fromEntries(BMC_BLOCKS.map((b) => [b.key, []])) as unknown as Record<BlockKey, string[]>
   )
   const [saving, setSaving] = useState(false)
 
