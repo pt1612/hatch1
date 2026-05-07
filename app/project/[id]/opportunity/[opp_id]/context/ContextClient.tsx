@@ -39,7 +39,7 @@ export default function ContextClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-4">
+      <div className="flex-1 overflow-auto p-8 pt-14">
         <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
 
         <div className="max-w-2xl">

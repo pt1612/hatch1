@@ -18,7 +18,7 @@ type VPCWithAttribution = Record<string, VPCSection>
 
 export async function POST(request: NextRequest) {
   const { block, opportunityName, opportunityDescription, abilities, existingBlocks,
-          isAggregate, vpcWithAttribution, twinSegment } =
+          isAggregate, vpcWithAttribution, twinSegment, twinProfile, twinVPCData } =
     await request.json()
 
   const abilitiesText =
@@ -90,11 +90,30 @@ Return only valid complete JSON. Never truncate.
 Respond ONLY with a JSON array of objects, no other text.
 Example: [{ "text": "Item 1", "source_twins": [0, 1] }, { "text": "Item 2", "source_twins": [0] }]`
   } else {
+    // Build optional VPC context for twin-specific generation
+    let twinVPCContext = ''
+    if (twinProfile && twinVPCData) {
+      const vd = twinVPCData as Record<string, string[]>
+      const ps = (vd.productsAndServices ?? []).join(' | ') || '(none)'
+      const pr = (vd.painRelievers ?? []).join(' | ') || '(none)'
+      const gc = (vd.gainCreators ?? []).join(' | ') || '(none)'
+      twinVPCContext = `
+Twin profile: ${twinProfile.name} — ${twinProfile.role} in the "${twinProfile.segment}" segment.
+
+This twin's Value Proposition Canvas (select 2–4 items per section that are most relevant to this twin):
+Products & Services: ${ps}
+Pain Relievers: ${pr}
+Gain Creators: ${gc}
+
+For the "Value Propositions" block, select only 2–4 items from the VPC above that genuinely apply to this twin — do not include all items, only the most relevant ones.
+`
+    }
+
     prompt = `You are a business model expert helping a founder build a Business Model Canvas for a specific market opportunity.
 
 Opportunity: ${opportunityName}
 Description: ${opportunityDescription}
-${twinSegment ? `\nFocusing on customer segment: ${twinSegment}\n` : ''}
+${twinSegment ? `\nFocusing on customer segment: ${twinSegment}\n` : ''}${twinVPCContext}
 Their core abilities:
 ${abilitiesText}
 

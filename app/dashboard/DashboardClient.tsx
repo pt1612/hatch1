@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
-import { Plus, ArrowRight, MoreHorizontal, Calendar } from 'lucide-react'
+import { Plus, ArrowRight, MoreHorizontal, Calendar, Pencil } from 'lucide-react'
 
 const PHASE_LABELS = ['Abilities', 'Evaluation', 'Map', 'Strategy']
 
@@ -39,6 +39,15 @@ export default function DashboardClient({
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
   const firstName = userName?.split(' ')[0] ?? ''
   const activeCount = projects.filter((p) => p.completed_phases.some(Boolean)).length
+
+  async function handleRename(projectId: string, newName: string) {
+    const trimmed = newName.trim()
+    if (!trimmed) return
+    setProjectList((prev) =>
+      prev.map((p) => (p.id === projectId ? { ...p, title: trimmed } : p))
+    )
+    await supabase.from('projects').update({ title: trimmed }).eq('id', projectId)
+  }
 
   async function handleDeleteProject(projectId: string) {
     if (!window.confirm('Delete this project? All opportunities, twins, interviews, and canvases will be permanently removed.')) return
@@ -83,7 +92,7 @@ export default function DashboardClient({
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav />
-      <main className="flex-1 overflow-auto p-8 pt-4 max-w-5xl mx-auto w-full px-6">
+      <main className="flex-1 overflow-auto p-8 pt-14 max-w-5xl mx-auto w-full px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -170,6 +179,7 @@ export default function DashboardClient({
                 project={project}
                 isDeleting={deleting === project.id}
                 onDelete={() => handleDeleteProject(project.id)}
+                onRename={(newName) => handleRename(project.id, newName)}
               />
             ))}
           </div>
@@ -183,12 +193,17 @@ function ProjectCard({
   project,
   isDeleting,
   onDelete,
+  onRename,
 }: {
   project: EnrichedProject
   isDeleting: boolean
   onDelete: () => void
+  onRename: (newName: string) => void
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [hoveringTitle, setHoveringTitle] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [editVal, setEditVal] = useState(project.title)
   const completed = project.completed_phases.filter(Boolean).length
   const total = project.completed_phases.length
   const isDraft = completed === 0
@@ -215,18 +230,81 @@ function ProjectCard({
       {/* Fix: re-apply top border color on hover since border shorthand overrides it */}
       {/* Header */}
       <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          <h3
-            className="truncate"
-            style={{ fontWeight: 500, fontSize: 14, color: 'var(--color-ink)' }}
-          >
-            {project.title}
-          </h3>
+        <div
+          className="flex-1 min-w-0"
+          onMouseEnter={() => setHoveringTitle(true)}
+          onMouseLeave={() => setHoveringTitle(false)}
+        >
+          {editing ? (
+            <input
+              autoFocus
+              type="text"
+              value={editVal}
+              onChange={(e) => setEditVal(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  onRename(editVal)
+                  setEditing(false)
+                }
+                if (e.key === 'Escape') {
+                  setEditVal(project.title)
+                  setEditing(false)
+                }
+              }}
+              onBlur={() => {
+                onRename(editVal)
+                setEditing(false)
+              }}
+              style={{
+                width: '100%',
+                fontWeight: 500,
+                fontSize: 14,
+                color: 'var(--color-ink)',
+                background: 'none',
+                border: 'none',
+                borderBottom: '1px solid var(--color-amber)',
+                outline: 'none',
+                padding: '0 0 1px 0',
+              }}
+            />
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <h3
+                className="truncate"
+                style={{ fontWeight: 500, fontSize: 14, color: 'var(--color-ink)' }}
+              >
+                {project.title}
+              </h3>
+              {hoveringTitle && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setEditVal(project.title)
+                    setEditing(true)
+                  }}
+                  style={{
+                    flexShrink: 0,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    color: 'var(--color-text-faint)',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  title="Rename project"
+                >
+                  <Pencil size={12} />
+                </button>
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-1 mt-1" style={{ fontSize: 11, color: 'var(--color-text-faint)' }}>
             <Calendar size={11} />
             <span>{formattedDate}</span>
           </div>
         </div>
+
         <div className="relative ml-2">
           <button
             onClick={() => setMenuOpen((v) => !v)}

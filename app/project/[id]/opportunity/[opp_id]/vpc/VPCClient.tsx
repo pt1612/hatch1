@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
-import { Plus, X, Loader2, Sparkles } from 'lucide-react'
+import { Plus, X, Loader2, Sparkles, Download } from 'lucide-react'
 import { TWIN_AVATAR_COLORS, TWIN_COLORS_HEX } from '@/lib/constants'
 import { getTwinIndex, getInitials, getAffinityDisplay } from '@/lib/types'
 import type { DigitalTwin, TwinInterview, Opportunity } from '@/lib/types'
@@ -402,7 +402,7 @@ export default function VPCClient({
   }
 
   async function saveTwinVM(ivId: string, vm: ValueMap) {
-    await supabase.from('twin_interviews').update({ value_map: vm }).eq('id', ivId)
+    return supabase.from('twin_interviews').update({ value_map: vm }).eq('id', ivId)
   }
 
   async function saveFinalVPC(vpc: FinalVPC) {
@@ -491,17 +491,20 @@ export default function VPCClient({
     })
   }
 
-  // ── AI generate per-twin value map ─────────────────────────────────────────
+  // ── AI generate per-twin value map (with 1 automatic retry) ───────────────
   async function generateTwinVM(ivId: string, twin: DigitalTwin) {
     setGeneratingVM((prev) => ({ ...prev, [ivId]: true }))
     setVmError((prev) => ({ ...prev, [ivId]: false }))
-    try {
-      console.log('[VPC generate] starting for twin:', twin.name, ivId)
-      const profile = profiles[ivId] ?? { jobs: [], pains: [], gains: [] }
-      const res = await fetch('/api/generate-vpc-value-map', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+
+    let lastError: unknown = null
+
+    for (let attempt = 0; attempt <= 1; attempt++) {
+      try {
+        if (attempt > 0) console.log('[VPC generate] retrying (attempt 2)…')
+
+        // Step 1: build prompt payload
+        const profile = profiles[ivId] ?? { jobs: [], pains: [], gains: [] }
+        const payload = {
           opportunityName: opportunity.name,
           opportunityDescription: opportunity.description,
           abilities,
@@ -514,21 +517,55 @@ export default function VPCClient({
             painRelievers: finalVPC.painRelievers.map((i) => i.text),
             gainCreators: finalVPC.gainCreators.map((i) => i.text),
           },
-        }),
-      })
-      console.log('[VPC generate] response status:', res.status)
-      const json = await res.json()
-      console.log('[VPC generate] parsed response:', json)
-      if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`)
-      const { valueMap: generated } = json
-      setTwinVMs((prev) => ({ ...prev, [ivId]: generated }))
-      await saveTwinVM(ivId, generated)
-    } catch (err) {
-      console.error('[VPC generate] error:', err)
-      setVmError((prev) => ({ ...prev, [ivId]: true }))
-    } finally {
-      setGeneratingVM((prev) => ({ ...prev, [ivId]: false }))
+        }
+        console.log('[VPC generate] step 1 – prompt payload built for twin:', twin.name, {
+          hasOpportunity: !!payload.opportunityName,
+          painsCount: payload.aggregatedPains.length,
+          gainsCount: payload.aggregatedGains.length,
+          jobsCount: payload.aggregatedJobs.length,
+        })
+
+        // Step 2: API call
+        console.log('[VPC generate] step 2 – calling /api/generate-vpc-value-map')
+        const res = await fetch('/api/generate-vpc-value-map', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        console.log('[VPC generate] step 3 – response received, status:', res.status)
+
+        // Step 3: parse response
+        const json = await res.json()
+        console.log('[VPC generate] step 4 – response parsed:', json)
+        if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`)
+
+        const { valueMap: generated } = json
+        if (!generated || !Array.isArray(generated.productsAndServices)) {
+          throw new Error('Invalid response shape: ' + JSON.stringify(generated))
+        }
+
+        // Step 4: Supabase save
+        console.log('[VPC generate] step 5 – saving to Supabase, ivId:', ivId)
+        const { error: saveErr } = await supabase
+          .from('twin_interviews')
+          .update({ value_map: generated })
+          .eq('id', ivId)
+        console.log('[VPC generate] step 6 – save result:', saveErr ? `error: ${saveErr.message}` : 'ok')
+        if (saveErr) console.error('[VPC generate] Supabase save error:', saveErr)
+
+        setTwinVMs((prev) => ({ ...prev, [ivId]: generated }))
+        setGeneratingVM((prev) => ({ ...prev, [ivId]: false }))
+        return // success — exit retry loop
+      } catch (err) {
+        lastError = err
+        console.error(`[VPC generate] attempt ${attempt + 1} failed:`, err)
+      }
     }
+
+    // Both attempts failed
+    console.error('[VPC generate] all attempts failed. Last error:', lastError)
+    setVmError((prev) => ({ ...prev, [ivId]: true }))
+    setGeneratingVM((prev) => ({ ...prev, [ivId]: false }))
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -538,11 +575,54 @@ export default function VPCClient({
 
   const hasFinalData = Object.values(finalVPC).some((arr) => arr.length > 0)
 
+  // ── Download final VPC as .txt ─────────────────────────────────────────────
+  function downloadVPC() {
+    const today = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    const list = (items: FinalVPCItem[]) =>
+      items.length > 0 ? items.map((i) => `- ${i.text}`).join('\n') : '- (nessun elemento)'
+
+    const content = [
+      'HATCH — Value Proposition Canvas',
+      `Project: ${project.title}`,
+      `Date: ${today}`,
+      '',
+      '── VALUE MAP (left side) ──',
+      '',
+      'Products & Services:',
+      list(finalVPC.productsAndServices),
+      '',
+      'Gain Creators:',
+      list(finalVPC.gainCreators),
+      '',
+      'Pain Relievers:',
+      list(finalVPC.painRelievers),
+      '',
+      '── CUSTOMER PROFILE (right side) ──',
+      '',
+      'Customer Jobs:',
+      list(finalVPC.jobs),
+      '',
+      'Gains:',
+      list(finalVPC.gains),
+      '',
+      'Pains:',
+      list(finalVPC.pains),
+    ].join('\n')
+
+    const blob = new Blob([content], { type: 'text/plain; charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `vpc-${project.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-4">
+      <div className="flex-1 overflow-auto p-8 pt-14">
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/twins/results`}
           label="Back to results"
@@ -684,9 +764,14 @@ export default function VPCClient({
                             )}
 
                             {vmError[ivId] && (
-                              <p style={{ fontSize: 10, color: '#DC2626', marginTop: 4 }}>
-                                Generation failed — check console and retry.
-                              </p>
+                              <div style={{ marginTop: 6, padding: '8px 12px', borderRadius: 8, backgroundColor: '#FEF2F2', border: '0.5px solid #FECACA' }}>
+                                <p style={{ fontSize: 11, color: '#DC2626', fontWeight: 500 }}>
+                                  Generation failed after 2 attempts.
+                                </p>
+                                <p style={{ fontSize: 10, color: '#DC2626', marginTop: 2, opacity: 0.8 }}>
+                                  Check that the opportunity has a description and retry. Details in browser console.
+                                </p>
+                              </div>
                             )}
 
                             {vm && (
@@ -819,9 +904,27 @@ export default function VPCClient({
 
             {/* ── Section 2: Final VPC ─────────────────────────────────────── */}
             <div>
-              <h2 style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', marginBottom: 4, fontFamily: 'inherit' }}>
-                Your Final Value Proposition Canvas
-              </h2>
+              <div className="flex items-center justify-between mb-1">
+                <h2 style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', fontFamily: 'inherit' }}>
+                  Your Final Value Proposition Canvas
+                </h2>
+                {hasFinalData && (
+                  <button
+                    onClick={downloadVPC}
+                    className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors"
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      border: '0.5px solid var(--color-border)',
+                      color: 'var(--color-ink)',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
+                  >
+                    <Download size={11} />
+                    Scarica VPC
+                  </button>
+                )}
+              </div>
               <p style={{ fontSize: 10, color: 'var(--color-text-faint)', marginBottom: 12 }}>
                 Click the <Plus size={8} className="inline" /> on any per-twin pill to curate it here.
               </p>

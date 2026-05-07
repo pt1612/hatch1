@@ -69,7 +69,7 @@ export default function OpportunitiesClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 flex overflow-hidden min-h-screen pt-2">
+      <div className="flex-1 flex overflow-hidden min-h-screen pt-14">
         {/* Main list */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="flex items-center justify-between mb-6">

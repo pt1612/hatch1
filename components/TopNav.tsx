@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -18,19 +18,52 @@ interface TopNavProps {
   projectTitle?: string
   progressPct?: number
   navItems?: NavItem[]
+  entryPath?: 'full' | 'idea' | 'vpc' | 'bmc' | null
 }
 
-export default function TopNav({ projectId, projectTitle, progressPct = 0, navItems }: TopNavProps) {
+// ── Lock rules per entry_path ──────────────────────────────────────────────────
+function isItemLocked(label: string, entryPath: string | null | undefined): boolean {
+  if (!entryPath || entryPath === 'full') return false
+  if (entryPath === 'idea') return label === 'Abilities'
+  if (entryPath === 'vpc') return ['Abilities', 'Opportunities', 'Evaluation', 'Map', 'Strategy'].includes(label)
+  if (entryPath === 'bmc') return label !== 'BMC'
+  return false
+}
+
+// ── Inline lock SVG (10 px) ────────────────────────────────────────────────────
+function LockIcon() {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 3, flexShrink: 0 }}
+    >
+      <rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor" />
+      <path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export default function TopNav({
+  projectId,
+  projectTitle,
+  progressPct = 0,
+  navItems,
+  entryPath: entryPathProp,
+}: TopNavProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
 
-  const [visible, setVisible] = useState(false)
   const [userInitials, setUserInitials] = useState('')
-  const triggerRef = useRef<HTMLDivElement>(null)
-  const navRef = useRef<HTMLDivElement>(null)
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [fetchedEntryPath, setFetchedEntryPath] = useState<'full' | 'idea' | 'vpc' | 'bmc' | null | undefined>(
+    undefined
+  )
 
+  // Fetch user initials
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       const name = data.user?.user_metadata?.full_name ?? data.user?.email ?? ''
@@ -38,24 +71,37 @@ export default function TopNav({ projectId, projectTitle, progressPct = 0, navIt
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function show() {
-    if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
-    setVisible(true)
-  }
+  // Fetch entry_path from project if not provided as prop
+  useEffect(() => {
+    if (entryPathProp !== undefined) {
+      setFetchedEntryPath(entryPathProp)
+      return
+    }
+    if (!projectId) {
+      setFetchedEntryPath(null)
+      return
+    }
+    supabase
+      .from('projects')
+      .select('entry_path')
+      .eq('id', projectId)
+      .single()
+      .then(({ data }) => {
+        setFetchedEntryPath((data?.entry_path as 'full' | 'idea' | 'vpc' | 'bmc' | null) ?? null)
+      })
+  }, [projectId, entryPathProp]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function scheduleHide() {
-    hideTimerRef.current = setTimeout(() => setVisible(false), 120)
-  }
+  const entryPath = entryPathProp ?? fetchedEntryPath
 
   const defaultItems: NavItem[] = projectId
     ? [
-        { label: 'Abilities',     href: `/project/${projectId}/abilities`,     hasData: true },
-        { label: 'Opportunities', href: `/project/${projectId}/opportunities`,  hasData: true },
-        { label: 'Evaluation',    href: `/project/${projectId}/evaluations`,    hasData: true },
-        { label: 'Map',           href: `/project/${projectId}/map`,            hasData: true },
-        { label: 'Strategy',      href: `/project/${projectId}/strategy`,       hasData: true },
-        { label: 'VPC',           href: `/project/${projectId}/evaluations`,    hasData: true },
-        { label: 'BMC',           href: `/project/${projectId}/evaluations`,    hasData: true },
+        { label: 'Abilities',     href: `/project/${projectId}/abilities`,    hasData: true },
+        { label: 'Opportunities', href: `/project/${projectId}/opportunities`, hasData: true },
+        { label: 'Evaluation',    href: `/project/${projectId}/evaluations`,   hasData: true },
+        { label: 'Map',           href: `/project/${projectId}/map`,           hasData: true },
+        { label: 'Strategy',      href: `/project/${projectId}/strategy`,      hasData: true },
+        { label: 'VPC',           href: `/project/${projectId}/evaluations`,   hasData: true },
+        { label: 'BMC',           href: `/project/${projectId}/evaluations`,   hasData: true },
       ]
     : []
 
@@ -70,77 +116,77 @@ export default function TopNav({ projectId, projectTitle, progressPct = 0, navIt
     router.push('/login')
   }
 
+  const isDashboard = pathname === '/dashboard'
+
   return (
     <>
-      {/* Invisible trigger zone — 12px at very top */}
+      {/* ── Fixed nav bar ──────────────────────────────────────────────────────── */}
       <div
-        ref={triggerRef}
-        onMouseEnter={show}
-        onMouseLeave={scheduleHide}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 12,
-          zIndex: 60,
-        }}
-      />
-
-      {/* Nav bar */}
-      <div
-        ref={navRef}
-        onMouseEnter={show}
-        onMouseLeave={scheduleHide}
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           zIndex: 50,
-          backgroundColor: '#1A1A18',
+          backgroundColor: 'var(--color-cream)',
           height: 52,
           display: 'flex',
           alignItems: 'center',
           paddingLeft: 20,
           paddingRight: 20,
-          gap: 0,
-          transform: visible ? 'translateY(0)' : 'translateY(-100%)',
-          opacity: visible ? 1 : 0,
-          transition: 'transform 0.2s ease, opacity 0.15s ease',
-          boxShadow: '0 2px 16px rgba(0,0,0,0.18)',
+          borderBottom: '0.5px solid var(--color-border)',
         }}
       >
-        {/* Left: logo + wordmark */}
-        <Link
-          href="/dashboard"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            textDecoration: 'none',
-            flexShrink: 0,
-          }}
-        >
-          <Image
-            src="/hatch_logo.svg"
-            alt="Hatch"
-            width={28}
-            height={28}
-            style={{ height: 28, width: 'auto' }}
-          />
-          <span
+        {/* Left: logo + wordmark + Dashboard link */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+          <Link
+            href="/dashboard"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}
+          >
+            <Image
+              src="/hatch_logo.svg"
+              alt="Hatch"
+              width={28}
+              height={28}
+              style={{ height: 28, width: 'auto' }}
+            />
+            <span
+              style={{
+                fontFamily: "'Lora', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 16,
+                color: 'var(--color-ink)',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              Hatch
+            </span>
+          </Link>
+
+          <Link
+            href="/dashboard"
             style={{
-              fontFamily: "'Lora', Georgia, serif",
-              fontWeight: 400,
-              fontSize: 16,
-              color: '#FAFAF8',
-              letterSpacing: '-0.01em',
+              marginLeft: 18,
+              fontSize: 12,
+              color: isDashboard ? 'var(--color-amber)' : 'var(--color-text-muted)',
+              textDecoration: 'none',
+              paddingBottom: 1,
+              borderBottom: isDashboard
+                ? '1.5px solid var(--color-amber)'
+                : '1.5px solid transparent',
+              transition: 'color 0.1s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!isDashboard) (e.currentTarget as HTMLElement).style.color = 'var(--color-ink)'
+            }}
+            onMouseLeave={(e) => {
+              if (!isDashboard)
+                (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)'
             }}
           >
-            Hatch
-          </span>
-        </Link>
+            Dashboard
+          </Link>
+        </div>
 
         {/* Center: nav items */}
         {items.length > 0 && (
@@ -155,12 +201,14 @@ export default function TopNav({ projectId, projectTitle, progressPct = 0, navIt
           >
             {items.map((item, i) => {
               const active = isActive(item.href)
+              const locked = isItemLocked(item.label, entryPath)
+
               return (
                 <span key={item.label} style={{ display: 'flex', alignItems: 'center' }}>
                   {i > 0 && (
                     <span
                       style={{
-                        color: '#3A3A38',
+                        color: 'var(--color-border)',
                         fontSize: 14,
                         marginLeft: 4,
                         marginRight: 4,
@@ -170,34 +218,58 @@ export default function TopNav({ projectId, projectTitle, progressPct = 0, navIt
                       ·
                     </span>
                   )}
-                  <Link
-                    href={item.href}
-                    style={{
-                      fontSize: 13,
-                      color: active ? '#E8A96A' : item.hasData ? '#A8A89E' : '#666660',
-                      textDecoration: 'none',
-                      paddingBottom: 2,
-                      borderBottom: active ? '2px solid #C77B3A' : '2px solid transparent',
-                      transition: 'color 0.1s ease, border-color 0.1s ease',
-                      whiteSpace: 'nowrap',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!active) (e.currentTarget as HTMLElement).style.color = '#FAFAF8'
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!active)
-                        (e.currentTarget as HTMLElement).style.color = item.hasData ? '#A8A89E' : '#666660'
-                    }}
-                  >
-                    {item.label}
-                  </Link>
+
+                  {locked ? (
+                    <span
+                      style={{
+                        fontSize: 13,
+                        color: 'var(--color-text-faint)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        paddingBottom: 2,
+                        pointerEvents: 'none',
+                        opacity: 0.4,
+                        whiteSpace: 'nowrap',
+                        cursor: 'default',
+                      }}
+                    >
+                      {item.label}
+                      <LockIcon />
+                    </span>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      style={{
+                        fontSize: 13,
+                        color: active ? 'var(--color-amber)' : 'var(--color-text-muted)',
+                        textDecoration: 'none',
+                        paddingBottom: 2,
+                        borderBottom: active
+                          ? '1.5px solid var(--color-amber)'
+                          : '1.5px solid transparent',
+                        transition: 'color 0.1s ease, border-color 0.1s ease',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!active)
+                          (e.currentTarget as HTMLElement).style.color = 'var(--color-ink)'
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!active)
+                          (e.currentTarget as HTMLElement).style.color =
+                            'var(--color-text-muted)'
+                      }}
+                    >
+                      {item.label}
+                    </Link>
+                  )}
                 </span>
               )
             })}
           </nav>
         )}
 
-        {/* Right: project name + avatar */}
+        {/* Right: project title + avatar */}
         <div
           style={{
             display: 'flex',
@@ -211,7 +283,7 @@ export default function TopNav({ projectId, projectTitle, progressPct = 0, navIt
             <span
               style={{
                 fontSize: 12,
-                color: '#666660',
+                color: 'var(--color-text-faint)',
                 maxWidth: 160,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -229,9 +301,9 @@ export default function TopNav({ projectId, projectTitle, progressPct = 0, navIt
                 width: 30,
                 height: 30,
                 borderRadius: '50%',
-                backgroundColor: 'rgba(199,123,58,0.25)',
-                border: '1px solid rgba(199,123,58,0.4)',
-                color: '#E8A96A',
+                backgroundColor: 'rgba(199,123,58,0.10)',
+                border: '1px solid rgba(199,123,58,0.25)',
+                color: 'var(--color-amber)',
                 fontSize: 11,
                 fontWeight: 600,
                 display: 'flex',
@@ -247,7 +319,7 @@ export default function TopNav({ projectId, projectTitle, progressPct = 0, navIt
         </div>
       </div>
 
-      {/* Amber progress bar below nav (only when visible + progressPct > 0) */}
+      {/* Progress bar below nav (always shown when progressPct > 0) */}
       {progressPct > 0 && (
         <div
           style={{
@@ -257,17 +329,14 @@ export default function TopNav({ projectId, projectTitle, progressPct = 0, navIt
             right: 0,
             height: 2,
             zIndex: 49,
-            backgroundColor: '#2A2A28',
-            transform: visible ? 'translateY(0)' : 'translateY(-54px)',
-            opacity: visible ? 1 : 0,
-            transition: 'transform 0.2s ease, opacity 0.15s ease',
+            backgroundColor: 'var(--color-linen)',
           }}
         >
           <div
             style={{
               height: '100%',
               width: `${progressPct}%`,
-              backgroundColor: '#C77B3A',
+              backgroundColor: 'var(--color-amber)',
               transition: 'width 0.4s ease',
             }}
           />

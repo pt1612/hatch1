@@ -328,7 +328,7 @@ export default function InterviewClient({
 
       {/* Twin list sidebar */}
       <div
-        className="w-56 flex flex-col flex-shrink-0 h-screen sticky top-0"
+        className="w-56 flex flex-col flex-shrink-0 h-[calc(100vh-52px)] sticky top-[52px]"
         style={{ backgroundColor: '#FFFFFF', borderRight: '0.5px solid var(--color-border)' }}
       >
         <div className="p-4 flex-1 overflow-y-auto scrollbar-thin" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
@@ -446,7 +446,7 @@ export default function InterviewClient({
       </div>
 
       {/* Main chat area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col h-[calc(100vh-52px)] overflow-hidden">
         {/* Header */}
         <div
           className="px-6 py-3 flex items-center justify-end flex-shrink-0"

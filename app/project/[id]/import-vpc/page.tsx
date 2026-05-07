@@ -4,31 +4,216 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
-import { Loader2, Sparkles, ArrowRight } from 'lucide-react'
+import { Loader2, Sparkles, ArrowRight, Plus, X } from 'lucide-react'
+
+// ─── Types ──────────────────────────────────────────────────────────────────────
 
 type VPCBlock = {
   key: string
   label: string
   side: 'left' | 'right'
-  placeholder: string
+  pillClass: string
 }
 
 const VPC_BLOCKS: VPCBlock[] = [
-  { key: 'productsAndServices', label: 'Products & Services', side: 'left', placeholder: 'One item per line…' },
-  { key: 'gainCreators',        label: 'Gain Creators',        side: 'left', placeholder: 'One item per line…' },
-  { key: 'painRelievers',       label: 'Pain Relievers',       side: 'left', placeholder: 'One item per line…' },
-  { key: 'jobs',                label: 'Customer Jobs',        side: 'right', placeholder: 'One item per line…' },
-  { key: 'gains',               label: 'Gains',                side: 'right', placeholder: 'One item per line…' },
-  { key: 'pains',               label: 'Pains',                side: 'right', placeholder: 'One item per line…' },
+  {
+    key: 'productsAndServices',
+    label: 'Products & Services',
+    side: 'left',
+    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
+  },
+  {
+    key: 'gainCreators',
+    label: 'Gain Creators',
+    side: 'left',
+    pillClass: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]',
+  },
+  {
+    key: 'painRelievers',
+    label: 'Pain Relievers',
+    side: 'left',
+    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
+  },
+  {
+    key: 'jobs',
+    label: 'Customer Jobs',
+    side: 'right',
+    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#C77B3A] border border-[rgba(199,123,58,0.15)]',
+  },
+  {
+    key: 'gains',
+    label: 'Gains',
+    side: 'right',
+    pillClass: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]',
+  },
+  {
+    key: 'pains',
+    label: 'Pains',
+    side: 'right',
+    pillClass: 'bg-[rgba(232,169,106,0.15)] text-[#7A3D10] border border-[rgba(232,169,106,0.25)]',
+  },
 ]
+
+// ─── BubbleBlock component ────────────────────────────────────────────────────
+
+function BubbleBlock({
+  label,
+  items,
+  pillClass,
+  onAdd,
+  onRemove,
+}: {
+  label: string
+  items: string[]
+  pillClass: string
+  onAdd: (text: string) => void
+  onRemove: (index: number) => void
+}) {
+  const [adding, setAdding] = useState(false)
+  const [val, setVal] = useState('')
+
+  function submit() {
+    const t = val.trim()
+    if (t) onAdd(t)
+    setVal('')
+    setAdding(false)
+  }
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      {/* Label row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 500,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--color-text-muted)',
+          }}
+        >
+          {label}
+        </span>
+        <button
+          onClick={() => setAdding(true)}
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: '50%',
+            backgroundColor: 'var(--color-linen)',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+          title="Aggiungi elemento"
+        >
+          <Plus size={10} style={{ color: 'var(--color-text-muted)' }} />
+        </button>
+      </div>
+
+      {/* Bubbles */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, minHeight: 28 }}>
+        {items.map((item, i) => (
+          <span
+            key={i}
+            className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg ${pillClass}`}
+          >
+            <span>{item}</span>
+            <button
+              onClick={() => onRemove(i)}
+              style={{ opacity: 0.5, display: 'flex', alignItems: 'center', cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.5')}
+            >
+              <X size={9} />
+            </button>
+          </span>
+        ))}
+
+        {items.length === 0 && !adding && (
+          <span
+            style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--color-text-faint)' }}
+          >
+            Nessun elemento — clicca + per aggiungere
+          </span>
+        )}
+      </div>
+
+      {/* Inline input */}
+      {adding && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+          <input
+            autoFocus
+            type="text"
+            value={val}
+            onChange={(e) => setVal(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') submit()
+              if (e.key === 'Escape') {
+                setAdding(false)
+                setVal('')
+              }
+            }}
+            placeholder="Aggiungi…"
+            style={{
+              flex: 1,
+              fontSize: 12,
+              padding: '5px 10px',
+              borderRadius: 8,
+              border: '0.5px solid var(--color-amber)',
+              backgroundColor: '#FFFFFF',
+              outline: 'none',
+              color: 'var(--color-ink)',
+            }}
+          />
+          <button
+            onClick={submit}
+            style={{
+              fontSize: 11,
+              padding: '5px 10px',
+              borderRadius: 8,
+              backgroundColor: 'var(--color-amber)',
+              color: '#FFFFFF',
+              border: 'none',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Add
+          </button>
+          <button
+            onClick={() => {
+              setAdding(false)
+              setVal('')
+            }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+          >
+            <X size={12} style={{ color: 'var(--color-text-faint)' }} />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function ImportVPCPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const supabase = createClient()
   const [projectId, setProjectId] = useState<string | null>(null)
-  const [blocks, setBlocks] = useState<Record<string, string>>({
-    productsAndServices: '', gainCreators: '', painRelievers: '',
-    jobs: '', gains: '', pains: '',
+  const [blocks, setBlocks] = useState<Record<string, string[]>>({
+    productsAndServices: [],
+    gainCreators: [],
+    painRelievers: [],
+    jobs: [],
+    gains: [],
+    pains: [],
   })
   const [opportunityName, setOpportunityName] = useState('')
   const [saving, setSaving] = useState(false)
@@ -38,20 +223,20 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
     params.then(({ id }) => setProjectId(id))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function parseLines(text: string): { text: string; twinIdx: number }[] {
-    return text
-      .split('\n')
-      .map((l) => l.trim())
-      .filter(Boolean)
-      .map((text) => ({ text, twinIdx: 0 }))
+  function addItem(key: string, text: string) {
+    setBlocks((prev) => ({ ...prev, [key]: [...prev[key], text] }))
+  }
+
+  function removeItem(key: string, index: number) {
+    setBlocks((prev) => ({ ...prev, [key]: prev[key].filter((_, i) => i !== index) }))
   }
 
   function hasAnyData(): boolean {
-    return Object.values(blocks).some((v) => v.trim().length > 0)
+    return Object.values(blocks).some((arr) => arr.length > 0)
   }
 
   function hasSomeGaps(): boolean {
-    const filled = Object.values(blocks).filter((v) => v.trim().length > 0).length
+    const filled = Object.values(blocks).filter((arr) => arr.length > 0).length
     return filled > 0 && filled < VPC_BLOCKS.length
   }
 
@@ -59,42 +244,41 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
     if (!hasSomeGaps() || filling || !projectId) return
     setFilling(true)
     try {
-      const abilities = await supabase.from('abilities').select('name, description').eq('project_id', projectId)
-      const existingVPCItems = {
-        productsAndServices: parseLines(blocks.productsAndServices).map((i) => i.text),
-        gainCreators:        parseLines(blocks.gainCreators).map((i) => i.text),
-        painRelievers:       parseLines(blocks.painRelievers).map((i) => i.text),
-      }
+      const { data: abilitiesData } = await supabase
+        .from('abilities')
+        .select('name, description')
+        .eq('project_id', projectId)
       const res = await fetch('/api/generate-vpc-value-map', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           opportunityName: opportunityName || 'Nuova opportunità',
           opportunityDescription: '',
-          abilities: abilities.data ?? [],
-          aggregatedPains: parseLines(blocks.pains).map((i) => i.text),
-          aggregatedGains: parseLines(blocks.gains).map((i) => i.text),
-          aggregatedJobs: parseLines(blocks.jobs).map((i) => i.text),
+          abilities: abilitiesData ?? [],
+          aggregatedPains: blocks.pains,
+          aggregatedGains: blocks.gains,
+          aggregatedJobs: blocks.jobs,
           twinProfile: { name: '', role: '', segment: '' },
-          existingVPCItems,
+          existingVPCItems: {
+            productsAndServices: blocks.productsAndServices,
+            gainCreators: blocks.gainCreators,
+            painRelievers: blocks.painRelievers,
+          },
         }),
       })
       if (res.ok) {
         const data = await res.json()
-        const newBlocks = { ...blocks }
-        // Only fill empty blocks
-        const fill = (key: string, arr?: string[]) => {
-          if (!blocks[key].trim() && arr?.length) {
-            newBlocks[key] = arr.join('\n')
-          }
-        }
-        fill('productsAndServices', data.productsAndServices)
-        fill('gainCreators', data.gainCreators)
-        fill('painRelievers', data.painRelievers)
-        fill('jobs', data.jobs)
-        fill('gains', data.gains)
-        fill('pains', data.pains)
-        setBlocks(newBlocks)
+        const vm = data.valueMap ?? data
+        setBlocks((prev) => {
+          const next = { ...prev }
+          if (!prev.productsAndServices.length && vm.productsAndServices?.length)
+            next.productsAndServices = vm.productsAndServices
+          if (!prev.gainCreators.length && vm.gainCreators?.length)
+            next.gainCreators = vm.gainCreators
+          if (!prev.painRelievers.length && vm.painRelievers?.length)
+            next.painRelievers = vm.painRelievers
+          return next
+        })
       }
     } catch (err) {
       console.error('[ImportVPC] AI fill error:', err)
@@ -107,7 +291,6 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
     if (!projectId || !hasAnyData()) return
     setSaving(true)
     try {
-      // Create a placeholder opportunity
       const { data: opp, error: oppErr } = await supabase
         .from('opportunities')
         .insert({
@@ -121,19 +304,20 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
         .select()
         .single()
 
-      if (oppErr || !opp) { setSaving(false); return }
-
-      // Build vpc_value_map in the FinalVPCItem[] format
-      const vpcValueMap = {
-        productsAndServices: parseLines(blocks.productsAndServices),
-        gainCreators:        parseLines(blocks.gainCreators),
-        painRelievers:       parseLines(blocks.painRelievers),
-        jobs:                parseLines(blocks.jobs),
-        gains:               parseLines(blocks.gains),
-        pains:               parseLines(blocks.pains),
+      if (oppErr || !opp) {
+        setSaving(false)
+        return
       }
 
-      // Upsert twin_session with vpc_value_map
+      const vpcValueMap = {
+        productsAndServices: blocks.productsAndServices.map((t) => ({ text: t, twinIdx: 0 })),
+        gainCreators:        blocks.gainCreators.map((t) => ({ text: t, twinIdx: 0 })),
+        painRelievers:       blocks.painRelievers.map((t) => ({ text: t, twinIdx: 0 })),
+        jobs:                blocks.jobs.map((t) => ({ text: t, twinIdx: 0 })),
+        gains:               blocks.gains.map((t) => ({ text: t, twinIdx: 0 })),
+        pains:               blocks.pains.map((t) => ({ text: t, twinIdx: 0 })),
+      }
+
       await supabase.from('twin_sessions').upsert(
         { opportunity_id: opp.id, vpc_value_map: vpcValueMap, suggested_segments: [], report: null },
         { onConflict: 'opportunity_id' }
@@ -148,7 +332,10 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
 
   if (!projectId) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{ backgroundColor: 'var(--color-cream)' }}
+      >
         <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
       </div>
     )
@@ -161,13 +348,21 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={projectId} />
 
-      <div className="pt-4 px-6 pb-16 max-w-5xl mx-auto">
+      <div className="pt-14 px-6 pb-16 max-w-5xl mx-auto">
         <button
           onClick={() => router.back()}
           style={{
-            fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 24, marginTop: 16,
-            display: 'flex', alignItems: 'center', gap: 4,
-            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            fontSize: 12,
+            color: 'var(--color-text-muted)',
+            marginBottom: 24,
+            marginTop: 16,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
           }}
         >
           ← Indietro
@@ -177,35 +372,51 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
           <div>
             <h1
               style={{
-                fontFamily: "'Lora', Georgia, serif", fontWeight: 400,
-                fontSize: 28, letterSpacing: '-0.02em', color: 'var(--color-ink)', marginBottom: 6,
+                fontFamily: "'Lora', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 28,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-ink)',
+                marginBottom: 6,
               }}
             >
               Importa il tuo VPC
             </h1>
             <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
-              Inserisci gli elementi del tuo Value Proposition Canvas, un elemento per riga.
+              Aggiungi gli elementi del tuo Value Proposition Canvas come bolle.
             </p>
           </div>
         </div>
 
         {/* Opportunity name */}
         <div style={{ marginBottom: 28, marginTop: 24, maxWidth: 420 }}>
-          <label style={{
-            display: 'block', fontSize: 10, fontWeight: 500,
-            textTransform: 'uppercase', letterSpacing: '0.08em',
-            color: 'var(--color-text-muted)', marginBottom: 6,
-          }}>
-            Nome dell'opportunità
+          <label
+            style={{
+              display: 'block',
+              fontSize: 10,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'var(--color-text-muted)',
+              marginBottom: 6,
+            }}
+          >
+            Nome dell&apos;opportunità
           </label>
           <input
             value={opportunityName}
             onChange={(e) => setOpportunityName(e.target.value)}
             placeholder="es. Piattaforma B2B per PMI"
             style={{
-              width: '100%', padding: '10px 14px', fontSize: 14,
-              backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)',
-              borderRadius: 8, color: 'var(--color-ink)', outline: 'none', boxSizing: 'border-box',
+              width: '100%',
+              padding: '10px 14px',
+              fontSize: 14,
+              backgroundColor: '#FFFFFF',
+              border: '0.5px solid var(--color-border)',
+              borderRadius: 8,
+              color: 'var(--color-ink)',
+              outline: 'none',
+              boxSizing: 'border-box',
             }}
             onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
@@ -217,83 +428,67 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
           {/* Left column: Value Proposition */}
           <div
             style={{
-              backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)',
-              borderRadius: 12, padding: 20,
+              backgroundColor: '#FFFFFF',
+              border: '0.5px solid var(--color-border)',
+              borderRadius: 12,
+              padding: 20,
             }}
           >
-            <p style={{
-              fontSize: 10, fontWeight: 500, textTransform: 'uppercase',
-              letterSpacing: '0.08em', color: 'var(--color-amber)', marginBottom: 16,
-            }}>
+            <p
+              style={{
+                fontSize: 10,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: 'var(--color-amber)',
+                marginBottom: 16,
+              }}
+            >
               Value Proposition
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {leftBlocks.map((block) => (
-                <div key={block.key}>
-                  <label style={{
-                    display: 'block', fontSize: 11, fontWeight: 500,
-                    color: 'var(--color-ink)', marginBottom: 5,
-                  }}>
-                    {block.label}
-                  </label>
-                  <textarea
-                    value={blocks[block.key]}
-                    onChange={(e) => setBlocks((prev) => ({ ...prev, [block.key]: e.target.value }))}
-                    placeholder={block.placeholder}
-                    rows={3}
-                    style={{
-                      width: '100%', padding: '8px 12px', fontSize: 13,
-                      backgroundColor: 'var(--color-cream)', border: '0.5px solid var(--color-border)',
-                      borderRadius: 6, color: 'var(--color-ink)', outline: 'none',
-                      resize: 'vertical', lineHeight: '1.6', boxSizing: 'border-box',
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                    onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
-                  />
-                </div>
-              ))}
-            </div>
+            {leftBlocks.map((block) => (
+              <BubbleBlock
+                key={block.key}
+                label={block.label}
+                items={blocks[block.key]}
+                pillClass={block.pillClass}
+                onAdd={(text) => addItem(block.key, text)}
+                onRemove={(i) => removeItem(block.key, i)}
+              />
+            ))}
           </div>
 
           {/* Right column: Customer Profile */}
           <div
             style={{
-              backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)',
-              borderRadius: 12, padding: 20,
+              backgroundColor: '#FFFFFF',
+              border: '0.5px solid var(--color-border)',
+              borderRadius: 12,
+              padding: 20,
             }}
           >
-            <p style={{
-              fontSize: 10, fontWeight: 500, textTransform: 'uppercase',
-              letterSpacing: '0.08em', color: 'var(--color-text-muted)', marginBottom: 16,
-            }}>
+            <p
+              style={{
+                fontSize: 10,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: 'var(--color-text-muted)',
+                marginBottom: 16,
+              }}
+            >
               Customer Profile
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {rightBlocks.map((block) => (
-                <div key={block.key}>
-                  <label style={{
-                    display: 'block', fontSize: 11, fontWeight: 500,
-                    color: 'var(--color-ink)', marginBottom: 5,
-                  }}>
-                    {block.label}
-                  </label>
-                  <textarea
-                    value={blocks[block.key]}
-                    onChange={(e) => setBlocks((prev) => ({ ...prev, [block.key]: e.target.value }))}
-                    placeholder={block.placeholder}
-                    rows={3}
-                    style={{
-                      width: '100%', padding: '8px 12px', fontSize: 13,
-                      backgroundColor: 'var(--color-cream)', border: '0.5px solid var(--color-border)',
-                      borderRadius: 6, color: 'var(--color-ink)', outline: 'none',
-                      resize: 'vertical', lineHeight: '1.6', boxSizing: 'border-box',
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                    onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
-                  />
-                </div>
-              ))}
-            </div>
+            {rightBlocks.map((block) => (
+              <BubbleBlock
+                key={block.key}
+                label={block.label}
+                items={blocks[block.key]}
+                pillClass={block.pillClass}
+                onAdd={(text) => addItem(block.key, text)}
+                onRemove={(i) => removeItem(block.key, i)}
+              />
+            ))}
           </div>
         </div>
 
@@ -304,22 +499,33 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
               onClick={handleAIFill}
               disabled={filling || saving}
               style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '10px 18px', fontSize: 13, fontWeight: 500,
-                backgroundColor: '#FFFFFF', color: 'var(--color-amber)',
-                border: '0.5px solid var(--color-amber)', borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '10px 18px',
+                fontSize: 13,
+                fontWeight: 500,
+                backgroundColor: '#FFFFFF',
+                color: 'var(--color-amber)',
+                border: '0.5px solid var(--color-amber)',
+                borderRadius: 8,
                 cursor: filling || saving ? 'default' : 'pointer',
                 transition: 'background-color 0.15s ease',
               }}
               onMouseEnter={(e) => {
                 if (!filling && !saving)
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber-bg)'
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                    'var(--color-amber-bg)'
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#FFFFFF'
               }}
             >
-              {filling ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              {filling ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Sparkles size={14} />
+              )}
               Completa VPC con AI
             </button>
           )}
@@ -328,12 +534,22 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
             onClick={handleImport}
             disabled={!hasAnyData() || saving || filling}
             style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              padding: '10px 20px', fontSize: 13, fontWeight: 500,
-              backgroundColor: hasAnyData() && !saving && !filling ? 'var(--color-amber)' : 'var(--color-linen)',
-              color: hasAnyData() && !saving && !filling ? '#FFFFFF' : 'var(--color-text-muted)',
-              border: 'none', borderRadius: 8,
-              cursor: hasAnyData() && !saving && !filling ? 'pointer' : 'default',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 20px',
+              fontSize: 13,
+              fontWeight: 500,
+              backgroundColor:
+                hasAnyData() && !saving && !filling
+                  ? 'var(--color-amber)'
+                  : 'var(--color-linen)',
+              color:
+                hasAnyData() && !saving && !filling ? '#FFFFFF' : 'var(--color-text-muted)',
+              border: 'none',
+              borderRadius: 8,
+              cursor:
+                hasAnyData() && !saving && !filling ? 'pointer' : 'default',
               transition: 'background-color 0.15s ease',
             }}
             onMouseEnter={(e) => {
@@ -342,10 +558,15 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
             }}
             onMouseLeave={(e) => {
               if (hasAnyData() && !saving && !filling)
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                  'var(--color-amber)'
             }}
           >
-            {saving ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />}
+            {saving ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <ArrowRight size={14} />
+            )}
             Importa VPC
           </button>
         </div>

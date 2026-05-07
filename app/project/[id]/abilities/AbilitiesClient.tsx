@@ -229,7 +229,7 @@ export default function AbilitiesClient({ project }: { project: { id: string; ti
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 flex overflow-hidden pt-0">
+      <div className="flex-1 flex overflow-hidden pt-14">
         {/* Chat area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}

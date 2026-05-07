@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
-import { Loader2, ChevronRight, RefreshCw } from 'lucide-react'
+import { Loader2, ChevronRight, RefreshCw, Download } from 'lucide-react'
 import type { DigitalTwin, TwinMessage, TwinReport, Opportunity } from '@/lib/types'
 
 const VERDICT_CONFIG = {
@@ -147,26 +147,93 @@ export default function ResultsClient({
 
   const verdict = report ? VERDICT_CONFIG[report.verdict] : null
 
+  // ── Download conversation as .txt ──────────────────────────────────────────
+  function downloadConversation() {
+    const today = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    const separator = '─────────────────────────────'
+
+    const lines: string[] = [
+      'HATCH — Twin Interview Report',
+      `Project: ${project.title}`,
+      `Date: ${today}`,
+      '',
+    ]
+
+    twins.forEach((twin, idx) => {
+      lines.push(separator)
+      lines.push('')
+      lines.push(`TWIN ${idx + 1} — ${twin.name}`)
+      lines.push(`Role: ${twin.role}`)
+      lines.push(`Sector: ${twin.segment}`)
+      lines.push(`Profile: ${twin.personality ?? ''}`)
+      lines.push('')
+      lines.push('CONVERSATION:')
+
+      const twinMessages = messages.filter(
+        (m) => !m.twinId || m.twinId === twin.id || m.twinName === twin.name
+      )
+      if (twinMessages.length === 0) {
+        // Fallback: include all messages for single-twin sessions
+        messages.forEach((m) => {
+          lines.push(m.role === 'assistant' ? `Twin: ${m.content}` : `AI: ${m.content}`)
+        })
+      } else {
+        twinMessages.forEach((m) => {
+          lines.push(m.role === 'assistant' ? `Twin: ${m.content}` : `AI: ${m.content}`)
+        })
+      }
+      lines.push('')
+    })
+
+    lines.push(separator)
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain; charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `twin-interview-${project.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-4 max-w-3xl">
+      <div className="flex-1 overflow-auto p-8 pt-14 max-w-3xl">
         <BackButton href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`} label="Back to interviews" />
 
-        <div className="mb-6">
-          <h1
-            style={{
-              fontFamily: "'Lora', Georgia, serif",
-              fontWeight: 400,
-              fontSize: 26,
-              letterSpacing: '-0.02em',
-              color: 'var(--color-ink)',
-            }}
-          >
-            Validation Results
-          </h1>
-          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1
+              style={{
+                fontFamily: "'Lora', Georgia, serif",
+                fontWeight: 400,
+                fontSize: 26,
+                letterSpacing: '-0.02em',
+                color: 'var(--color-ink)',
+              }}
+            >
+              Validation Results
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
+          </div>
+          {messages.length > 0 && (
+            <button
+              onClick={downloadConversation}
+              className="flex items-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-colors flex-shrink-0"
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '0.5px solid var(--color-border)',
+                color: 'var(--color-ink)',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
+            >
+              <Download size={13} />
+              Scarica conversazione
+            </button>
+          )}
         </div>
 
         {generating && (

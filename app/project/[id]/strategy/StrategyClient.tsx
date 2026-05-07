@@ -79,7 +79,7 @@ export default function StrategyClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-4">
+      <div className="flex-1 overflow-auto p-8 pt-14">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1

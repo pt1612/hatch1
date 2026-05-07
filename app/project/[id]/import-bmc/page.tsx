@@ -4,34 +4,233 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
-import { Loader2, ArrowRight } from 'lucide-react'
+import { Loader2, ArrowRight, Plus, X } from 'lucide-react'
 
 type BlockKey =
-  | 'key_partners' | 'key_activities' | 'key_resources'
-  | 'value_propositions' | 'customer_relationships' | 'channels'
-  | 'customer_segments' | 'cost_structure' | 'revenue_streams'
+  | 'key_partners'
+  | 'key_activities'
+  | 'key_resources'
+  | 'value_propositions'
+  | 'customer_relationships'
+  | 'channels'
+  | 'customer_segments'
+  | 'cost_structure'
+  | 'revenue_streams'
 
-type BMCBlock = { key: BlockKey; label: string; placeholder: string }
+type BMCBlockDef = {
+  key: BlockKey
+  label: string
+  pillClass: string
+}
 
-const BMC_BLOCKS: BMCBlock[] = [
-  { key: 'key_partners',           label: 'Key Partners',            placeholder: 'One item per line…' },
-  { key: 'key_activities',         label: 'Key Activities',           placeholder: 'One item per line…' },
-  { key: 'key_resources',          label: 'Key Resources',            placeholder: 'One item per line…' },
-  { key: 'value_propositions',     label: 'Value Propositions',       placeholder: 'One item per line…' },
-  { key: 'customer_relationships', label: 'Customer Relationships',   placeholder: 'One item per line…' },
-  { key: 'channels',               label: 'Channels',                 placeholder: 'One item per line…' },
-  { key: 'customer_segments',      label: 'Customer Segments',        placeholder: 'One item per line…' },
-  { key: 'cost_structure',         label: 'Cost Structure',           placeholder: 'One item per line…' },
-  { key: 'revenue_streams',        label: 'Revenue Streams',          placeholder: 'One item per line…' },
+const BMC_BLOCKS: BMCBlockDef[] = [
+  {
+    key: 'key_partners',
+    label: 'Key Partners',
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
+  },
+  {
+    key: 'key_activities',
+    label: 'Key Activities',
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
+  },
+  {
+    key: 'key_resources',
+    label: 'Key Resources',
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
+  },
+  {
+    key: 'value_propositions',
+    label: 'Value Propositions',
+    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
+  },
+  {
+    key: 'customer_relationships',
+    label: 'Customer Relationships',
+    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
+  },
+  {
+    key: 'channels',
+    label: 'Channels',
+    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
+  },
+  {
+    key: 'customer_segments',
+    label: 'Customer Segments',
+    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
+  },
+  {
+    key: 'cost_structure',
+    label: 'Cost Structure',
+    pillClass: 'bg-[#E8E5DC] text-[#888880] border border-[#E5E3DC]',
+  },
+  {
+    key: 'revenue_streams',
+    label: 'Revenue Streams',
+    pillClass: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]',
+  },
 ]
+
+// ─── BubbleBlock component ────────────────────────────────────────────────────
+
+function BubbleBlock({
+  label,
+  items,
+  pillClass,
+  onAdd,
+  onRemove,
+}: {
+  label: string
+  items: string[]
+  pillClass: string
+  onAdd: (text: string) => void
+  onRemove: (index: number) => void
+}) {
+  const [adding, setAdding] = useState(false)
+  const [val, setVal] = useState('')
+
+  function submit() {
+    const t = val.trim()
+    if (t) onAdd(t)
+    setVal('')
+    setAdding(false)
+  }
+
+  return (
+    <div>
+      {/* Label row */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 500,
+            color: 'var(--color-ink)',
+          }}
+        >
+          {label}
+        </span>
+        <button
+          onClick={() => setAdding(true)}
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: '50%',
+            backgroundColor: 'var(--color-linen)',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+          title="Aggiungi elemento"
+        >
+          <Plus size={10} style={{ color: 'var(--color-text-muted)' }} />
+        </button>
+      </div>
+
+      {/* Bubbles */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, minHeight: 24, marginBottom: 8 }}>
+        {items.map((item, i) => (
+          <span
+            key={i}
+            className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-lg ${pillClass}`}
+          >
+            <span>{item}</span>
+            <button
+              onClick={() => onRemove(i)}
+              style={{
+                opacity: 0.5,
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+                background: 'none',
+                border: 'none',
+                padding: 0,
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.5')}
+            >
+              <X size={9} />
+            </button>
+          </span>
+        ))}
+
+        {items.length === 0 && !adding && (
+          <span style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>
+            Vuoto — clicca + per aggiungere
+          </span>
+        )}
+      </div>
+
+      {/* Inline input */}
+      {adding && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+          <input
+            autoFocus
+            type="text"
+            value={val}
+            onChange={(e) => setVal(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') submit()
+              if (e.key === 'Escape') {
+                setAdding(false)
+                setVal('')
+              }
+            }}
+            placeholder="Aggiungi…"
+            style={{
+              flex: 1,
+              fontSize: 11,
+              padding: '4px 8px',
+              borderRadius: 6,
+              border: '0.5px solid var(--color-amber)',
+              backgroundColor: '#FFFFFF',
+              outline: 'none',
+              color: 'var(--color-ink)',
+            }}
+          />
+          <button
+            onClick={submit}
+            style={{
+              fontSize: 10,
+              padding: '4px 8px',
+              borderRadius: 6,
+              backgroundColor: 'var(--color-amber)',
+              color: '#FFFFFF',
+              border: 'none',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            Add
+          </button>
+          <button
+            onClick={() => {
+              setAdding(false)
+              setVal('')
+            }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+          >
+            <X size={11} style={{ color: 'var(--color-text-faint)' }} />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function ImportBMCPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const supabase = createClient()
   const [projectId, setProjectId] = useState<string | null>(null)
   const [opportunityName, setOpportunityName] = useState('')
-  const [blocks, setBlocks] = useState<Record<BlockKey, string>>(
-    Object.fromEntries(BMC_BLOCKS.map((b) => [b.key, ''])) as Record<BlockKey, string>
+  const [blocks, setBlocks] = useState<Record<BlockKey, string[]>>(
+    Object.fromEntries(BMC_BLOCKS.map((b) => [b.key, []])) as Record<BlockKey, string[]>
   )
   const [saving, setSaving] = useState(false)
 
@@ -39,19 +238,22 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
     params.then(({ id }) => setProjectId(id))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function parseLines(text: string): string[] {
-    return text.split('\n').map((l) => l.trim()).filter(Boolean)
+  function addItem(key: BlockKey, text: string) {
+    setBlocks((prev) => ({ ...prev, [key]: [...prev[key], text] }))
+  }
+
+  function removeItem(key: BlockKey, index: number) {
+    setBlocks((prev) => ({ ...prev, [key]: prev[key].filter((_, i) => i !== index) }))
   }
 
   function hasAnyData(): boolean {
-    return Object.values(blocks).some((v) => v.trim().length > 0)
+    return Object.values(blocks).some((arr) => arr.length > 0)
   }
 
   async function handleImport() {
     if (!projectId || !hasAnyData()) return
     setSaving(true)
     try {
-      // Create a placeholder opportunity
       const { data: opp, error: oppErr } = await supabase
         .from('opportunities')
         .insert({
@@ -65,19 +267,15 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
         .select()
         .single()
 
-      if (oppErr || !opp) { setSaving(false); return }
+      if (oppErr || !opp) {
+        setSaving(false)
+        return
+      }
 
-      // Build bmc_data
-      const bmcData = Object.fromEntries(
-        BMC_BLOCKS.map((b) => [b.key, parseLines(blocks[b.key])])
-      )
+      const bmcData = Object.fromEntries(BMC_BLOCKS.map((b) => [b.key, blocks[b.key]]))
 
-      // Upsert aggregated BMC
       await supabase.from('business_model_canvases').upsert(
-        {
-          opportunity_id: opp.id,
-          ...bmcData,
-        },
+        { opportunity_id: opp.id, ...bmcData },
         { onConflict: 'opportunity_id' }
       )
 
@@ -90,7 +288,10 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
 
   if (!projectId) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{ backgroundColor: 'var(--color-cream)' }}
+      >
         <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
       </div>
     )
@@ -100,13 +301,21 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={projectId} />
 
-      <div className="pt-4 px-6 pb-16 max-w-5xl mx-auto">
+      <div className="pt-14 px-6 pb-16 max-w-5xl mx-auto">
         <button
           onClick={() => router.back()}
           style={{
-            fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 24, marginTop: 16,
-            display: 'flex', alignItems: 'center', gap: 4,
-            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            fontSize: 12,
+            color: 'var(--color-text-muted)',
+            marginBottom: 24,
+            marginTop: 16,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
           }}
         >
           ← Indietro
@@ -114,33 +323,49 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
 
         <h1
           style={{
-            fontFamily: "'Lora', Georgia, serif", fontWeight: 400,
-            fontSize: 28, letterSpacing: '-0.02em', color: 'var(--color-ink)', marginBottom: 6,
+            fontFamily: "'Lora', Georgia, serif",
+            fontWeight: 400,
+            fontSize: 28,
+            letterSpacing: '-0.02em',
+            color: 'var(--color-ink)',
+            marginBottom: 6,
           }}
         >
           Importa il tuo BMC
         </h1>
         <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 28 }}>
-          Inserisci gli elementi del tuo Business Model Canvas, un elemento per riga.
+          Aggiungi gli elementi del tuo Business Model Canvas come bolle.
         </p>
 
         {/* Opportunity name */}
         <div style={{ marginBottom: 28, maxWidth: 420 }}>
-          <label style={{
-            display: 'block', fontSize: 10, fontWeight: 500,
-            textTransform: 'uppercase', letterSpacing: '0.08em',
-            color: 'var(--color-text-muted)', marginBottom: 6,
-          }}>
-            Nome dell'opportunità
+          <label
+            style={{
+              display: 'block',
+              fontSize: 10,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'var(--color-text-muted)',
+              marginBottom: 6,
+            }}
+          >
+            Nome dell&apos;opportunità
           </label>
           <input
             value={opportunityName}
             onChange={(e) => setOpportunityName(e.target.value)}
             placeholder="es. Piattaforma SaaS B2B"
             style={{
-              width: '100%', padding: '10px 14px', fontSize: 14,
-              backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)',
-              borderRadius: 8, color: 'var(--color-ink)', outline: 'none', boxSizing: 'border-box',
+              width: '100%',
+              padding: '10px 14px',
+              fontSize: 14,
+              backgroundColor: '#FFFFFF',
+              border: '0.5px solid var(--color-border)',
+              borderRadius: 8,
+              color: 'var(--color-ink)',
+              outline: 'none',
+              boxSizing: 'border-box',
             }}
             onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
@@ -163,32 +388,15 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
                 backgroundColor: '#FFFFFF',
                 border: '0.5px solid var(--color-border)',
                 borderRadius: 10,
-                padding: 16,
+                padding: 14,
               }}
             >
-              <label
-                style={{
-                  display: 'block', fontSize: 11, fontWeight: 500,
-                  color: 'var(--color-ink)', marginBottom: 8,
-                }}
-              >
-                {block.label}
-              </label>
-              <textarea
-                value={blocks[block.key]}
-                onChange={(e) =>
-                  setBlocks((prev) => ({ ...prev, [block.key]: e.target.value }))
-                }
-                placeholder={block.placeholder}
-                rows={4}
-                style={{
-                  width: '100%', padding: '8px 10px', fontSize: 12,
-                  backgroundColor: 'var(--color-cream)', border: '0.5px solid var(--color-border)',
-                  borderRadius: 6, color: 'var(--color-ink)', outline: 'none',
-                  resize: 'vertical', lineHeight: '1.6', boxSizing: 'border-box',
-                }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+              <BubbleBlock
+                label={block.label}
+                items={blocks[block.key]}
+                pillClass={block.pillClass}
+                onAdd={(text) => addItem(block.key, text)}
+                onRemove={(i) => removeItem(block.key, i)}
               />
             </div>
           ))}
@@ -198,11 +406,17 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
           onClick={handleImport}
           disabled={!hasAnyData() || saving}
           style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            padding: '12px 24px', fontSize: 14, fontWeight: 500,
-            backgroundColor: hasAnyData() && !saving ? 'var(--color-amber)' : 'var(--color-linen)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '12px 24px',
+            fontSize: 14,
+            fontWeight: 500,
+            backgroundColor:
+              hasAnyData() && !saving ? 'var(--color-amber)' : 'var(--color-linen)',
             color: hasAnyData() && !saving ? '#FFFFFF' : 'var(--color-text-muted)',
-            border: 'none', borderRadius: 10,
+            border: 'none',
+            borderRadius: 10,
             cursor: hasAnyData() && !saving ? 'pointer' : 'default',
             transition: 'background-color 0.15s ease',
           }}

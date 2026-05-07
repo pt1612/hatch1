@@ -99,7 +99,7 @@ export default function ReportClient({
     return (
       <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
         <TopNav projectId={project.id} projectTitle={project.title} />
-        <div className="flex-1 overflow-auto p-8 pt-4">
+        <div className="flex-1 overflow-auto p-8 pt-14">
           <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
           <h1
             style={{
@@ -146,7 +146,7 @@ export default function ReportClient({
     return (
       <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
         <TopNav projectId={project.id} projectTitle={project.title} />
-        <div className="flex-1 overflow-auto p-8 pt-4">
+        <div className="flex-1 overflow-auto p-8 pt-14">
           <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
           <div
             className="rounded-2xl p-6 flex items-start gap-3"
@@ -181,7 +181,7 @@ export default function ReportClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-4">
+      <div className="flex-1 overflow-auto p-8 pt-14">
         <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
 
         <div className="max-w-3xl">

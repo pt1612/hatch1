@@ -274,6 +274,7 @@ function BMCBlock({
   style,
   borderClass = '',
   getTwinDots,
+  forceGeneratable = false,
 }: {
   blockKey: BlockKey
   items: string[]
@@ -286,6 +287,7 @@ function BMCBlock({
   style?: React.CSSProperties
   borderClass?: string
   getTwinDots?: (text: string) => string[]
+  forceGeneratable?: boolean
 }) {
   const [adding, setAdding] = useState(false)
   const [inputVal, setInputVal] = useState('')
@@ -293,7 +295,7 @@ function BMCBlock({
   const [editVal, setEditVal] = useState('')
 
   const config = BLOCK_CONFIG[blockKey]
-  const isPreFilled = PRE_FILLED.has(blockKey)
+  const isPreFilled = PRE_FILLED.has(blockKey) && !forceGeneratable
   const hasItems = items.length > 0
 
   function submit() {
@@ -493,6 +495,7 @@ function BMCGrid({
   onRemove,
   onEdit,
   getTwinDots,
+  twinTab = false,
 }: {
   data: BMCData
   isUnlocked: (block: BlockKey) => boolean
@@ -502,6 +505,7 @@ function BMCGrid({
   onRemove: (block: BlockKey, index: number) => void
   onEdit: (block: BlockKey, index: number, newText: string) => void
   getTwinDots?: (block: BlockKey, text: string) => string[]
+  twinTab?: boolean
 }) {
   return (
     <>
@@ -530,6 +534,7 @@ function BMCGrid({
               style={GRID_PLACEMENT[key]}
               borderClass={GRID_BORDERS[key]}
               getTwinDots={getTwinDots ? (text) => getTwinDots(key, text) : undefined}
+              forceGeneratable={twinTab && key === 'value_propositions'}
             />
           ))}
         </div>
@@ -548,6 +553,7 @@ function BMCGrid({
               onRemove={(i) => onRemove(key, i)}
               onEdit={(i, t) => onEdit(key, i, t)}
               getTwinDots={getTwinDots ? (text) => getTwinDots(key, text) : undefined}
+              forceGeneratable={twinTab && key === 'value_propositions'}
             />
           </div>
         ))}
@@ -607,8 +613,31 @@ export default function BMCClient({
     return (data[GENERATION_ORDER[idx - 1]]?.length ?? 0) > 0
   }
 
-  // ── Twin-dot lookup (aggregated tab) — reads stored AI attribution ─────────
+  // ── Twin-dot lookup (aggregated tab) — covers all blocks including VP + CS ──
   function getTwinDotsForItem(block: BlockKey, text: string): string[] {
+    // value_propositions: look up the source twinIdx in the FinalVPC left side
+    if (block === 'value_propositions') {
+      const allVPCItems = [
+        ...(finalVPC?.productsAndServices ?? []),
+        ...(finalVPC?.painRelievers ?? []),
+        ...(finalVPC?.gainCreators ?? []),
+      ]
+      const match = allVPCItems.find((i) => toText(i) === text)
+      if (match && typeof match !== 'string') {
+        const twinIdx = (match as { text: string; twinIdx: number }).twinIdx
+        if (twinIdx >= 0) return [TWIN_COLORS_HEX[twinIdx % TWIN_COLORS_HEX.length]]
+      }
+      return []
+    }
+
+    // customer_segments: each segment belongs to the twin at that index
+    if (block === 'customer_segments') {
+      const twinIdx = twinInterviews.findIndex((iv) => iv.twinSegment === text)
+      if (twinIdx >= 0) return [TWIN_COLORS_HEX[twinIdx % TWIN_COLORS_HEX.length]]
+      return []
+    }
+
+    // all other blocks: read from stored AI attribution
     const blockAttr = aggAttribution[block]
     return (blockAttr?.[text] ?? []).map((idx) => TWIN_COLORS_HEX[idx % TWIN_COLORS_HEX.length])
   }
@@ -731,6 +760,19 @@ export default function BMCClient({
           }
         : undefined
 
+      // Build per-twin VPC data for twin-specific generation
+      const twinVPCData = !isAgg && iv?.valueMap
+        ? {
+            productsAndServices: (iv.valueMap as Record<string, unknown>).productsAndServices ?? [],
+            painRelievers:       (iv.valueMap as Record<string, unknown>).painRelievers ?? [],
+            gainCreators:        (iv.valueMap as Record<string, unknown>).gainCreators ?? [],
+          }
+        : undefined
+
+      const twinProfile = !isAgg && iv
+        ? { name: iv.twinName, role: iv.twinName, segment: iv.twinSegment }
+        : undefined
+
       const res = await fetch('/api/generate-bmc-block', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -741,6 +783,7 @@ export default function BMCClient({
           abilities,
           ...(iv ? { twinSegment: iv.twinSegment } : {}),
           ...(isAgg ? { isAggregate: true, vpcWithAttribution } : {}),
+          ...(!isAgg && twinVPCData ? { twinVPCData, twinProfile } : {}),
           existingBlocks: {
             value_propositions:     data.value_propositions,
             customer_segments:      data.customer_segments,
@@ -881,7 +924,7 @@ export default function BMCClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-6 pt-4">
+      <div className="flex-1 overflow-auto p-6 pt-14">
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/vpc`}
           label="Back to VPC Canvas"
@@ -994,6 +1037,7 @@ export default function BMCClient({
             onRemove={(block, i) => removeTwinItem(activeTab, block, i)}
             onEdit={(block, i, text) => editTwinItem(activeTab, block, i, text)}
             getTwinDots={(_block, _text) => [TWIN_COLORS_HEX[activeTab % TWIN_COLORS_HEX.length]]}
+            twinTab
           />
         )}
 
