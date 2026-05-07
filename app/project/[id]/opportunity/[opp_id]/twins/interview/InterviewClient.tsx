@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import { Send, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
 import { TWIN_AVATAR_COLORS, TWIN_BUBBLE_COLORS } from '@/lib/constants'
@@ -295,9 +295,36 @@ export default function InterviewClient({
   const selectedTwin = selectedTwinId !== 'all' ? twins.find((t) => t.id === selectedTwinId) ?? null : null
   const typingTwins = selectedTwinId === 'all' ? twins : selectedTwin ? [selectedTwin] : []
 
+  if (twins.length === 0) {
+    return (
+      <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+        <TopNav projectId={project.id} projectTitle={project.title} />
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+          <p style={{ fontFamily: "'Lora', Georgia, serif", fontStyle: 'italic', fontSize: 16, color: 'var(--color-text-muted)', marginBottom: 12 }}>
+            Nessun Twin configurato.
+          </p>
+          <p style={{ fontSize: 13, color: 'var(--color-text-faint)', marginBottom: 20 }}>
+            Crea prima i Twin per questa opportunità prima di iniziare le interviste.
+          </p>
+          <a
+            href={`/project/${project.id}/opportunity/${opportunity.id}/twins/setup`}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '10px 20px', fontSize: 13, fontWeight: 500,
+              backgroundColor: 'var(--color-amber)', color: '#FFFFFF',
+              borderRadius: 8, textDecoration: 'none',
+            }}
+          >
+            Configura Twin →
+          </a>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="ml-60 flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+      <TopNav projectId={project.id} projectTitle={project.title} />
 
       {/* Twin list sidebar */}
       <div

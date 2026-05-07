@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import { Plus, X, Loader2, Sparkles } from 'lucide-react'
 import { TWIN_AVATAR_COLORS, TWIN_COLORS_HEX } from '@/lib/constants'
@@ -540,9 +540,9 @@ export default function VPCClient({
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+      <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="ml-60 flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-8 pt-4">
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/twins/results`}
           label="Back to results"

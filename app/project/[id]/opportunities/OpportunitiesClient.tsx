@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import { Plus, CheckCircle2, Clock, ChevronRight, ChevronDown, Loader2, X } from 'lucide-react'
 import type { Opportunity } from '@/lib/types'
 
@@ -67,9 +67,9 @@ export default function OpportunitiesClient({
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+      <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="ml-60 flex-1 flex overflow-hidden min-h-screen">
+      <div className="flex-1 flex overflow-hidden min-h-screen pt-2">
         {/* Main list */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="flex items-center justify-between mb-6">

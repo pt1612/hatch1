@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import { Loader2, ChevronRight, RefreshCw } from 'lucide-react'
 import type { DigitalTwin, TwinMessage, TwinReport, Opportunity } from '@/lib/types'
@@ -149,9 +149,9 @@ export default function ResultsClient({
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+      <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="ml-60 flex-1 overflow-auto p-8 max-w-3xl">
+      <div className="flex-1 overflow-auto p-8 pt-4 max-w-3xl">
         <BackButton href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`} label="Back to interviews" />
 
         <div className="mb-6">

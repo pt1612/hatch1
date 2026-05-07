@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import { ChevronRight, Loader2 } from 'lucide-react'
 import type { Opportunity } from '@/lib/types'
@@ -37,9 +37,9 @@ export default function ContextClient({
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+      <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="ml-60 flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-8 pt-4">
         <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
 
         <div className="max-w-2xl">

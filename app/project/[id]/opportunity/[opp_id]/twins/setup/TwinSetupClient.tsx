@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import { Plus, X, Loader2, RefreshCw, ChevronRight, Edit2, Check } from 'lucide-react'
 import { getInitials } from '@/lib/types'
@@ -137,9 +137,9 @@ export default function TwinSetupClient({
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+      <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="ml-60 flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-8 pt-4">
         <BackButton href={`/project/${project.id}/strategy`} label="Back to strategy" />
 
         <div className="mb-6">

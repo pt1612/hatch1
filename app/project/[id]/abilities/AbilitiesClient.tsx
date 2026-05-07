@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import { Send, Loader2, Sparkles, ChevronRight, ChevronDown } from 'lucide-react'
 import type { ChatMessage, Ability } from '@/lib/types'
 
@@ -227,9 +227,9 @@ export default function AbilitiesClient({ project }: { project: { id: string; ti
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+      <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="ml-60 flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden pt-0">
         {/* Chat area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}

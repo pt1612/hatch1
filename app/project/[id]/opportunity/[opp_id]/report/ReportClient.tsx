@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import { Loader2, AlertCircle, RefreshCw, Map } from 'lucide-react'
 import { POTENTIAL_BADGE, CHALLENGE_BADGE } from '@/lib/constants'
@@ -98,8 +98,8 @@ export default function ReportClient({
   if (loading || regenerating) {
     return (
       <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-        <Sidebar projectId={project.id} projectTitle={project.title} />
-        <div className="ml-60 flex-1 overflow-auto p-8">
+        <TopNav projectId={project.id} projectTitle={project.title} />
+        <div className="flex-1 overflow-auto p-8 pt-4">
           <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
           <h1
             style={{
@@ -145,8 +145,8 @@ export default function ReportClient({
   if (error) {
     return (
       <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-        <Sidebar projectId={project.id} projectTitle={project.title} />
-        <div className="ml-60 flex-1 overflow-auto p-8">
+        <TopNav projectId={project.id} projectTitle={project.title} />
+        <div className="flex-1 overflow-auto p-8 pt-4">
           <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
           <div
             className="rounded-2xl p-6 flex items-start gap-3"
@@ -179,9 +179,9 @@ export default function ReportClient({
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+      <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="ml-60 flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-8 pt-4">
         <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
 
         <div className="max-w-3xl">

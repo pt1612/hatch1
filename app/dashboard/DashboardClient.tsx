@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import { Plus, ArrowRight, MoreHorizontal, Calendar } from 'lucide-react'
 
 const PHASE_LABELS = ['Abilities', 'Evaluation', 'Map', 'Strategy']
@@ -75,15 +75,15 @@ export default function DashboardClient({
       .select()
       .single()
     if (!error && data) {
-      router.push(`/project/${data.id}/abilities`)
+      router.push(`/project/${data.id}/onboarding`)
     }
     setCreating(false)
   }
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar />
-      <main className="ml-60 flex-1 overflow-auto p-8">
+      <TopNav />
+      <main className="flex-1 overflow-auto p-8 pt-4 max-w-5xl mx-auto w-full px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

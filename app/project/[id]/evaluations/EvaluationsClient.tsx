@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import { CheckCircle2, ChevronRight, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
@@ -156,9 +156,9 @@ export default function EvaluationsClient({
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+      <TopNav projectId={project.id} projectTitle={project.title} progressPct={progressPct} />
 
-      <div className="ml-60 flex-1 overflow-auto p-8">
+      <div className="flex-1 overflow-auto p-8 pt-4">
         <div className="max-w-3xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-2">

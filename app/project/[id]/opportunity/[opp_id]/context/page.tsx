@@ -29,17 +29,5 @@ export default async function ContextPage({
     .single()
   if (!opportunity) redirect(`/project/${id}/opportunities`)
 
-  // If already evaluated, skip to report
-  const { data: evaluation } = await supabase
-    .from('evaluations')
-    .select('id, report')
-    .eq('opportunity_id', opp_id)
-    .not('report', 'is', null)
-    .maybeSingle()
-
-  if (evaluation?.report) {
-    redirect(`/project/${id}/opportunity/${opp_id}/report`)
-  }
-
   return <ContextClient project={project} opportunity={opportunity} />
 }

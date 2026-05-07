@@ -39,11 +39,7 @@ export default async function ResultsPage({
     .eq('opportunity_id', opp_id)
     .order('created_at', { ascending: true })
 
-  if (!twinRows || twinRows.length === 0) {
-    redirect(`/project/${id}/opportunity/${opp_id}/twins/setup`)
-  }
-
-  const twins: DigitalTwin[] = twinRows.map((row, i) => ({
+  const twins: DigitalTwin[] = (twinRows ?? []).map((row, i) => ({
     id: `twin${i + 1}`,
     dbId: row.id,
     name: row.name,
@@ -67,7 +63,7 @@ export default async function ResultsPage({
     .maybeSingle()
 
   // Load interview messages (for passing to report generation)
-  const dbTwinIds = twinRows.map((r) => r.id)
+  const dbTwinIds = (twinRows ?? []).map((r) => r.id)
   const { data: interviews } = await supabase
     .from('twin_interviews')
     .select('twin_id, messages')

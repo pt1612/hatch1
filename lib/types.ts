@@ -26,6 +26,7 @@ export type Project = {
   id: string
   user_id: string
   title: string
+  entry_path?: 'full' | 'idea' | 'vpc' | 'bmc' | null
   created_at: string
   updated_at: string
 }

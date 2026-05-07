@@ -39,12 +39,8 @@ export default async function InterviewPage({
     .eq('opportunity_id', opp_id)
     .order('created_at', { ascending: true })
 
-  if (!twinRows || twinRows.length === 0) {
-    redirect(`/project/${id}/opportunity/${opp_id}/twins/setup`)
-  }
-
   // Convert DB rows → DigitalTwin using stable index-based ids (twin1, twin2 …)
-  const twins: DigitalTwin[] = twinRows.map((row, i) => ({
+  const twins: DigitalTwin[] = (twinRows ?? []).map((row, i) => ({
     id: `twin${i + 1}`,
     name: row.name,
     role: row.role ?? '',
@@ -61,12 +57,12 @@ export default async function InterviewPage({
 
   // Map twin.id (twin1…) → actual DB UUID, used for upserting twin_interviews
   const twinDbIds: Record<string, string> = {}
-  twinRows.forEach((row, i) => {
+  ;(twinRows ?? []).forEach((row, i) => {
     twinDbIds[`twin${i + 1}`] = row.id
   })
 
   // Load existing twin_interviews to restore messages
-  const dbTwinIds = twinRows.map((r) => r.id)
+  const dbTwinIds = (twinRows ?? []).map((r) => r.id)
   const { data: interviews } = await supabase
     .from('twin_interviews')
     .select('id, twin_id, messages')
@@ -75,7 +71,7 @@ export default async function InterviewPage({
   // Build existingInterviewIds: twin.id → interview row uuid
   const existingInterviewIds: Record<string, string> = {}
   if (interviews) {
-    twinRows.forEach((row, i) => {
+    ;(twinRows ?? []).forEach((row, i) => {
       const found = interviews.find((iv) => iv.twin_id === row.id)
       if (found) existingInterviewIds[`twin${i + 1}`] = found.id
     })

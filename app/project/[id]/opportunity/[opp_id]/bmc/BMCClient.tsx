@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import Sidebar from '@/components/Sidebar'
+import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import {
   Plus, X, Loader2, Sparkles, Download,
@@ -270,6 +270,7 @@ function BMCBlock({
   onGenerate,
   onAdd,
   onRemove,
+  onEdit,
   style,
   borderClass = '',
   getTwinDots,
@@ -281,12 +282,15 @@ function BMCBlock({
   onGenerate: () => void
   onAdd: (text: string) => void
   onRemove: (index: number) => void
+  onEdit: (index: number, newText: string) => void
   style?: React.CSSProperties
   borderClass?: string
   getTwinDots?: (text: string) => string[]
 }) {
   const [adding, setAdding] = useState(false)
   const [inputVal, setInputVal] = useState('')
+  const [editingIdx, setEditingIdx] = useState<number | null>(null)
+  const [editVal, setEditVal] = useState('')
 
   const config = BLOCK_CONFIG[blockKey]
   const isPreFilled = PRE_FILLED.has(blockKey)
@@ -298,6 +302,17 @@ function BMCBlock({
     onAdd(t)
     setInputVal('')
     setAdding(false)
+  }
+
+  function commitEdit(idx: number) {
+    const t = editVal.trim()
+    if (!t) {
+      onRemove(idx)
+    } else {
+      onEdit(idx, t)
+    }
+    setEditingIdx(null)
+    setEditVal('')
   }
 
   return (
@@ -362,10 +377,33 @@ function BMCBlock({
             <div className="flex flex-wrap gap-1 mt-1">
               {items.map((item, i) => {
                 const dots = getTwinDots?.(item) ?? []
+                if (editingIdx === i) {
+                  return (
+                    <span key={i} className="inline-flex items-center gap-1 max-w-full">
+                      <input
+                        autoFocus
+                        value={editVal}
+                        onChange={(e) => setEditVal(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') commitEdit(i)
+                          if (e.key === 'Escape') { setEditingIdx(null); setEditVal('') }
+                        }}
+                        onBlur={() => commitEdit(i)}
+                        className="text-[10px] px-1.5 py-0.5 rounded-lg outline-none min-w-0"
+                        style={{
+                          border: '0.5px solid var(--color-amber)',
+                          backgroundColor: '#FFFFFF',
+                          width: Math.max(80, editVal.length * 6.5),
+                          maxWidth: '100%',
+                        }}
+                      />
+                    </span>
+                  )
+                }
                 return (
                   <span
                     key={i}
-                    title={item}
+                    title="Click to edit"
                     className={`inline-flex items-start gap-1 text-[10px] font-medium px-2 py-0.5 rounded-lg whitespace-normal break-words max-w-full ${config.pillClass}`}
                   >
                     {dots.map((color, di) => (
@@ -376,7 +414,12 @@ function BMCBlock({
                         title={`Twin ${di + 1}`}
                       />
                     ))}
-                    <span className="flex-1 min-w-0">{item}</span>
+                    <span
+                      className="flex-1 min-w-0 cursor-text"
+                      onClick={() => { setEditingIdx(i); setEditVal(item) }}
+                    >
+                      {item}
+                    </span>
                     <button
                       onClick={() => onRemove(i)}
                       className="opacity-40 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
@@ -448,6 +491,7 @@ function BMCGrid({
   onGenerate,
   onAdd,
   onRemove,
+  onEdit,
   getTwinDots,
 }: {
   data: BMCData
@@ -456,6 +500,7 @@ function BMCGrid({
   onGenerate: (block: BlockKey) => void
   onAdd: (block: BlockKey, text: string) => void
   onRemove: (block: BlockKey, index: number) => void
+  onEdit: (block: BlockKey, index: number, newText: string) => void
   getTwinDots?: (block: BlockKey, text: string) => string[]
 }) {
   return (
@@ -481,6 +526,7 @@ function BMCGrid({
               onGenerate={() => onGenerate(key)}
               onAdd={(t) => onAdd(key, t)}
               onRemove={(i) => onRemove(key, i)}
+              onEdit={(i, t) => onEdit(key, i, t)}
               style={GRID_PLACEMENT[key]}
               borderClass={GRID_BORDERS[key]}
               getTwinDots={getTwinDots ? (text) => getTwinDots(key, text) : undefined}
@@ -500,6 +546,7 @@ function BMCGrid({
               onGenerate={() => onGenerate(key)}
               onAdd={(t) => onAdd(key, t)}
               onRemove={(i) => onRemove(key, i)}
+              onEdit={(i, t) => onEdit(key, i, t)}
               getTwinDots={getTwinDots ? (text) => getTwinDots(key, text) : undefined}
             />
           </div>
@@ -610,6 +657,15 @@ export default function BMCClient({
       return updated
     })
   }
+  function editAggItem(block: BlockKey, index: number, newText: string) {
+    setAggData((prev) => {
+      const arr = [...prev[block]]
+      arr[index] = newText
+      const updated = { ...prev, [block]: arr }
+      saveAgg(updated)
+      return updated
+    })
+  }
 
   // ── Mutations: per-twin ──────────────────────────────────────────────────────
   function addTwinItem(tabIdx: number, block: BlockKey, text: string) {
@@ -628,6 +684,19 @@ export default function BMCClient({
       const updated = prev.map((d, i) => {
         if (i !== tabIdx) return d
         const next = { ...d, [block]: d[block].filter((_, j) => j !== index) }
+        saveTwinBmc(tabIdx, next)
+        return next
+      })
+      return updated
+    })
+  }
+  function editTwinItem(tabIdx: number, block: BlockKey, index: number, newText: string) {
+    setPerTwinBmc((prev) => {
+      const updated = prev.map((d, i) => {
+        if (i !== tabIdx) return d
+        const arr = [...d[block]]
+        arr[index] = newText
+        const next = { ...d, [block]: arr }
         saveTwinBmc(tabIdx, next)
         return next
       })
@@ -810,9 +879,9 @@ export default function BMCClient({
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-      <Sidebar projectId={project.id} projectTitle={project.title} />
+      <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="ml-60 flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-6 pt-4">
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/vpc`}
           label="Back to VPC Canvas"
@@ -910,6 +979,7 @@ export default function BMCClient({
             onGenerate={(block) => generateBlockForTab(twinInterviews.length, block, aggData)}
             onAdd={(block, text) => addAggItem(block, text)}
             onRemove={(block, i) => removeAggItem(block, i)}
+            onEdit={(block, i, text) => editAggItem(block, i, text)}
             getTwinDots={twinInterviews.length > 0 ? getTwinDotsForItem : undefined}
           />
         ) : (
@@ -922,6 +992,7 @@ export default function BMCClient({
             }
             onAdd={(block, text) => addTwinItem(activeTab, block, text)}
             onRemove={(block, i) => removeTwinItem(activeTab, block, i)}
+            onEdit={(block, i, text) => editTwinItem(activeTab, block, i, text)}
             getTwinDots={(_block, _text) => [TWIN_COLORS_HEX[activeTab % TWIN_COLORS_HEX.length]]}
           />
         )}
