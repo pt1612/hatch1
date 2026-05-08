@@ -8,13 +8,13 @@ import BackButton from '@/components/BackButton'
 import { Loader2, AlertCircle, RefreshCw, Map } from 'lucide-react'
 import { POTENTIAL_BADGE, CHALLENGE_BADGE } from '@/lib/constants'
 import type { Opportunity, InterviewReport, DimensionScore } from '@/lib/types'
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06 } },
 }
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } },
 }
