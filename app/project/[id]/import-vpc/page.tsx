@@ -121,7 +121,7 @@ function BubbleBlock({
         {items.map((item, i) => (
           <span
             key={i}
-            className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg ${pillClass}`}
+            className={`bubble-enter inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg ${pillClass}`}
           >
             <span>{item}</span>
             <button
@@ -418,8 +418,14 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
               outline: 'none',
               boxSizing: 'border-box',
             }}
-            onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-            onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--color-amber)'
+              e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--color-border)'
+              e.target.style.boxShadow = 'none'
+            }}
           />
         </div>
 
@@ -553,13 +559,16 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
               transition: 'background-color 0.15s ease',
             }}
             onMouseEnter={(e) => {
-              if (hasAnyData() && !saving && !filling)
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
+              if (hasAnyData() && !saving && !filling) {
+                ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
+                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+              }
             }}
             onMouseLeave={(e) => {
-              if (hasAnyData() && !saving && !filling)
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                  'var(--color-amber)'
+              if (hasAnyData() && !saving && !filling) {
+                ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
+              }
             }}
           >
             {saving ? (

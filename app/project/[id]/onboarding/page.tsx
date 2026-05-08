@@ -70,7 +70,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={projectId} />
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-16">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 page-enter">
         {/* Title */}
         <h1
           style={{
@@ -119,7 +119,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
                   alignItems: 'flex-start',
                   padding: '28px 24px',
                   backgroundColor: '#FFFFFF',
-                  border: '0.5px solid var(--color-border)',
+                  border: selecting === path.id ? '1.5px solid var(--color-amber)' : '0.5px solid var(--color-border)',
                   borderRadius: 16,
                   cursor: selecting ? 'default' : 'pointer',
                   textAlign: 'left',

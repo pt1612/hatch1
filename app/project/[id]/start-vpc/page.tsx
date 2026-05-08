@@ -146,14 +146,16 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
               borderRadius: 10,
               border: 'none',
               cursor: 'pointer',
-              transition: 'background-color 0.15s',
+              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
             }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A')
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)')
-            }
+            onMouseEnter={(e) => {
+              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
+              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+            }}
+            onMouseLeave={(e) => {
+              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
+            }}
           >
             Inizia a compilare
             <ArrowRight size={16} />

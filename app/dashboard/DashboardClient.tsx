@@ -92,7 +92,7 @@ export default function DashboardClient({
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav />
-      <main className="flex-1 overflow-auto p-8 pt-14 max-w-5xl mx-auto w-full px-6">
+      <main className="flex-1 overflow-auto p-8 pt-14 max-w-5xl mx-auto w-full px-6 page-enter">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -116,15 +116,26 @@ export default function DashboardClient({
           <button
             onClick={handleNewProject}
             disabled={creating}
-            className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium disabled:opacity-60"
             style={{
               backgroundColor: 'var(--color-amber)',
               color: '#FFFFFF',
               borderRadius: 8,
               border: 'none',
+              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
             }}
-            onMouseEnter={(e) => !creating && ((e.currentTarget).style.backgroundColor = '#A8612A')}
-            onMouseLeave={(e) => !creating && ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
+            onMouseEnter={(e) => {
+              if (!creating) {
+                e.currentTarget.style.backgroundColor = '#A8612A'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!creating) {
+                e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                e.currentTarget.style.boxShadow = 'none'
+              }
+            }}
           >
             <Plus size={16} />
             {creating ? 'Creazione…' : 'Nuovo progetto'}
@@ -154,15 +165,26 @@ export default function DashboardClient({
             <button
               onClick={handleNewProject}
               disabled={creating}
-              className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium transition-colors disabled:opacity-60"
+              className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium disabled:opacity-60"
               style={{
                 backgroundColor: 'var(--color-amber)',
                 color: '#FFFFFF',
                 borderRadius: 8,
                 border: 'none',
+                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
               }}
-              onMouseEnter={(e) => !creating && ((e.currentTarget).style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => !creating && ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
+              onMouseEnter={(e) => {
+                if (!creating) {
+                  e.currentTarget.style.backgroundColor = '#A8612A'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!creating) {
+                  e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }
+              }}
             >
               <Plus size={16} />
               {creating ? 'Creazione…' : 'Crea il primo progetto'}
@@ -173,14 +195,15 @@ export default function DashboardClient({
         {/* Grid */}
         {projectList.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {projectList.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                isDeleting={deleting === project.id}
-                onDelete={() => handleDeleteProject(project.id)}
-                onRename={(newName) => handleRename(project.id, newName)}
-              />
+            {projectList.map((project, index) => (
+              <div key={project.id} className={`card-enter card-enter-${(index % 6) + 1}`}>
+                <ProjectCard
+                  project={project}
+                  isDeleting={deleting === project.id}
+                  onDelete={() => handleDeleteProject(project.id)}
+                  onRename={(newName) => handleRename(project.id, newName)}
+                />
+              </div>
             ))}
           </div>
         )}
@@ -216,16 +239,25 @@ function ProjectCard({
 
   return (
     <div
-      className={`flex flex-col gap-4 transition-all ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
+      className={`flex flex-col gap-4 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
       style={{
         backgroundColor: '#FFFFFF',
         borderTop: `3px solid ${isDraft ? 'var(--color-linen)' : 'var(--color-amber)'}`,
         border: '0.5px solid var(--color-border)',
         borderRadius: 14,
         padding: 20,
+        transition: 'border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease',
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-amber)')}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = 'var(--color-amber)'
+        e.currentTarget.style.transform = 'translateY(-1px)'
+        e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = 'var(--color-border)'
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = 'none'
+      }}
     >
       {/* Fix: re-apply top border color on hover since border shorthand overrides it */}
       {/* Header */}
@@ -265,6 +297,7 @@ function ProjectCard({
                 borderBottom: '1px solid var(--color-amber)',
                 outline: 'none',
                 padding: '0 0 1px 0',
+                transition: 'opacity 0.15s ease',
               }}
             />
           ) : (
@@ -417,15 +450,22 @@ function ProjectCard({
       {/* CTA */}
       <Link
         href={project.next_route}
-        className="flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium transition-colors mt-auto"
+        className="flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium mt-auto"
         style={{
           backgroundColor: 'var(--color-amber)',
           color: '#FFFFFF',
           borderRadius: 8,
           textDecoration: 'none',
+          transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#A8612A'
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+          e.currentTarget.style.boxShadow = 'none'
+        }}
       >
         Continua
         <ArrowRight size={15} />

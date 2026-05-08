@@ -80,7 +80,7 @@ export default function StrategyClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14">
+      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
         <BackButton href={`/project/${project.id}/map`} label="Torna alla mappa" />
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -102,10 +102,24 @@ export default function StrategyClient({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium transition-colors disabled:opacity-60"
-            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8, border: 'none' }}
-            onMouseEnter={(e) => !saving && ((e.currentTarget).style.backgroundColor = '#A8612A')}
-            onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
+            className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium disabled:opacity-60"
+            style={{
+              backgroundColor: 'var(--color-amber)',
+              color: '#FFFFFF',
+              borderRadius: 8,
+              border: 'none',
+              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!saving) {
+                ;(e.currentTarget).style.backgroundColor = '#A8612A'
+                ;(e.currentTarget).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              ;(e.currentTarget).style.backgroundColor = 'var(--color-amber)'
+              ;(e.currentTarget).style.boxShadow = 'none'
+            }}
           >
             {saving ? (
               <Loader2 size={15} className="animate-spin" />
@@ -119,6 +133,10 @@ export default function StrategyClient({
 
         {opportunities.length === 0 ? (
           <div className="text-center py-16">
+            <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
+              <circle cx="50" cy="50" r="35" fill="var(--color-amber-bg)" />
+              <circle cx="50" cy="50" r="18" fill="var(--color-linen)" />
+            </svg>
             <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Nessuna opportunità ancora.</p>
             <Link
               href={`/project/${project.id}/opportunities`}

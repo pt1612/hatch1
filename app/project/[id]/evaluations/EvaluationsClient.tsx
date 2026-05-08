@@ -158,7 +158,7 @@ export default function EvaluationsClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} progressPct={progressPct} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14">
+      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
         <div className="max-w-3xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-2">
@@ -188,7 +188,7 @@ export default function EvaluationsClient({
           >
             <div
               className="h-full rounded-full transition-all"
-              style={{ width: `${progressPct}%`, backgroundColor: 'var(--color-amber)' }}
+              style={{ width: `${progressPct}%`, backgroundColor: 'var(--color-amber)', boxShadow: '0 0 8px rgba(199,123,58,0.4)' }}
             />
           </div>
 
@@ -305,15 +305,22 @@ export default function EvaluationsClient({
                                 ) : (
                                   <Link
                                     href={href}
-                                    className="flex-shrink-0 flex items-center gap-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors"
+                                    className="flex-shrink-0 flex items-center gap-1 py-1.5 px-3 rounded-lg text-xs font-medium"
                                     style={{
                                       backgroundColor: 'var(--color-amber)',
                                       color: '#FFFFFF',
                                       marginTop: 2,
                                       textDecoration: 'none',
+                                      transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
                                     }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.backgroundColor = '#A8612A'
+                                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                                      e.currentTarget.style.boxShadow = 'none'
+                                    }}
                                   >
                                     {label}
                                     <ChevronRight size={11} />

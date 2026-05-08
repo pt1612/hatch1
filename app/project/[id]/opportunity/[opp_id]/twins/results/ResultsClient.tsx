@@ -53,7 +53,7 @@ function MetricCard({ label, score, description }: { label: string; score: numbe
       <div className="w-full rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'var(--color-linen)' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${score}%`, backgroundColor: barColor }}
+          style={{ width: `${score}%`, backgroundColor: barColor, boxShadow: score >= 40 ? '0 0 8px rgba(199,123,58,0.4)' : undefined }}
         />
       </div>
       <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 12, lineHeight: '1.6' }}>{description}</p>
@@ -200,7 +200,7 @@ export default function ResultsClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14 max-w-3xl">
+      <div className="flex-1 overflow-auto p-8 pt-14 max-w-3xl page-enter">
         <BackButton href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`} label="Torna alle interviste" />
 
         <div className="flex items-start justify-between mb-6">
@@ -281,10 +281,22 @@ export default function ResultsClient({
             </p>
             <button
               onClick={generateReport}
-              className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-medium transition-colors"
-              style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+              className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-medium"
+              style={{
+                backgroundColor: 'var(--color-amber)',
+                color: '#FFFFFF',
+                borderRadius: 10,
+                border: 'none',
+                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#A8612A'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
             >
               Genera risultati
               <ChevronRight size={15} />

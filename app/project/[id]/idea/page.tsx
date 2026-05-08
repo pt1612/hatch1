@@ -125,8 +125,14 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                   outline: 'none',
                   boxSizing: 'border-box',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--color-amber)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--color-border)'
+                  e.target.style.boxShadow = 'none'
+                }}
               />
             </div>
 
@@ -163,8 +169,14 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                   lineHeight: '1.6',
                   boxSizing: 'border-box',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--color-amber)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--color-border)'
+                  e.target.style.boxShadow = 'none'
+                }}
               />
             </div>
 
@@ -198,8 +210,14 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                   outline: 'none',
                   boxSizing: 'border-box',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--color-amber)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--color-border)'
+                  e.target.style.boxShadow = 'none'
+                }}
               />
             </div>
 
@@ -219,15 +237,19 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                 fontSize: 14,
                 fontWeight: 500,
                 cursor: canSubmit && !saving ? 'pointer' : 'default',
-                transition: 'background-color 0.15s ease',
+                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
               }}
               onMouseEnter={(e) => {
-                if (canSubmit && !saving)
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
+                if (canSubmit && !saving) {
+                  ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                }
               }}
               onMouseLeave={(e) => {
-                if (canSubmit && !saving)
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                if (canSubmit && !saving) {
+                  ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
+                }
               }}
             >
               {saving ? (

@@ -71,7 +71,7 @@ export default function OpportunitiesClient({
 
       <div className="flex-1 flex overflow-hidden min-h-screen pt-14">
         {/* Main list */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 page-enter">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1
@@ -106,10 +106,21 @@ export default function OpportunitiesClient({
               </Link>
               <button
                 onClick={() => setShowAddForm((v) => !v)}
-                className="flex items-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium transition-colors"
-                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', border: 'none' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                className="flex items-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium"
+                style={{
+                  backgroundColor: 'var(--color-amber)',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#A8612A'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
               >
                 <Plus size={14} />
                 Aggiungi manualmente
@@ -128,6 +139,7 @@ export default function OpportunitiesClient({
                 style={{
                   width: `${(evaluatedCount / opportunities.length) * 100}%`,
                   backgroundColor: 'var(--color-amber)',
+                  boxShadow: '0 0 8px rgba(199,123,58,0.4)',
                 }}
               />
             </div>
@@ -181,8 +193,14 @@ export default function OpportunitiesClient({
                         borderRadius: 8,
                         color: 'var(--color-ink)',
                       }}
-                      onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                      onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = 'var(--color-amber)'
+                        e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = 'var(--color-border)'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     />
                   </div>
                 ))}

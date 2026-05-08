@@ -406,7 +406,7 @@ function BMCBlock({
                   <span
                     key={i}
                     title="Click to edit"
-                    className={`inline-flex items-start gap-1 text-[10px] font-medium px-2 py-0.5 rounded-lg whitespace-normal break-words max-w-full ${config.pillClass}`}
+                    className={`bubble-enter inline-flex items-start gap-1 text-[10px] font-medium px-2 py-0.5 rounded-lg whitespace-normal break-words max-w-full ${config.pillClass}`}
                   >
                     {dots.map((color, di) => (
                       <span
@@ -462,8 +462,14 @@ function BMCBlock({
               placeholder="Add item…"
               className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
               style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
-              onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-              onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--color-amber)'
+                e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'var(--color-border)'
+                e.target.style.boxShadow = 'none'
+              }}
             />
             <button
               onClick={submit}

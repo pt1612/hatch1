@@ -255,6 +255,7 @@ export default function TopNav({
                           : '1.5px solid transparent',
                         transition: 'color 0.1s ease, border-color 0.1s ease',
                         whiteSpace: 'nowrap',
+                        textShadow: active ? '0 0 20px rgba(199,123,58,0.3)' : 'none',
                       }}
                       onMouseEnter={(e) => {
                         if (!active)
@@ -317,6 +318,15 @@ export default function TopNav({
                 justifyContent: 'center',
                 cursor: 'pointer',
                 letterSpacing: '0.03em',
+                transition: 'background-color 0.15s ease, transform 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(199,123,58,0.18)'
+                e.currentTarget.style.transform = 'scale(1.05)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(199,123,58,0.10)'
+                e.currentTarget.style.transform = 'scale(1)'
               }}
             >
               {userInitials}
@@ -344,6 +354,7 @@ export default function TopNav({
               width: `${progressPct}%`,
               backgroundColor: 'var(--color-amber)',
               transition: 'width 0.4s ease',
+              boxShadow: '0 0 8px rgba(199,123,58,0.4)',
             }}
           />
         </div>

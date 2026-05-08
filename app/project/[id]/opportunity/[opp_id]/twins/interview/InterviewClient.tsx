@@ -81,7 +81,7 @@ function TypingIndicator({ twins }: { twins: DigitalTwin[] }) {
 function ChatBubble({ message, twins }: { message: TwinMessage; twins: DigitalTwin[] }) {
   if (message.role === 'user') {
     return (
-      <div className="flex justify-end">
+      <div className="flex justify-end bubble-enter">
         <div className="max-w-[70%]">
           <div
             className="px-4 py-3 text-sm leading-relaxed"
@@ -109,7 +109,7 @@ function ChatBubble({ message, twins }: { message: TwinMessage; twins: DigitalTw
   const twin = twins.find((t) => t.id === message.twinId)
 
   return (
-    <div className="flex items-end gap-2">
+    <div className="flex items-end gap-2 bubble-enter">
       {twin && <TwinAvatar twin={twin} />}
       {!twin && (
         <div

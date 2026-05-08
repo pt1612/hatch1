@@ -45,7 +45,7 @@ export default function MapClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14">
+      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
         <BackButton href={`/project/${project.id}/evaluations`} label="Torna alla valutazione" />
         <div className="flex items-center justify-between mb-6">
           <div>

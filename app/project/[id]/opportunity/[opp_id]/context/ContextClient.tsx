@@ -39,7 +39,7 @@ export default function ContextClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14">
+      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
         <BackButton href={`/project/${project.id}/opportunities`} label="Torna alle opportunità" />
 
         <div className="max-w-2xl">
@@ -90,8 +90,14 @@ export default function ContextClient({
                 borderRadius: 8,
                 color: 'var(--color-ink)',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-              onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--color-amber)'
+                e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'var(--color-border)'
+                e.target.style.boxShadow = 'none'
+              }}
             />
           </div>
 
@@ -130,10 +136,24 @@ export default function ContextClient({
           <button
             onClick={handleGenerate}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-sm font-medium transition-colors disabled:opacity-60"
-            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
-            onMouseEnter={(e) => !loading && ((e.currentTarget).style.backgroundColor = '#A8612A')}
-            onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-sm font-medium disabled:opacity-60"
+            style={{
+              backgroundColor: 'var(--color-amber)',
+              color: '#FFFFFF',
+              borderRadius: 10,
+              border: 'none',
+              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                ;(e.currentTarget).style.backgroundColor = '#A8612A'
+                ;(e.currentTarget).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              ;(e.currentTarget).style.backgroundColor = 'var(--color-amber)'
+              ;(e.currentTarget).style.boxShadow = 'none'
+            }}
           >
             {loading ? (
               <Loader2 size={16} className="animate-spin" />

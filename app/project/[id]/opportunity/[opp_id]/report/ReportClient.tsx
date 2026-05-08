@@ -181,7 +181,7 @@ export default function ReportClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14">
+      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
         <BackButton href={`/project/${project.id}/opportunities`} label="Torna alle opportunità" />
 
         <div className="max-w-3xl">
@@ -285,7 +285,7 @@ export default function ReportClient({
                   >
                     <div
                       className="h-full rounded-full"
-                      style={{ width: `${dim.score * 10}%`, backgroundColor: 'var(--color-amber)' }}
+                      style={{ width: `${dim.score * 10}%`, backgroundColor: 'var(--color-amber)', boxShadow: '0 0 8px rgba(199,123,58,0.4)' }}
                     />
                   </div>
                   <p style={{ fontSize: 12, color: 'var(--color-text-muted)', lineHeight: '1.7' }}>{dim.analysis}</p>

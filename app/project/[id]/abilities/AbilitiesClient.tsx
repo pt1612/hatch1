@@ -523,7 +523,7 @@ export default function AbilitiesClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       {/* Two-column body */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', marginTop: 52 }}>
+      <div className="page-enter" style={{ display: 'flex', flex: 1, overflow: 'hidden', marginTop: 52 }}>
 
         {/* ── LEFT COLUMN — Abilities table (60%) ── */}
         <div
@@ -740,13 +740,19 @@ export default function AbilitiesClient({
                       borderRadius: 10,
                       border: 'none',
                       cursor: saving ? 'default' : 'pointer',
-                      transition: 'background-color 0.15s',
+                      transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
                     }}
                     onMouseEnter={(e) => {
-                      if (!saving) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
+                      if (!saving) {
+                        ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
+                        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      if (!saving) (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                      if (!saving) {
+                        ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
+                      }
                     }}
                   >
                     {saving ? (
@@ -803,7 +809,7 @@ export default function AbilitiesClient({
           {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
             {messages.map((msg, i) => (
-              <div key={i} style={{ marginBottom: 12 }}>
+              <div key={i} className="bubble-enter" style={{ marginBottom: 12 }}>
                 <div
                   style={{
                     display: 'flex',
@@ -954,8 +960,14 @@ export default function AbilitiesClient({
                   minHeight: 40,
                   maxHeight: 100,
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+                onFocus={(e) => {
+                  e.target.style.borderColor = 'var(--color-amber)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'var(--color-border)'
+                  e.target.style.boxShadow = 'none'
+                }}
               />
               <button
                 onClick={handleSend}

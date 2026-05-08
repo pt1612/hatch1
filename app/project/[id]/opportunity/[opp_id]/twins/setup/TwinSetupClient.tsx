@@ -139,7 +139,7 @@ export default function TwinSetupClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14">
+      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
         <BackButton href={`/project/${project.id}/evaluations`} label="Torna alla valutazione" />
 
         <div className="mb-6">
@@ -227,8 +227,14 @@ export default function TwinSetupClient({
                     borderRadius: 8,
                     color: 'var(--color-ink)',
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                  onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'var(--color-amber)'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'var(--color-border)'
+                    e.target.style.boxShadow = 'none'
+                  }}
                 />
                 <button
                   onClick={addSegment}
@@ -286,10 +292,24 @@ export default function TwinSetupClient({
           <button
             onClick={handleGenerateTwins}
             disabled={generatingTwins || segments.length === 0}
-            className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium transition-colors disabled:opacity-60"
-            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
-            onMouseEnter={(e) => !(generatingTwins || segments.length === 0) && ((e.currentTarget).style.backgroundColor = '#A8612A')}
-            onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
+            className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium disabled:opacity-60"
+            style={{
+              backgroundColor: 'var(--color-amber)',
+              color: '#FFFFFF',
+              borderRadius: 10,
+              border: 'none',
+              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!(generatingTwins || segments.length === 0)) {
+                ;(e.currentTarget).style.backgroundColor = '#A8612A'
+                ;(e.currentTarget).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              ;(e.currentTarget).style.backgroundColor = 'var(--color-amber)'
+              ;(e.currentTarget).style.boxShadow = 'none'
+            }}
           >
             {generatingTwins ? (
               <>
@@ -411,10 +431,24 @@ export default function TwinSetupClient({
             <button
               onClick={handleStartInterviews}
               disabled={saving}
-              className="flex items-center gap-2 py-3 px-6 text-sm font-medium transition-colors disabled:opacity-60"
-              style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
-              onMouseEnter={(e) => !saving && ((e.currentTarget).style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
+              className="flex items-center gap-2 py-3 px-6 text-sm font-medium disabled:opacity-60"
+              style={{
+                backgroundColor: 'var(--color-amber)',
+                color: '#FFFFFF',
+                borderRadius: 10,
+                border: 'none',
+                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!saving) {
+                  ;(e.currentTarget).style.backgroundColor = '#A8612A'
+                  ;(e.currentTarget).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                ;(e.currentTarget).style.backgroundColor = 'var(--color-amber)'
+                ;(e.currentTarget).style.boxShadow = 'none'
+              }}
             >
               {saving ? (
                 <Loader2 size={15} className="animate-spin" />
