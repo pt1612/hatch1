@@ -23,20 +23,20 @@ const PATHS: {
   {
     id: 'idea',
     title: "Ho già un'idea",
-    description: "Ho un'idea e voglio validarla con i Twin.",
+    description: "Ho già un'idea e voglio validarla con i Twin.",
     destination: (id) => `/project/${id}/idea`,
   },
   {
     id: 'vpc',
-    title: 'Ho il VPC',
-    description: 'Ho già un VPC e voglio generare il BMC.',
-    destination: (id) => `/project/${id}/import-vpc`,
+    title: 'Ho già la mia proposta di valore',
+    description: 'Ho mappato clienti e valore offerto, ora voglio strutturare il business.',
+    destination: (id) => `/project/${id}/start-vpc`,
   },
   {
     id: 'bmc',
-    title: 'Ho il BMC',
-    description: 'Ho già un BMC e voglio iterare o completarlo.',
-    destination: (id) => `/project/${id}/import-bmc`,
+    title: 'Ho già il mio modello di business',
+    description: 'Ho già un canvas, voglio migliorarlo e trovare i gap.',
+    destination: (id) => `/project/${id}/start-bmc`,
   },
 ]
 
@@ -114,7 +114,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gridTemplateColumns: 'repeat(2, 1fr)',
             gap: 16,
             width: '100%',
             maxWidth: 860,

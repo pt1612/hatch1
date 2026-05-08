@@ -10,14 +10,14 @@ import { POTENTIAL_BADGE, CHALLENGE_BADGE } from '@/lib/constants'
 import type { Opportunity, InterviewReport, DimensionScore } from '@/lib/types'
 
 const POTENTIAL_DIMS = [
-  { key: 'reason_to_buy', label: 'Reason to Buy' },
-  { key: 'market_volume', label: 'Market Volume' },
-  { key: 'economic_viability', label: 'Economic Viability' },
+  { key: 'reason_to_buy',       label: 'Ragione d\'acquisto' },
+  { key: 'market_volume',       label: 'Volume di mercato' },
+  { key: 'economic_viability',  label: 'Viabilità economica' },
 ]
 const CHALLENGE_DIMS = [
-  { key: 'implementation_obstacles', label: 'Implementation Obstacles' },
-  { key: 'time_to_revenue', label: 'Time to Revenue' },
-  { key: 'external_risks', label: 'External Risks' },
+  { key: 'implementation_obstacles', label: 'Ostacoli implementativi' },
+  { key: 'time_to_revenue',          label: 'Tempo al ricavo' },
+  { key: 'external_risks',           label: 'Rischi esterni' },
 ]
 
 function scoreBgColor(score: number): { bg: string; text: string } {
@@ -100,7 +100,7 @@ export default function ReportClient({
       <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
         <TopNav projectId={project.id} projectTitle={project.title} />
         <div className="flex-1 overflow-auto p-8 pt-14">
-          <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
+          <BackButton href={`/project/${project.id}/opportunities`} label="Torna alle opportunità" />
           <h1
             style={{
               fontFamily: "'Lora', Georgia, serif",
@@ -117,7 +117,7 @@ export default function ReportClient({
             style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
           >
             <Loader2 size={18} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Generating your 6-dimension evaluation…</p>
+            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Generando la valutazione a 6 dimensioni…</p>
           </div>
           {[...Array(6)].map((_, i) => (
             <div
@@ -147,16 +147,16 @@ export default function ReportClient({
       <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
         <TopNav projectId={project.id} projectTitle={project.title} />
         <div className="flex-1 overflow-auto p-8 pt-14">
-          <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
+          <BackButton href={`/project/${project.id}/opportunities`} label="Torna alle opportunità" />
           <div
             className="rounded-2xl p-6 flex items-start gap-3"
             style={{ backgroundColor: '#FEF2F2', border: '0.5px solid #FECACA' }}
           >
             <AlertCircle size={18} style={{ color: '#DC2626', flexShrink: 0, marginTop: 2 }} />
             <div>
-              <p style={{ fontSize: 13, fontWeight: 500, color: '#DC2626', marginBottom: 4 }}>Report generation failed</p>
+              <p style={{ fontSize: 13, fontWeight: 500, color: '#DC2626', marginBottom: 4 }}>Generazione report fallita</p>
               <p style={{ fontSize: 12, color: '#EF4444', marginBottom: 12 }}>
-                Something went wrong while generating the evaluation. Please try again.
+                Qualcosa è andato storto durante la generazione. Riprova.
               </p>
               <button
                 onClick={handleRegenerate}
@@ -166,7 +166,7 @@ export default function ReportClient({
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
               >
                 <RefreshCw size={13} />
-                Retry
+                Riprova
               </button>
             </div>
           </div>
@@ -182,7 +182,7 @@ export default function ReportClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div className="flex-1 overflow-auto p-8 pt-14">
-        <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
+        <BackButton href={`/project/${project.id}/opportunities`} label="Torna alle opportunità" />
 
         <div className="max-w-3xl">
           {/* Header */}
@@ -208,13 +208,13 @@ export default function ReportClient({
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border ${POTENTIAL_BADGE[report.overall_potential]}`}
                 style={{ fontSize: 13 }}
               >
-                Potential: {report.overall_potential.replace('_', ' ')}
+                Potenziale: {report.overall_potential.replace('_', ' ')}
               </span>
               <span
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border ${CHALLENGE_BADGE[report.overall_challenge]}`}
                 style={{ fontSize: 13 }}
               >
-                Challenge: {report.overall_challenge.replace('_', ' ')}
+                Difficoltà: {report.overall_challenge.replace('_', ' ')}
               </span>
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function ReportClient({
                 fontFamily: 'inherit',
               }}
             >
-              Executive Summary
+              Sommario esecutivo
             </h2>
             <p style={{ fontSize: 13, color: 'var(--color-ink)', lineHeight: '1.7' }}>{report.executive_summary}</p>
           </div>
@@ -252,7 +252,7 @@ export default function ReportClient({
               fontFamily: 'inherit',
             }}
           >
-            Potential Dimensions
+            Dimensioni di potenziale
           </h2>
           <div className="space-y-3 mb-6">
             {POTENTIAL_DIMS.map(({ key, label }) => {
@@ -306,7 +306,7 @@ export default function ReportClient({
               fontFamily: 'inherit',
             }}
           >
-            Challenge Dimensions
+            Dimensioni di difficoltà
           </h2>
           <div className="space-y-3 mb-8">
             {CHALLENGE_DIMS.map(({ key, label }) => {
@@ -327,7 +327,7 @@ export default function ReportClient({
                         className="px-1.5 py-0.5 rounded"
                         style={{ fontSize: 10, fontWeight: 500, backgroundColor: 'var(--color-linen)', color: 'var(--color-text-muted)' }}
                       >
-                        low = good
+                        basso = buono
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -372,7 +372,7 @@ export default function ReportClient({
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-amber)')}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
             >
-              ← Back to opportunities
+              ← Torna alle opportunità
             </Link>
             <Link
               href={`/project/${project.id}/map`}
@@ -387,7 +387,7 @@ export default function ReportClient({
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
               <Map size={15} />
-              View map
+              Vedi mappa
             </Link>
           </div>
 
@@ -399,7 +399,7 @@ export default function ReportClient({
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-faint)')}
           >
             <RefreshCw size={12} />
-            Regenerate evaluation
+            Rigenera valutazione
           </button>
         </div>
       </div>

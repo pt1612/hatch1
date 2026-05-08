@@ -91,7 +91,7 @@ export default function StrategyClient({
                 color: 'var(--color-ink)',
               }}
             >
-              Strategic Prioritization
+              Prioritizzazione Strategica
             </h1>
             <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
               Agile Focus Dartboard
@@ -108,21 +108,21 @@ export default function StrategyClient({
             {saving ? (
               <Loader2 size={15} className="animate-spin" />
             ) : saved ? (
-              <><Check size={15} />Saved</>
+              <><Check size={15} />Salvato</>
             ) : (
-              'Save strategy'
+              'Salva strategia'
             )}
           </button>
         </div>
 
         {opportunities.length === 0 ? (
           <div className="text-center py-16">
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>No opportunities yet.</p>
+            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Nessuna opportunità ancora.</p>
             <Link
               href={`/project/${project.id}/opportunities`}
               style={{ fontSize: 12, color: 'var(--color-amber)', marginTop: 4, display: 'block' }}
             >
-              Add opportunities first
+              Aggiungi prima le opportunità
             </Link>
           </div>
         ) : (
@@ -141,7 +141,7 @@ export default function StrategyClient({
                   color: 'var(--color-text-muted)',
                 }}
               >
-                Pursue Now
+                Persegui ora
               </h2>
 
               {pursueNowOpps.length > 0 && (
@@ -194,7 +194,7 @@ export default function StrategyClient({
                         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)')}
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)')}
                       >
-                        Enter Twin phase
+                        Entra nella fase Twin
                         <ChevronRight size={12} />
                       </Link>
                     </div>
@@ -214,7 +214,7 @@ export default function StrategyClient({
                       color: 'var(--color-text-faint)',
                     }}
                   >
-                    {pursueNowOpps.length === 0 ? 'Select opportunities to pursue' : 'Add more'}
+                    {pursueNowOpps.length === 0 ? 'Seleziona opportunità da perseguire' : 'Aggiungi altri'}
                   </p>
                   <div className="space-y-2">
                     {evaluatedOpps
@@ -251,7 +251,7 @@ export default function StrategyClient({
                   </div>
                   {evaluatedOpps.filter((o) => !pursueNowIds.includes(o.id)).length === 0 && (
                     <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
-                      All evaluated opportunities are in Pursue Now.
+                      Tutte le opportunità valutate sono già in Persegui ora.
                     </p>
                   )}
                 </div>
@@ -259,7 +259,7 @@ export default function StrategyClient({
 
               {evaluatedOpps.length === 0 && (
                 <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
-                  Evaluate opportunities first to select them here.
+                  Valuta prima le opportunità per selezionarle qui.
                 </p>
               )}
             </div>
@@ -277,10 +277,10 @@ export default function StrategyClient({
                   color: 'var(--color-text-muted)',
                 }}
               >
-                Keep Options Open
+                Mantieni opzioni aperte
               </h2>
               {otherOpps.length === 0 ? (
-                <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>No other opportunities.</p>
+                <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>Nessun'altra opportunità.</p>
               ) : (
                 <div className="space-y-3">
                   {otherOpps.map((opp) => {
@@ -310,7 +310,7 @@ export default function StrategyClient({
                                 className="px-2 py-0.5 rounded-full"
                                 style={{ fontSize: 10, fontWeight: 500, backgroundColor: 'var(--color-linen)', color: 'var(--color-text-muted)' }}
                               >
-                                Not evaluated
+                                Non valutata
                               </span>
                             )}
                             <span
@@ -356,28 +356,28 @@ export default function StrategyClient({
                   color: 'var(--color-text-muted)',
                 }}
               >
-                Strategy Summary
+                Riepilogo strategia
               </h2>
 
               <div className="space-y-4">
                 {[
                   {
-                    title: `Pursue Now (${pursueNowOpps.length})`,
+                    title: `Persegui ora (${pursueNowOpps.length})`,
                     items: pursueNowOpps,
                     dotColor: 'var(--color-amber)',
-                    emptyText: 'None selected',
+                    emptyText: 'Nessuno selezionato',
                   },
                   {
-                    title: 'Keep Options Open',
+                    title: 'Mantieni opzioni aperte',
                     items: [...growthOpps, ...backupOpps],
                     dotColor: 'var(--color-sage)',
-                    emptyText: 'None yet',
+                    emptyText: 'Nessuno ancora',
                   },
                   {
-                    title: 'Place in Storage',
+                    title: 'Archivia',
                     items: storageOpps,
                     dotColor: 'var(--color-linen)',
-                    emptyText: 'None',
+                    emptyText: 'Nessuno',
                   },
                 ].map(({ title, items, dotColor, emptyText }) => (
                   <div

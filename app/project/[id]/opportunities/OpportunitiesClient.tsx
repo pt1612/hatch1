@@ -83,10 +83,10 @@ export default function OpportunitiesClient({
                   color: 'var(--color-ink)',
                 }}
               >
-                Opportunities
+                Opportunità
               </h1>
               <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
-                {opportunities.length} identified · {evaluatedCount} evaluated
+                {opportunities.length} identificate · {evaluatedCount} valutate
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export default function OpportunitiesClient({
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-amber)')}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
               >
-                ← Back to chat
+                ← Torna alla chat
               </Link>
               <button
                 onClick={() => setShowAddForm((v) => !v)}
@@ -112,7 +112,7 @@ export default function OpportunitiesClient({
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
               >
                 <Plus size={14} />
-                Add manually
+                Aggiungi manualmente
               </button>
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function OpportunitiesClient({
             >
               <div className="flex items-center justify-between mb-3">
                 <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }}>
-                  Add opportunity manually
+                  Aggiungi opportunità manualmente
                 </h3>
                 <button
                   onClick={() => setShowAddForm(false)}
@@ -152,10 +152,10 @@ export default function OpportunitiesClient({
               </div>
               <div className="space-y-3">
                 {[
-                  { key: 'name', label: 'Name', placeholder: 'e.g. Real-time IoT Monitoring' },
-                  { key: 'application', label: 'Application', placeholder: 'Specific use case' },
-                  { key: 'customer_segment', label: 'Customer Segment', placeholder: 'Who benefits most' },
-                  { key: 'description', label: 'Description', placeholder: '1-2 sentences' },
+                  { key: 'name', label: 'Nome', placeholder: 'es. Monitoraggio IoT in tempo reale' },
+                  { key: 'application', label: 'Applicazione', placeholder: 'Caso d\'uso specifico' },
+                  { key: 'customer_segment', label: 'Segmento cliente', placeholder: 'Chi ne beneficia di più' },
+                  { key: 'description', label: 'Descrizione', placeholder: '1-2 frasi' },
                 ].map(({ key, label, placeholder }) => (
                   <div key={key}>
                     <label
@@ -195,7 +195,7 @@ export default function OpportunitiesClient({
                   onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
                 >
                   {adding ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-                  Add opportunity
+                  Aggiungi opportunità
                 </button>
               </div>
             </div>
@@ -209,10 +209,10 @@ export default function OpportunitiesClient({
                 <circle cx="50" cy="50" r="14" fill="var(--color-linen)" />
               </svg>
               <p style={{ fontSize: 13, fontFamily: "'Lora', Georgia, serif", fontStyle: 'italic', color: 'var(--color-text-muted)' }}>
-                No opportunities yet.
+                Nessuna opportunità ancora.
               </p>
               <p style={{ fontSize: 12, color: 'var(--color-text-faint)', marginTop: 4 }}>
-                Go back to the abilities chat or add one manually.
+                Torna alla chat sulle abilità o aggiungine una manualmente.
               </p>
             </div>
           ) : (
@@ -247,7 +247,7 @@ export default function OpportunitiesClient({
                             border: '0.5px solid var(--color-border)',
                           }}
                         >
-                          {evaluatedInGroup}/{opps.length} evaluated
+                          {evaluatedInGroup}/{opps.length} valutate
                         </span>
                       </div>
                       <ChevronDown
@@ -310,7 +310,7 @@ export default function OpportunitiesClient({
                                       color: isEvaluated ? '#2D7A57' : 'var(--color-text-muted)',
                                     }}
                                   >
-                                    {isEvaluated ? 'Evaluated' : 'Pending'}
+                                    {isEvaluated ? 'Valutata' : 'In attesa'}
                                   </span>
                                 </div>
                                 {opp.description && (
@@ -326,7 +326,7 @@ export default function OpportunitiesClient({
                                     className="flex items-center gap-1 text-xs font-medium transition-colors"
                                     style={{ color: 'var(--color-amber)', textDecoration: 'none' }}
                                   >
-                                    View report
+                                    Vedi report
                                     <ChevronRight size={12} />
                                   </Link>
                                 ) : (
@@ -341,7 +341,7 @@ export default function OpportunitiesClient({
                                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
                                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
                                   >
-                                    Evaluate
+                                    Valuta
                                     <ChevronRight size={12} />
                                   </Link>
                                 )}
@@ -376,11 +376,11 @@ export default function OpportunitiesClient({
               color: 'var(--color-text-muted)',
             }}
           >
-            Evaluation progress
+            Progresso valutazione
           </h2>
           {opportunities.length === 0 ? (
             <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
-              No opportunities yet.
+              Nessuna opportunità ancora.
             </p>
           ) : (
             <div className="space-y-2">
@@ -417,7 +417,7 @@ export default function OpportunitiesClient({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
-              View map
+              Vedi mappa
               <ChevronRight size={14} />
             </Link>
           )}

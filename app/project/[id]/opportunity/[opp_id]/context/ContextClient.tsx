@@ -8,12 +8,12 @@ import { ChevronRight, Loader2 } from 'lucide-react'
 import type { Opportunity } from '@/lib/types'
 
 const DIMENSIONS = [
-  { label: 'Compelling Reason to Buy', desc: 'How urgently do customers need this?' },
-  { label: 'Market Volume', desc: 'How large is the addressable market?' },
-  { label: 'Economic Viability', desc: 'What are the unit economics and margins?' },
-  { label: 'Implementation Obstacles', desc: 'How hard is this to build and launch?' },
-  { label: 'Time to Revenue', desc: 'How long until meaningful revenue?' },
-  { label: 'External Risks', desc: 'Regulatory, competitive, and macro risks.' },
+  { label: 'Ragione d\'acquisto',    desc: 'Quanto urgentemente i clienti ne hanno bisogno?' },
+  { label: 'Volume di mercato',      desc: 'Quanto è grande il mercato indirizzabile?' },
+  { label: 'Viabilità economica',    desc: 'Quali sono i margini e le economie unitarie?' },
+  { label: 'Ostacoli implementativi', desc: 'Quanto è difficile costruirlo e lanciarlo?' },
+  { label: 'Tempo al ricavo',        desc: 'Quanto ci vorrà per generare ricavi significativi?' },
+  { label: 'Rischi esterni',         desc: 'Rischi normativi, competitivi e macro.' },
 ]
 
 export default function ContextClient({
@@ -40,7 +40,7 @@ export default function ContextClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div className="flex-1 overflow-auto p-8 pt-14">
-        <BackButton href={`/project/${project.id}/opportunities`} label="Back to opportunities" />
+        <BackButton href={`/project/${project.id}/opportunities`} label="Torna alle opportunità" />
 
         <div className="max-w-2xl">
           <h1
@@ -73,16 +73,15 @@ export default function ContextClient({
                 marginBottom: 4,
               }}
             >
-              Add context (optional)
+              Aggiungi contesto (opzionale)
             </h2>
             <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 16 }}>
-              Tell the AI anything it should know before evaluating this opportunity — e.g. existing
-              customers, team experience, partnerships, unfair advantages.
+              Descrivi all'AI tutto ciò che dovrebbe sapere prima di valutare questa opportunità — es. clienti esistenti, esperienza del team, partnership, vantaggi competitivi.
             </p>
             <textarea
               value={context}
               onChange={(e) => setContext(e.target.value)}
-              placeholder="e.g. We already have 3 paying customers in this segment. Our team has 5 years of experience in manufacturing software."
+              placeholder="es. Abbiamo già 3 clienti paganti in questo segmento. Il nostro team ha 5 anni di esperienza nel software manifatturiero."
               rows={5}
               className="w-full px-4 py-3 text-sm resize-none outline-none transition-colors"
               style={{
@@ -110,7 +109,7 @@ export default function ContextClient({
                 marginBottom: 16,
               }}
             >
-              The AI will evaluate across 6 dimensions
+              L'AI valuterà su 6 dimensioni
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {DIMENSIONS.map((d) => (
@@ -140,7 +139,7 @@ export default function ContextClient({
               <Loader2 size={16} className="animate-spin" />
             ) : (
               <>
-                Generate evaluation
+                Genera valutazione
                 <ChevronRight size={16} />
               </>
             )}

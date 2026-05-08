@@ -24,8 +24,8 @@ interface TopNavProps {
 // ── Lock rules per entry_path ──────────────────────────────────────────────────
 function isItemLocked(label: string, entryPath: string | null | undefined): boolean {
   if (!entryPath || entryPath === 'full') return false
-  if (entryPath === 'idea') return label === 'Abilities'
-  if (entryPath === 'vpc') return ['Abilities', 'Opportunities', 'Evaluation', 'Map', 'Strategy'].includes(label)
+  if (entryPath === 'idea') return label === 'Abilità'
+  if (entryPath === 'vpc') return ['Abilità', 'Opportunità', 'Valutazione', 'Mappa', 'Strategia'].includes(label)
   if (entryPath === 'bmc') return label !== 'BMC'
   return false
 }
@@ -95,11 +95,11 @@ export default function TopNav({
 
   const defaultItems: NavItem[] = projectId
     ? [
-        { label: 'Abilities',     href: `/project/${projectId}/abilities`,    hasData: true },
-        { label: 'Opportunities', href: `/project/${projectId}/opportunities`, hasData: true },
-        { label: 'Evaluation',    href: `/project/${projectId}/evaluations`,   hasData: true },
-        { label: 'Map',           href: `/project/${projectId}/map`,           hasData: true },
-        { label: 'Strategy',      href: `/project/${projectId}/strategy`,      hasData: true },
+        { label: 'Abilità',       href: `/project/${projectId}/abilities`,    hasData: true },
+        { label: 'Opportunità',   href: `/project/${projectId}/opportunities`, hasData: true },
+        { label: 'Valutazione',   href: `/project/${projectId}/evaluations`,   hasData: true },
+        { label: 'Mappa',         href: `/project/${projectId}/map`,           hasData: true },
+        { label: 'Strategia',     href: `/project/${projectId}/strategy`,      hasData: true },
         { label: 'VPC',           href: `/project/${projectId}/evaluations`,   hasData: true },
         { label: 'BMC',           href: `/project/${projectId}/evaluations`,   hasData: true },
       ]
@@ -296,7 +296,7 @@ export default function TopNav({
           {userInitials && (
             <button
               onClick={handleSignOut}
-              title="Sign out"
+              title="Esci"
               style={{
                 width: 30,
                 height: 30,

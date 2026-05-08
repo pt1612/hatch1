@@ -36,7 +36,7 @@ export default function DashboardClient({
   const [deleting, setDeleting] = useState<string | null>(null)
 
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+  const greeting = hour < 12 ? 'Buongiorno' : hour < 17 ? 'Buon pomeriggio' : 'Buona sera'
   const firstName = userName?.split(' ')[0] ?? ''
   const activeCount = projects.filter((p) => p.completed_phases.some(Boolean)).length
 
@@ -50,7 +50,7 @@ export default function DashboardClient({
   }
 
   async function handleDeleteProject(projectId: string) {
-    if (!window.confirm('Delete this project? All opportunities, twins, interviews, and canvases will be permanently removed.')) return
+    if (!window.confirm('Eliminare questo progetto? Tutte le opportunità, i Twin, le interviste e i canvas verranno rimossi definitivamente.')) return
     setDeleting(projectId)
     try {
       const { data: opps } = await supabase.from('opportunities').select('id').eq('project_id', projectId)
@@ -80,7 +80,7 @@ export default function DashboardClient({
     setCreating(true)
     const { data, error } = await supabase
       .from('projects')
-      .insert({ user_id: userId, title: 'New Project' })
+      .insert({ user_id: userId, title: 'Nuovo Progetto' })
       .select()
       .single()
     if (!error && data) {
@@ -109,8 +109,8 @@ export default function DashboardClient({
             </h1>
             <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
               {projects.length === 0
-                ? 'No projects yet — create your first one.'
-                : `You have ${activeCount} active project${activeCount === 1 ? '' : 's'}.`}
+                ? 'Nessun progetto ancora — crea il primo.'
+                : `Hai ${activeCount} progetto${activeCount === 1 ? '' : 'i'} attivo${activeCount === 1 ? '' : 'i'}.`}
             </p>
           </div>
           <button
@@ -127,7 +127,7 @@ export default function DashboardClient({
             onMouseLeave={(e) => !creating && ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
           >
             <Plus size={16} />
-            {creating ? 'Creating…' : 'New project'}
+            {creating ? 'Creazione…' : 'Nuovo progetto'}
           </button>
         </div>
 
@@ -149,7 +149,7 @@ export default function DashboardClient({
                 marginBottom: 20,
               }}
             >
-              Start your first project.
+              Inizia il tuo primo progetto.
             </p>
             <button
               onClick={handleNewProject}
@@ -165,7 +165,7 @@ export default function DashboardClient({
               onMouseLeave={(e) => !creating && ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
             >
               <Plus size={16} />
-              {creating ? 'Creating…' : 'Create first project'}
+              {creating ? 'Creazione…' : 'Crea il primo progetto'}
             </button>
           </div>
         )}
@@ -292,7 +292,7 @@ function ProjectCard({
                     display: 'flex',
                     alignItems: 'center',
                   }}
-                  title="Rename project"
+                  title="Rinomina progetto"
                 >
                   <Pencil size={12} />
                 </button>
@@ -330,7 +330,7 @@ function ProjectCard({
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                 onClick={() => { setMenuOpen(false); onDelete() }}
               >
-                {isDeleting ? 'Deleting…' : 'Delete'}
+                {isDeleting ? 'Eliminazione…' : 'Elimina'}
               </button>
             </div>
           )}
@@ -347,11 +347,11 @@ function ProjectCard({
             fontWeight: 500,
           }}
         >
-          {project.opportunity_count} opportunit{project.opportunity_count === 1 ? 'y' : 'ies'}
+          {project.opportunity_count} opportunità
         </span>
         {project.evaluated_count > 0 && (
           <span style={{ color: 'var(--color-text-faint)' }}>
-            {project.evaluated_count}/{project.opportunity_count} evaluated
+            {project.evaluated_count}/{project.opportunity_count} valutate
           </span>
         )}
       </div>
@@ -360,7 +360,7 @@ function ProjectCard({
       <div>
         <div className="flex items-center justify-between mb-2">
           <span style={{ fontSize: 11, color: 'var(--color-text-faint)' }}>
-            {completed}/{total} stages
+            {completed}/{total} fasi
           </span>
         </div>
         <div className="flex gap-1">
@@ -427,7 +427,7 @@ function ProjectCard({
         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
       >
-        Continue
+        Continua
         <ArrowRight size={15} />
       </Link>
     </div>

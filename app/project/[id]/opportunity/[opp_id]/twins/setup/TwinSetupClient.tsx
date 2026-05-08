@@ -140,7 +140,7 @@ export default function TwinSetupClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div className="flex-1 overflow-auto p-8 pt-14">
-        <BackButton href={`/project/${project.id}/strategy`} label="Back to strategy" />
+        <BackButton href={`/project/${project.id}/strategy`} label="Torna alle opportunità" />
 
         <div className="mb-6">
           <h1
@@ -152,7 +152,7 @@ export default function TwinSetupClient({
               color: 'var(--color-ink)',
             }}
           >
-            Twin Setup
+            Configurazione Twin
           </h1>
           <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
         </div>
@@ -171,7 +171,7 @@ export default function TwinSetupClient({
                 color: 'var(--color-ink)',
               }}
             >
-              Market Segments
+              Segmenti di mercato
             </h2>
             <button
               onClick={suggestSegments}
@@ -180,17 +180,17 @@ export default function TwinSetupClient({
               style={{ fontSize: 12, color: 'var(--color-amber)', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               <RefreshCw size={11} />
-              Re-suggest
+              Ri-suggerisci
             </button>
           </div>
           <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 16 }}>
-            AI-suggested segments to validate against. Edit, remove, or add your own.
+            Segmenti suggeriti dall'AI. Modifica, rimuovi o aggiungi i tuoi.
           </p>
 
           {loadingSegments ? (
             <div className="flex items-center gap-2" style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
               <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
-              Suggesting segments…
+              Suggerimento segmenti…
             </div>
           ) : (
             <>
@@ -219,7 +219,7 @@ export default function TwinSetupClient({
                   value={newSegment}
                   onChange={(e) => setNewSegment(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && addSegment()}
-                  placeholder="Add segment…"
+                  placeholder="Aggiungi segmento…"
                   className="flex-1 px-3 py-2 text-xs outline-none transition-colors"
                   style={{
                     backgroundColor: '#FFFFFF',
@@ -238,7 +238,7 @@ export default function TwinSetupClient({
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
                 >
                   <Plus size={12} />
-                  Add
+                  Aggiungi
                 </button>
               </div>
             </>
@@ -259,7 +259,7 @@ export default function TwinSetupClient({
               marginBottom: 16,
             }}
           >
-            Twin Count
+            Numero di Twin
           </h2>
           <div className="flex items-center gap-3 mb-5">
             {[2, 3, 4, 5].map((n) => (
@@ -294,11 +294,11 @@ export default function TwinSetupClient({
             {generatingTwins ? (
               <>
                 <Loader2 size={15} className="animate-spin" />
-                Generating profiles…
+                Generazione profili…
               </>
             ) : (
               <>
-                Generate Twin Profiles
+                Genera profili Twin
                 <ChevronRight size={15} />
               </>
             )}
@@ -317,7 +317,7 @@ export default function TwinSetupClient({
                 marginBottom: 16,
               }}
             >
-              Twin Profiles ({twins.length})
+              Profili Twin ({twins.length})
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
               {twins.map((twin, idx) => {
@@ -420,7 +420,7 @@ export default function TwinSetupClient({
                 <Loader2 size={15} className="animate-spin" />
               ) : (
                 <>
-                  Start Interviews
+                  Inizia interviste
                   <ChevronRight size={15} />
                 </>
               )}

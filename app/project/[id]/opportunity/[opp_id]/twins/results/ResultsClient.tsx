@@ -10,23 +10,23 @@ import type { DigitalTwin, TwinMessage, TwinReport, Opportunity } from '@/lib/ty
 
 const VERDICT_CONFIG = {
   strong_fit: {
-    headline: 'Market viability confirmed with high resonance.',
+    headline: 'Validazione di mercato confermata con alta risonanza.',
     label: 'Strong Fit',
-    tagline: 'Strong alignment between problem and proposed solution.',
+    tagline: 'Forte allineamento tra problema e soluzione proposta.',
     bgColor: 'var(--color-sage)',
     badgeStyle: { backgroundColor: 'rgba(76,175,125,0.15)', color: '#2D7A57' },
   },
   weak_fit: {
-    headline: 'Partial resonance detected — refinement required.',
+    headline: 'Risonanza parziale rilevata — serve un raffinamento.',
     label: 'Weak Fit',
-    tagline: 'Some alignment exists but the fit needs significant improvement.',
+    tagline: 'Esiste un certo allineamento ma il fit necessita di miglioramenti significativi.',
     bgColor: 'var(--color-amber)',
     badgeStyle: { backgroundColor: 'rgba(232,169,106,0.2)', color: '#7A4A20' },
   },
   pivot_needed: {
-    headline: 'Market mismatch identified — strategic pivot advised.',
+    headline: 'Mismatch di mercato identificato — consigliato un pivot strategico.',
     label: 'Pivot Needed',
-    tagline: 'A fundamental rethink of the problem or solution is recommended.',
+    tagline: 'È consigliato un ripensamento fondamentale del problema o della soluzione.',
     bgColor: '#C0392B',
     badgeStyle: { backgroundColor: 'rgba(220,38,38,0.1)', color: '#DC2626' },
   },
@@ -49,7 +49,7 @@ function MetricCard({ label, score, description }: { label: string; score: numbe
         {label}
       </p>
       <p style={{ fontSize: 36, fontWeight: 700, marginBottom: 2, color }}>{displayScore}</p>
-      <p style={{ fontSize: 11, color: 'var(--color-text-faint)', marginBottom: 12 }}>out of 10</p>
+      <p style={{ fontSize: 11, color: 'var(--color-text-faint)', marginBottom: 12 }}>su 10</p>
       <div className="w-full rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'var(--color-linen)' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
@@ -96,7 +96,7 @@ export default function ResultsClient({
 
   async function generateReport() {
     if (messages.length === 0) {
-      setError('No interview messages found. Please complete at least one interview first.')
+      setError('Nessun messaggio trovato. Completa almeno un\'intervista prima di generare i risultati.')
       return
     }
     setGenerating(true)
@@ -139,7 +139,7 @@ export default function ResultsClient({
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setError(err instanceof Error ? err.message : 'Qualcosa è andato storto. Riprova.')
     } finally {
       setGenerating(false)
     }
@@ -201,7 +201,7 @@ export default function ResultsClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div className="flex-1 overflow-auto p-8 pt-14 max-w-3xl">
-        <BackButton href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`} label="Back to interviews" />
+        <BackButton href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`} label="Torna alle interviste" />
 
         <div className="flex items-start justify-between mb-6">
           <div>
@@ -214,7 +214,7 @@ export default function ResultsClient({
                 color: 'var(--color-ink)',
               }}
             >
-              Validation Results
+              Risultati di validazione
             </h1>
             <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
           </div>
@@ -241,7 +241,7 @@ export default function ResultsClient({
             <LoadingSkeleton />
             <div className="flex items-center gap-2 mt-4" style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
               <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
-              Analyzing interview transcripts…
+              Analisi delle trascrizioni delle interviste…
             </div>
           </div>
         )}
@@ -257,7 +257,7 @@ export default function ResultsClient({
               className="flex items-center gap-2"
               style={{ fontSize: 12, color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer' }}
             >
-              <RefreshCw size={12} /> Try again
+              <RefreshCw size={12} /> Riprova
             </button>
           </div>
         )}
@@ -274,10 +274,10 @@ export default function ResultsClient({
               <rect x="60" y="35" width="10" height="45" rx="2" fill="var(--color-amber)" />
             </svg>
             <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 8 }}>
-              Ready to generate results
+              Pronto per generare i risultati
             </h3>
             <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20, maxWidth: 320, margin: '0 auto 20px', lineHeight: '1.6' }}>
-              AI will analyze your interview transcripts and produce a validation verdict, problem intensity score, and value resonance score.
+              L'AI analizzerà le trascrizioni delle interviste e produrrà un verdetto di validazione, un punteggio di intensità del problema e uno di risonanza del valore.
             </p>
             <button
               onClick={generateReport}
@@ -286,7 +286,7 @@ export default function ResultsClient({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
-              Generate Results
+              Genera risultati
               <ChevronRight size={15} />
             </button>
           </div>
@@ -312,7 +312,7 @@ export default function ResultsClient({
                   onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
                 >
                   <RefreshCw size={11} />
-                  Regenerate
+                  Rigenera
                 </button>
               </div>
               <h2
@@ -331,8 +331,8 @@ export default function ResultsClient({
 
             {/* Metric cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <MetricCard label="Problem Intensity" score={report.problemIntensity} description="How intensely the target customers experience the problem based on interview signals." />
-              <MetricCard label="Value Resonance" score={report.valueResonance} description="How well the proposed solution resonates with customers' expressed needs and WTP." />
+              <MetricCard label="Intensità del problema" score={report.problemIntensity} description="Quanto intensamente i clienti target vivono il problema in base ai segnali delle interviste." />
+              <MetricCard label="Risonanza del valore" score={report.valueResonance} description="Quanto la soluzione proposta risuona con i bisogni espressi dai clienti e la loro disponibilità a pagare." />
             </div>
 
             {/* Recurring themes */}
@@ -345,7 +345,7 @@ export default function ResultsClient({
                   className="mb-3"
                   style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
                 >
-                  Recurring Themes
+                  Temi ricorrenti
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {report.recurringThemes.map((theme, i) => (
@@ -377,7 +377,7 @@ export default function ResultsClient({
                   className="mb-3"
                   style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
                 >
-                  Main Objections
+                  Obiezioni principali
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {report.mainObjections.map((obj, i) => (
@@ -409,7 +409,7 @@ export default function ResultsClient({
                   className="mb-3"
                   style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
                 >
-                  Recommended Next Steps
+                  Prossimi passi consigliati
                 </h3>
                 <ol className="space-y-2">
                   {report.nextSteps.map((step, i) => (
@@ -439,7 +439,7 @@ export default function ResultsClient({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
-              View Value Proposition Canvas
+              Vedi Value Proposition Canvas
               <ChevronRight size={15} />
             </Link>
           </div>

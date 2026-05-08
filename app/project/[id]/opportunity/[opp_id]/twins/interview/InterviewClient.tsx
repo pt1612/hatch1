@@ -12,39 +12,39 @@ import type { TwinMessage, DigitalTwin, Opportunity } from '@/lib/types'
 
 const QUESTION_CATEGORIES = [
   {
-    label: 'Problem Validation',
+    label: 'Validazione del problema',
     questions: [
-      { text: 'Walk me through the last time this cost you real time or money.', hint: 'urgency' },
-      { text: "What's your current workaround, and what do you hate most about it?", hint: 'workaround' },
-      { text: 'How often does this actually block your work — daily, weekly?', hint: 'frequency' },
-      { text: 'Have you ever tried to fix this before? What stopped you?', hint: 'history' },
+      { text: 'Raccontami l\'ultima volta che questo ti ha fatto perdere tempo o denaro reale.', hint: 'urgenza' },
+      { text: 'Qual è il tuo workaround attuale e cosa odi di più?', hint: 'workaround' },
+      { text: 'Con che frequenza questo blocca davvero il tuo lavoro — ogni giorno, ogni settimana?', hint: 'frequenza' },
+      { text: 'Hai mai provato a risolvere questo problema prima? Cosa ti ha fermato?', hint: 'storico' },
     ],
   },
   {
-    label: 'Pains',
+    label: 'Pain',
     questions: [
-      { text: 'What frustrates you most about how you handle this today?', hint: 'frustration' },
-      { text: 'What has this problem cost you — in time, money, or stress — in the last month?', hint: 'cost' },
-      { text: 'What would happen if this problem went unsolved for another year?', hint: 'consequence' },
-      { text: 'Who else in your team or company suffers from this?', hint: 'scope' },
+      { text: 'Cosa ti frustra di più nel modo in cui gestisci questo problema oggi?', hint: 'frustrazione' },
+      { text: 'Quanto ti è costato questo problema — in tempo, denaro o stress — nell\'ultimo mese?', hint: 'costo' },
+      { text: 'Cosa succederebbe se questo problema restasse irrisolto per un altro anno?', hint: 'conseguenza' },
+      { text: 'Chi altro nel tuo team o nella tua azienda soffre di questo problema?', hint: 'portata' },
     ],
   },
   {
-    label: 'Gains',
+    label: 'Gain',
     questions: [
-      { text: 'If this were solved perfectly, what would your day look like differently?', hint: 'desired outcome' },
-      { text: 'What would success look like to you 6 months after adopting a solution?', hint: 'success vision' },
-      { text: 'What would make you look good internally if this were fixed?', hint: 'social gain' },
-      { text: 'Which part of your workflow would you most want to speed up or simplify?', hint: 'priority gain' },
+      { text: 'Se questo fosse risolto perfettamente, come sarebbe diversa la tua giornata?', hint: 'risultato desiderato' },
+      { text: 'Come sarebbe il successo per te 6 mesi dopo aver adottato una soluzione?', hint: 'visione del successo' },
+      { text: 'Cosa ti farebbe fare bella figura internamente se questo fosse risolto?', hint: 'guadagno sociale' },
+      { text: 'Quale parte del tuo flusso di lavoro vorresti velocizzare o semplificare di più?', hint: 'priorità' },
     ],
   },
   {
     label: 'Jobs to be Done',
     questions: [
-      { text: 'When this problem comes up, what are you ultimately trying to accomplish?', hint: 'functional job' },
-      { text: 'What does "done" look like when you handle this task well?', hint: 'completion criteria' },
-      { text: 'Why does this matter to you beyond just the immediate task?', hint: 'deeper motivation' },
-      { text: 'What triggers you to look for a solution to this — what sets it off?', hint: 'trigger' },
+      { text: 'Quando si presenta questo problema, cosa stai cercando di realizzare in ultima analisi?', hint: 'job funzionale' },
+      { text: 'Come appare il "fatto" quando gestisci bene questo compito?', hint: 'criteri di completamento' },
+      { text: 'Perché questo è importante per te al di là del compito immediato?', hint: 'motivazione profonda' },
+      { text: 'Cosa ti spinge a cercare una soluzione — cosa lo scatena?', hint: 'trigger' },
     ],
   },
 ]
@@ -285,7 +285,7 @@ export default function InterviewClient({
         await persistMessages(finalMessages)
       }
     } catch {
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.', timestamp: formatTime() }])
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Qualcosa è andato storto. Riprova.', timestamp: formatTime() }])
     } finally {
       setLoading(false)
       inputRef.current?.focus()
@@ -342,7 +342,7 @@ export default function InterviewClient({
               color: 'var(--color-text-muted)',
             }}
           >
-            Participants
+            Partecipanti
           </h2>
 
           <button
@@ -366,7 +366,7 @@ export default function InterviewClient({
             >
               G
             </div>
-            <span style={{ fontSize: 12 }}>Group Interview</span>
+            <span style={{ fontSize: 12 }}>Intervista di gruppo</span>
           </button>
 
           <div className="my-2" style={{ borderTop: '0.5px solid var(--color-border)' }} />
@@ -413,10 +413,10 @@ export default function InterviewClient({
           <div className="mb-3">
             <div className="flex items-center justify-between mb-1.5">
               <span style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)' }}>
-                Progress
+                Progresso
               </span>
               <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)' }}>
-                {userQCount}/6 questions
+                {userQCount}/6 domande
               </span>
             </div>
             <div className="w-full rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'var(--color-linen)' }}>
@@ -434,12 +434,12 @@ export default function InterviewClient({
             onMouseEnter={(e) => canReport && ((e.currentTarget).style.backgroundColor = '#A8612A')}
             onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
           >
-            Generate Results
+            Genera risultati
             <ChevronRight size={12} />
           </button>
           {!canReport && (
             <p style={{ fontSize: 10, color: 'var(--color-text-faint)', textAlign: 'center', marginTop: 6 }}>
-              {2 - userQCount} more question{2 - userQCount !== 1 ? 's' : ''} to unlock
+              {`Mancano ${2 - userQCount} domanda${2 - userQCount !== 1 ? 'e' : ''} per sbloccare`}
             </p>
           )}
         </div>
@@ -454,7 +454,7 @@ export default function InterviewClient({
         >
           <BackButton
             href={`/project/${project.id}/opportunity/${opportunity.id}/twins/setup`}
-            label="Back to setup"
+            label="Torna alla configurazione"
           />
         </div>
 
@@ -467,10 +467,10 @@ export default function InterviewClient({
                 <path d="M38 50 Q50 38 62 50 Q50 62 38 50" fill="var(--color-amber-light)" opacity="0.5" />
               </svg>
               <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4 }}>
-                Start the interview
+                Inizia l'intervista
               </h3>
               <p style={{ fontSize: 12, color: 'var(--color-text-muted)', maxWidth: 320, lineHeight: '1.6' }}>
-                Ask about pain points, desired outcomes, and jobs to be done. Use Question Ideas for prompts.
+                Chiedi dei pain point, dei risultati desiderati e dei job to be done. Usa Spunti per domande per suggerimenti.
               </p>
             </div>
           ) : (
@@ -494,7 +494,7 @@ export default function InterviewClient({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
-              Question Ideas 💡
+              Spunti per domande 💡
               {guidelinesOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
 
@@ -572,7 +572,7 @@ export default function InterviewClient({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input) }
               }}
-              placeholder={selectedTwinId === 'all' ? 'Ask all twins…' : `Ask ${selectedTwin?.name ?? 'twin'}…`}
+              placeholder={selectedTwinId === 'all' ? 'Chiedi a tutti i Twin…' : `Chiedi a ${selectedTwin?.name ?? 'Twin'}…`}
               className="flex-1 px-4 py-3 text-sm resize-none outline-none transition-colors scrollbar-thin"
               style={{
                 backgroundColor: '#FFFFFF',
@@ -599,7 +599,7 @@ export default function InterviewClient({
             </button>
           </div>
           <p style={{ fontSize: 10, color: 'var(--color-text-faint)', marginTop: 8 }}>
-            Enter to send · Shift+Enter for new line
+            Invio per inviare · Shift+Invio per nuova riga
           </p>
         </div>
       </div>
