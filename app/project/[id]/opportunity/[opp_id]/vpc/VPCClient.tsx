@@ -625,7 +625,7 @@ export default function VPCClient({
       <div className="flex-1 overflow-auto p-8 pt-14">
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/twins/results`}
-          label="Back to results"
+          label="Torna ai risultati"
         />
 
         <div className="mb-6">

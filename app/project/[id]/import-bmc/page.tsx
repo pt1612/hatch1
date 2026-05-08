@@ -303,7 +303,7 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
 
       <div className="pt-14 px-6 pb-16 max-w-5xl mx-auto">
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push(`/project/${projectId}/start-bmc`)}
           style={{
             fontSize: 12,
             color: 'var(--color-text-muted)',

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
+import BackButton from '@/components/BackButton'
 import { ChevronRight, Check, Loader2, Plus, X } from 'lucide-react'
 import { computeCategory } from '@/lib/types'
 import type { Opportunity, Strategy, Classification } from '@/lib/types'
@@ -80,6 +81,7 @@ export default function StrategyClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div className="flex-1 overflow-auto p-8 pt-14">
+        <BackButton href={`/project/${project.id}/map`} label="Torna alla mappa" />
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1

@@ -47,21 +47,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
   const [selecting, setSelecting] = useState<EntryPath | null>(null)
 
   useEffect(() => {
-    params.then(({ id }) => {
-      setProjectId(id)
-      // If project already has an entry_path set, skip onboarding
-      supabase
-        .from('projects')
-        .select('entry_path')
-        .eq('id', id)
-        .single()
-        .then(({ data }) => {
-          if (data?.entry_path && data.entry_path !== null) {
-            const path = PATHS.find((p) => p.id === data.entry_path)
-            if (path) router.replace(path.destination(id))
-          }
-        })
-    })
+    params.then(({ id }) => setProjectId(id))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSelect(path: EntryPath) {

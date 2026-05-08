@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import TopNav from '@/components/TopNav'
+import BackButton from '@/components/BackButton'
 import { ChevronRight } from 'lucide-react'
 import { MAP_DOT_PALETTE, SCORE_TO_POSITION } from '@/lib/constants'
 import type { Opportunity } from '@/lib/types'
@@ -45,6 +46,7 @@ export default function MapClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div className="flex-1 overflow-auto p-8 pt-14">
+        <BackButton href={`/project/${project.id}/evaluations`} label="Torna alla valutazione" />
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1

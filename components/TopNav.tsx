@@ -23,10 +23,16 @@ interface TopNavProps {
 
 // ── Lock rules per entry_path ──────────────────────────────────────────────────
 function isItemLocked(label: string, entryPath: string | null | undefined): boolean {
+  // VPC and BMC nav items are only meaningful for vpc/bmc entry paths
+  if (label === 'VPC' || label === 'BMC') {
+    if (!entryPath || entryPath === 'full' || entryPath === 'idea') return true
+    if (entryPath === 'vpc') return label === 'BMC'   // only BMC locked for vpc path
+    if (entryPath === 'bmc') return label === 'VPC'   // only VPC locked for bmc path
+  }
   if (!entryPath || entryPath === 'full') return false
   if (entryPath === 'idea') return label === 'Abilità'
   if (entryPath === 'vpc') return ['Abilità', 'Opportunità', 'Valutazione', 'Mappa', 'Strategia'].includes(label)
-  if (entryPath === 'bmc') return label !== 'BMC'
+  if (entryPath === 'bmc') return !['VPC', 'BMC'].includes(label)
   return false
 }
 

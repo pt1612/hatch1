@@ -31,7 +31,26 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
       <TopNav projectId={projectId} />
 
       <div className="pt-14 px-6 pb-16 max-w-2xl mx-auto">
-        <div style={{ paddingTop: 48 }}>
+        <div style={{ paddingTop: 32 }}>
+          <button
+            onClick={() => router.push(`/project/${projectId}/onboarding`)}
+            style={{
+              fontSize: 12,
+              color: 'var(--color-text-muted)',
+              marginBottom: 28,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--color-ink)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text-muted)')}
+          >
+            ← Indietro
+          </button>
           <h1
             style={{
               fontFamily: "'Lora', Georgia, serif",

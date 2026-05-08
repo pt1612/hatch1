@@ -927,7 +927,7 @@ export default function BMCClient({
       <div className="flex-1 overflow-auto p-6 pt-14">
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/vpc`}
-          label="Back to VPC Canvas"
+          label="Torna al VPC Canvas"
         />
 
         {/* Page header */}

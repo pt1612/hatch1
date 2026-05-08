@@ -140,7 +140,7 @@ export default function TwinSetupClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div className="flex-1 overflow-auto p-8 pt-14">
-        <BackButton href={`/project/${project.id}/strategy`} label="Torna alle opportunità" />
+        <BackButton href={`/project/${project.id}/evaluations`} label="Torna alla valutazione" />
 
         <div className="mb-6">
           <h1

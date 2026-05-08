@@ -61,7 +61,7 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-16">
         <div style={{ width: '100%', maxWidth: 480 }}>
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push(`/project/${projectId}/onboarding`)}
             style={{
               fontSize: 12,
               color: 'var(--color-text-muted)',
