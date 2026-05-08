@@ -9,6 +9,7 @@ import { Plus, X, Loader2, Sparkles, Download } from 'lucide-react'
 import { TWIN_AVATAR_COLORS, TWIN_COLORS_HEX } from '@/lib/constants'
 import { getTwinIndex, getInitials, getAffinityDisplay } from '@/lib/types'
 import type { DigitalTwin, TwinInterview, Opportunity } from '@/lib/types'
+import { motion } from 'framer-motion'
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -87,8 +88,12 @@ function TwinPill({
   onRemove?: () => void
 }) {
   return (
-    <span
-      className={`bubble-enter inline-flex items-start gap-1 text-xs font-medium px-2.5 py-1 rounded-lg whitespace-normal break-words max-w-full ${pillClass}`}
+    <motion.span
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.15 }}
+      layout
+      className={`inline-flex items-start gap-1 text-xs font-medium px-2.5 py-1 rounded-lg whitespace-normal break-words max-w-full ${pillClass}`}
     >
       {dotColor && (
         <span
@@ -114,7 +119,7 @@ function TwinPill({
           <X size={9} />
         </button>
       )}
-    </span>
+    </motion.span>
   )
 }
 
@@ -133,8 +138,12 @@ function FinalPill({
       ? TWIN_COLORS_HEX[item.twinIdx % TWIN_COLORS_HEX.length]
       : '#94a3b8'
   return (
-    <span
-      className={`bubble-enter inline-flex items-start gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg whitespace-normal break-words max-w-full ${pillClass}`}
+    <motion.span
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.15 }}
+      layout
+      className={`inline-flex items-start gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg whitespace-normal break-words max-w-full ${pillClass}`}
     >
       <span
         className="w-2 h-2 rounded-full flex-shrink-0 mt-0.5"
@@ -147,7 +156,7 @@ function FinalPill({
       >
         <X size={9} />
       </button>
-    </span>
+    </motion.span>
   )
 }
 
@@ -634,7 +643,7 @@ export default function VPCClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14">
+      <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/twins/results`}
           label="Torna ai risultati"
@@ -645,8 +654,8 @@ export default function VPCClient({
             style={{
               fontFamily: "'Lora', Georgia, serif",
               fontWeight: 400,
-              fontSize: 26,
-              letterSpacing: '-0.02em',
+              fontSize: 34,
+              letterSpacing: '-0.03em',
               color: 'var(--color-ink)',
             }}
           >
@@ -1047,7 +1056,7 @@ export default function VPCClient({
 
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

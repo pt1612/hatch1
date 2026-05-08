@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import { Plus, ArrowRight, MoreHorizontal, Calendar, Pencil } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const PHASE_LABELS = ['Abilities', 'Evaluation', 'Map', 'Strategy']
 
@@ -92,80 +93,36 @@ export default function DashboardClient({
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav />
-      <main className="flex-1 overflow-auto p-8 pt-14 max-w-5xl mx-auto w-full px-6 page-enter">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1
-              style={{
-                fontFamily: "'Lora', Georgia, serif",
-                fontWeight: 400,
-                fontSize: 28,
-                letterSpacing: '-0.02em',
-                color: 'var(--color-ink)',
-              }}
-            >
-              {greeting}{firstName ? `, ${firstName}` : ''}.
-            </h1>
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
-              {projects.length === 0
-                ? 'Nessun progetto ancora — crea il primo.'
-                : `Hai ${activeCount} progetto${activeCount === 1 ? '' : 'i'} attivo${activeCount === 1 ? '' : 'i'}.`}
-            </p>
-          </div>
-          <button
-            onClick={handleNewProject}
-            disabled={creating}
-            className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium disabled:opacity-60"
-            style={{
-              backgroundColor: 'var(--color-amber)',
-              color: '#FFFFFF',
-              borderRadius: 8,
-              border: 'none',
-              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-            }}
-            onMouseEnter={(e) => {
-              if (!creating) {
-                e.currentTarget.style.backgroundColor = '#A8612A'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!creating) {
-                e.currentTarget.style.backgroundColor = 'var(--color-amber)'
-                e.currentTarget.style.boxShadow = 'none'
-              }
-            }}
-          >
-            <Plus size={16} />
-            {creating ? 'Creazione…' : 'Nuovo progetto'}
-          </button>
-        </div>
-
-        {/* Empty state */}
-        {projects.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-5">
-              <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="var(--color-amber-bg)" />
-              <circle cx="50" cy="50" r="16" fill="var(--color-linen)" />
-              <circle cx="50" cy="50" r="8" fill="var(--color-amber-light)" opacity="0.5" />
-            </svg>
-            <p
-              style={{
-                fontFamily: "'Lora', Georgia, serif",
-                fontStyle: 'italic',
-                fontWeight: 400,
-                fontSize: 16,
-                color: 'var(--color-text-muted)',
-                marginBottom: 20,
-              }}
-            >
-              Inizia il tuo primo progetto.
-            </p>
+      <main className="flex-1 overflow-auto p-8 pt-14 max-w-5xl mx-auto w-full px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: 'easeOut' }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <h1
+                style={{
+                  fontFamily: "'Lora', Georgia, serif",
+                  fontWeight: 400,
+                  fontSize: 34,
+                  letterSpacing: '-0.03em',
+                  color: 'var(--color-ink)',
+                }}
+              >
+                {greeting}{firstName ? `, ${firstName}` : ''}.
+              </h1>
+              <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
+                {projects.length === 0
+                  ? 'Nessun progetto ancora — crea il primo.'
+                  : `Hai ${activeCount} progetto${activeCount === 1 ? '' : 'i'} attivo${activeCount === 1 ? '' : 'i'}.`}
+              </p>
+            </div>
             <button
               onClick={handleNewProject}
               disabled={creating}
-              className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium disabled:opacity-60"
+              className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium disabled:opacity-60"
               style={{
                 backgroundColor: 'var(--color-amber)',
                 color: '#FFFFFF',
@@ -187,26 +144,84 @@ export default function DashboardClient({
               }}
             >
               <Plus size={16} />
-              {creating ? 'Creazione…' : 'Crea il primo progetto'}
+              {creating ? 'Creazione…' : 'Nuovo progetto'}
             </button>
           </div>
-        )}
 
-        {/* Grid */}
-        {projectList.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {projectList.map((project, index) => (
-              <div key={project.id} className={`card-enter card-enter-${(index % 6) + 1}`}>
-                <ProjectCard
-                  project={project}
-                  isDeleting={deleting === project.id}
-                  onDelete={() => handleDeleteProject(project.id)}
-                  onRename={(newName) => handleRename(project.id, newName)}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+          {/* Empty state */}
+          {projects.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-5">
+                <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="var(--color-amber-bg)" />
+                <circle cx="50" cy="50" r="16" fill="var(--color-linen)" />
+                <circle cx="50" cy="50" r="8" fill="var(--color-amber-light)" opacity="0.5" />
+              </svg>
+              <p
+                style={{
+                  fontFamily: "'Lora', Georgia, serif",
+                  fontStyle: 'italic',
+                  fontWeight: 400,
+                  fontSize: 16,
+                  color: 'var(--color-text-muted)',
+                  marginBottom: 20,
+                }}
+              >
+                Inizia il tuo primo progetto.
+              </p>
+              <button
+                onClick={handleNewProject}
+                disabled={creating}
+                className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium disabled:opacity-60"
+                style={{
+                  backgroundColor: 'var(--color-amber)',
+                  color: '#FFFFFF',
+                  borderRadius: 8,
+                  border: 'none',
+                  transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (!creating) {
+                    e.currentTarget.style.backgroundColor = '#A8612A'
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!creating) {
+                    e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                    e.currentTarget.style.boxShadow = 'none'
+                  }
+                }}
+              >
+                <Plus size={16} />
+                {creating ? 'Creazione…' : 'Crea il primo progetto'}
+              </button>
+            </div>
+          )}
+
+          {/* Grid */}
+          {projectList.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <AnimatePresence mode="popLayout">
+                {projectList.map((project, index) => (
+                  <motion.div
+                    key={project.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2, delay: index * 0.07, ease: 'easeOut' }}
+                  >
+                    <ProjectCard
+                      project={project}
+                      isDeleting={deleting === project.id}
+                      onDelete={() => handleDeleteProject(project.id)}
+                      onRename={(newName) => handleRename(project.id, newName)}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+        </motion.div>
       </main>
     </div>
   )
@@ -238,28 +253,29 @@ function ProjectCard({
   })
 
   return (
-    <div
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.15 }}
       className={`flex flex-col gap-4 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
       style={{
         backgroundColor: '#FFFFFF',
         borderTop: `3px solid ${isDraft ? 'var(--color-linen)' : 'var(--color-amber)'}`,
         border: '0.5px solid var(--color-border)',
         borderRadius: 14,
-        padding: 20,
-        transition: 'border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease',
+        padding: 24,
+        transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-amber)'
-        e.currentTarget.style.transform = 'translateY(-1px)'
-        e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'
+        const el = e.currentTarget as HTMLElement
+        el.style.borderColor = 'var(--color-amber)'
+        el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--color-border)'
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = 'none'
+        const el = e.currentTarget as HTMLElement
+        el.style.borderColor = 'var(--color-border)'
+        el.style.boxShadow = 'none'
       }}
     >
-      {/* Fix: re-apply top border color on hover since border shorthand overrides it */}
       {/* Header */}
       <div className="flex items-start justify-between">
         <div
@@ -470,6 +486,6 @@ function ProjectCard({
         Continua
         <ArrowRight size={15} />
       </Link>
-    </div>
+    </motion.div>
   )
 }

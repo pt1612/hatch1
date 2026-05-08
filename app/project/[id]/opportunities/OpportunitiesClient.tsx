@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import { Plus, CheckCircle2, Clock, ChevronRight, ChevronDown, Loader2, X } from 'lucide-react'
 import type { Opportunity } from '@/lib/types'
+import { motion } from 'framer-motion'
 
 export default function OpportunitiesClient({
   project,
@@ -71,15 +72,20 @@ export default function OpportunitiesClient({
 
       <div className="flex-1 flex overflow-hidden min-h-screen pt-14">
         {/* Main list */}
-        <div className="flex-1 overflow-y-auto p-6 page-enter">
+        <motion.div
+          className="flex-1 overflow-y-auto p-8"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: 'easeOut' }}
+        >
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1
                 style={{
                   fontFamily: "'Lora', Georgia, serif",
                   fontWeight: 400,
-                  fontSize: 26,
-                  letterSpacing: '-0.02em',
+                  fontSize: 34,
+                  letterSpacing: '-0.03em',
                   color: 'var(--color-ink)',
                 }}
               >
@@ -374,7 +380,7 @@ export default function OpportunitiesClient({
               })}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Right sidebar */}
         <div

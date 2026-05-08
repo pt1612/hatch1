@@ -9,6 +9,7 @@ import { Send, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
 import { TWIN_AVATAR_COLORS, TWIN_BUBBLE_COLORS } from '@/lib/constants'
 import { getTwinIndex, getInitials, formatTime } from '@/lib/types'
 import type { TwinMessage, DigitalTwin, Opportunity } from '@/lib/types'
+import { motion } from 'framer-motion'
 
 const QUESTION_CATEGORIES = [
   {
@@ -68,9 +69,15 @@ function TypingIndicator({ twins }: { twins: DigitalTwin[] }) {
             className="flex items-center gap-1 px-4 py-3 rounded-2xl"
             style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
           >
-            <span className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={{ backgroundColor: 'var(--color-warm-gray)' }} />
-            <span className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={{ backgroundColor: 'var(--color-warm-gray)' }} />
-            <span className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={{ backgroundColor: 'var(--color-warm-gray)' }} />
+            {[0, 1, 2].map((i) => (
+              <motion.span
+                key={i}
+                className="w-1.5 h-1.5 rounded-full block"
+                style={{ backgroundColor: 'var(--color-warm-gray)' }}
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15, ease: 'easeInOut' }}
+              />
+            ))}
           </div>
         </div>
       ))}
@@ -81,7 +88,7 @@ function TypingIndicator({ twins }: { twins: DigitalTwin[] }) {
 function ChatBubble({ message, twins }: { message: TwinMessage; twins: DigitalTwin[] }) {
   if (message.role === 'user') {
     return (
-      <div className="flex justify-end bubble-enter">
+      <motion.div className="flex justify-end" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18 }}>
         <div className="max-w-[70%]">
           <div
             className="px-4 py-3 text-sm leading-relaxed"
@@ -100,7 +107,7 @@ function ChatBubble({ message, twins }: { message: TwinMessage; twins: DigitalTw
             </p>
           )}
         </div>
-      </div>
+      </motion.div>
     )
   }
 
@@ -109,7 +116,7 @@ function ChatBubble({ message, twins }: { message: TwinMessage; twins: DigitalTw
   const twin = twins.find((t) => t.id === message.twinId)
 
   return (
-    <div className="flex items-end gap-2 bubble-enter">
+    <motion.div className="flex items-end gap-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18 }}>
       {twin && <TwinAvatar twin={twin} />}
       {!twin && (
         <div
@@ -139,7 +146,7 @@ function ChatBubble({ message, twins }: { message: TwinMessage; twins: DigitalTw
           </p>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 

@@ -8,6 +8,16 @@ import BackButton from '@/components/BackButton'
 import { Loader2, AlertCircle, RefreshCw, Map } from 'lucide-react'
 import { POTENTIAL_BADGE, CHALLENGE_BADGE } from '@/lib/constants'
 import type { Opportunity, InterviewReport, DimensionScore } from '@/lib/types'
+import { motion } from 'framer-motion'
+
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+}
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } },
+}
 
 const POTENTIAL_DIMS = [
   { key: 'reason_to_buy',       label: 'Ragione d\'acquisto' },
@@ -181,10 +191,10 @@ export default function ReportClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
+      <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton href={`/project/${project.id}/opportunities`} label="Torna alle opportunità" />
 
-        <div className="max-w-3xl">
+        <motion.div className="max-w-3xl" variants={containerVariants} initial="hidden" animate="show">
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div>
@@ -220,7 +230,8 @@ export default function ReportClient({
           </div>
 
           {/* Executive summary */}
-          <div
+          <motion.div
+            variants={itemVariants}
             className="rounded-2xl p-5 mb-5"
             style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
           >
@@ -238,7 +249,7 @@ export default function ReportClient({
               Sommario esecutivo
             </h2>
             <p style={{ fontSize: 13, color: 'var(--color-ink)', lineHeight: '1.7' }}>{report.executive_summary}</p>
-          </div>
+          </motion.div>
 
           {/* Potential dimensions */}
           <h2
@@ -260,8 +271,9 @@ export default function ReportClient({
               if (!dim) return null
               const { bg, text } = scoreBgColor(dim.score)
               return (
-                <div
+                <motion.div
                   key={key}
+                  variants={itemVariants}
                   className="rounded-2xl p-5"
                   style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
                 >
@@ -289,7 +301,7 @@ export default function ReportClient({
                     />
                   </div>
                   <p style={{ fontSize: 12, color: 'var(--color-text-muted)', lineHeight: '1.7' }}>{dim.analysis}</p>
-                </div>
+                </motion.div>
               )
             })}
           </div>
@@ -315,8 +327,9 @@ export default function ReportClient({
               const displayScore = 10 - dim.score
               const { bg, text } = scoreBgColor(displayScore)
               return (
-                <div
+                <motion.div
                   key={key}
+                  variants={itemVariants}
                   className="rounded-2xl p-5"
                   style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
                 >
@@ -352,7 +365,7 @@ export default function ReportClient({
                     />
                   </div>
                   <p style={{ fontSize: 12, color: 'var(--color-text-muted)', lineHeight: '1.7' }}>{dim.analysis}</p>
-                </div>
+                </motion.div>
               )
             })}
           </div>
@@ -401,8 +414,8 @@ export default function ReportClient({
             <RefreshCw size={12} />
             Rigenera valutazione
           </button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }

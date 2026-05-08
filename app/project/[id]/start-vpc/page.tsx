@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import TopNav from '@/components/TopNav'
 import { ArrowRight } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 const VPC_IMAGE_PATH = '/vpc_explainer.png'
 
@@ -30,7 +31,7 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={projectId} />
 
-      <div className="pt-14 px-6 pb-16 max-w-2xl mx-auto">
+      <motion.div className="pt-14 px-6 pb-16 max-w-2xl mx-auto" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <div style={{ paddingTop: 32 }}>
           <button
             onClick={() => router.push(`/project/${projectId}/onboarding`)}
@@ -55,8 +56,8 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
             style={{
               fontFamily: "'Lora', Georgia, serif",
               fontWeight: 400,
-              fontSize: 28,
-              letterSpacing: '-0.02em',
+              fontSize: 34,
+              letterSpacing: '-0.03em',
               color: 'var(--color-ink)',
               marginBottom: 28,
             }}
@@ -161,7 +162,7 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
             <ArrowRight size={16} />
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

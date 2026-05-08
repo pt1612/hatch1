@@ -9,6 +9,8 @@ import { Plus, X, Loader2, RefreshCw, ChevronRight, Edit2, Check } from 'lucide-
 import { getInitials } from '@/lib/types'
 import { TWIN_AVATAR_COLORS } from '@/lib/constants'
 import type { Opportunity, TwinRow } from '@/lib/types'
+import { motion } from 'framer-motion'
+import { useToast } from '@/components/ui/toast'
 
 type MinimalTwin = {
   id: string
@@ -41,6 +43,7 @@ export default function TwinSetupClient({
 }) {
   const router = useRouter()
   const supabase = createClient()
+  const { toast } = useToast()
 
   const [segments, setSegments] = useState<string[]>(twinSession?.suggested_segments ?? [])
   const [newSegment, setNewSegment] = useState('')
@@ -106,6 +109,7 @@ export default function TwinSetupClient({
     )
     setTwins(mapped)
     setGeneratingTwins(false)
+    toast('Profili Twin generati')
   }
 
   async function handleStartInterviews() {
@@ -139,7 +143,7 @@ export default function TwinSetupClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
+      <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton href={`/project/${project.id}/evaluations`} label="Torna alla valutazione" />
 
         <div className="mb-6">
@@ -147,8 +151,8 @@ export default function TwinSetupClient({
             style={{
               fontFamily: "'Lora', Georgia, serif",
               fontWeight: 400,
-              fontSize: 26,
-              letterSpacing: '-0.02em',
+              fontSize: 34,
+              letterSpacing: '-0.03em',
               color: 'var(--color-ink)',
             }}
           >
@@ -461,7 +465,7 @@ export default function TwinSetupClient({
             </button>
           </>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

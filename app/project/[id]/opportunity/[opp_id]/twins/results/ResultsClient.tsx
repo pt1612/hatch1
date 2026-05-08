@@ -7,6 +7,7 @@ import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import { Loader2, ChevronRight, RefreshCw, Download } from 'lucide-react'
 import type { DigitalTwin, TwinMessage, TwinReport, Opportunity } from '@/lib/types'
+import { motion } from 'framer-motion'
 
 const VERDICT_CONFIG = {
   strong_fit: {
@@ -200,7 +201,7 @@ export default function ResultsClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14 max-w-3xl page-enter">
+      <motion.div className="flex-1 overflow-auto p-8 pt-14" style={{ maxWidth: 768 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`} label="Torna alle interviste" />
 
         <div className="flex items-start justify-between mb-6">
@@ -209,8 +210,8 @@ export default function ResultsClient({
               style={{
                 fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
-                fontSize: 26,
-                letterSpacing: '-0.02em',
+                fontSize: 34,
+                letterSpacing: '-0.03em',
                 color: 'var(--color-ink)',
               }}
             >
@@ -456,7 +457,7 @@ export default function ResultsClient({
             </Link>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import { ChevronRight, Loader2 } from 'lucide-react'
 import type { Opportunity } from '@/lib/types'
+import { motion } from 'framer-motion'
 
 const DIMENSIONS = [
   { label: 'Ragione d\'acquisto',    desc: 'Quanto urgentemente i clienti ne hanno bisogno?' },
@@ -39,10 +40,10 @@ export default function ContextClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
+      <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton href={`/project/${project.id}/opportunities`} label="Torna alle opportunità" />
 
-        <div className="max-w-2xl">
+        <div style={{ maxWidth: 896 }}>
           <h1
             style={{
               fontFamily: "'Lora', Georgia, serif",
@@ -165,7 +166,7 @@ export default function ContextClient({
             )}
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

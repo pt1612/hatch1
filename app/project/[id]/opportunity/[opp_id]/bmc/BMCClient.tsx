@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { TWIN_COLORS_HEX } from '@/lib/constants'
 import type { Opportunity } from '@/lib/types'
+import { motion } from 'framer-motion'
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -403,10 +404,14 @@ function BMCBlock({
                   )
                 }
                 return (
-                  <span
+                  <motion.span
                     key={i}
                     title="Click to edit"
-                    className={`bubble-enter inline-flex items-start gap-1 text-[10px] font-medium px-2 py-0.5 rounded-lg whitespace-normal break-words max-w-full ${config.pillClass}`}
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.15 }}
+                    layout
+                    className={`inline-flex items-start gap-1 text-[10px] font-medium px-2 py-0.5 rounded-lg whitespace-normal break-words max-w-full ${config.pillClass}`}
                   >
                     {dots.map((color, di) => (
                       <span
@@ -428,7 +433,7 @@ function BMCBlock({
                     >
                       <X size={8} />
                     </button>
-                  </span>
+                  </motion.span>
                 )
               })}
             </div>
@@ -930,7 +935,7 @@ export default function BMCClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-6 pt-14">
+      <motion.div className="flex-1 overflow-auto p-6 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/vpc`}
           label="Torna al VPC Canvas"
@@ -943,8 +948,8 @@ export default function BMCClient({
               style={{
                 fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
-                fontSize: 26,
-                letterSpacing: '-0.02em',
+                fontSize: 34,
+                letterSpacing: '-0.03em',
                 color: 'var(--color-ink)',
               }}
             >
@@ -1050,7 +1055,7 @@ export default function BMCClient({
         <p className="mt-4 text-center" style={{ fontSize: 10, color: 'var(--color-text-faint)' }}>
           Generate blocks in order — each one unlocks the next.
         </p>
-      </div>
+      </motion.div>
     </div>
   )
 }

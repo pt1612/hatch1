@@ -7,6 +7,7 @@ import BackButton from '@/components/BackButton'
 import { ChevronRight } from 'lucide-react'
 import { MAP_DOT_PALETTE, SCORE_TO_POSITION } from '@/lib/constants'
 import type { Opportunity } from '@/lib/types'
+import { motion } from 'framer-motion'
 
 const JITTER_PX = 20
 
@@ -45,7 +46,7 @@ export default function MapClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
+      <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton href={`/project/${project.id}/evaluations`} label="Torna alla valutazione" />
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -53,8 +54,8 @@ export default function MapClient({
               style={{
                 fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
-                fontSize: 26,
-                letterSpacing: '-0.02em',
+                fontSize: 34,
+                letterSpacing: '-0.03em',
                 color: 'var(--color-ink)',
               }}
             >
@@ -326,7 +327,7 @@ export default function MapClient({
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }

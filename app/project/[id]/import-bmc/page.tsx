@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import { Loader2, ArrowRight, Plus, X } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 type BlockKey =
   | 'key_partners'
@@ -134,9 +135,13 @@ function BubbleBlock({
       {/* Bubbles */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, minHeight: 24, marginBottom: 8 }}>
         {items.map((item, i) => (
-          <span
+          <motion.span
             key={i}
-            className={`bubble-enter inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-lg ${pillClass}`}
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.15 }}
+            layout
+            className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-lg ${pillClass}`}
           >
             <span>{item}</span>
             <button
@@ -155,7 +160,7 @@ function BubbleBlock({
             >
               <X size={9} />
             </button>
-          </span>
+          </motion.span>
         ))}
 
         {items.length === 0 && !adding && (
@@ -301,7 +306,7 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={projectId} />
 
-      <div className="pt-14 px-6 pb-16 max-w-5xl mx-auto">
+      <motion.div className="pt-14 px-6 pb-16 max-w-5xl mx-auto" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <button
           onClick={() => router.push(`/project/${projectId}/start-bmc`)}
           style={{
@@ -325,8 +330,8 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
           style={{
             fontFamily: "'Lora', Georgia, serif",
             fontWeight: 400,
-            fontSize: 28,
-            letterSpacing: '-0.02em',
+            fontSize: 34,
+            letterSpacing: '-0.03em',
             color: 'var(--color-ink)',
             marginBottom: 6,
           }}
@@ -442,7 +447,7 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
           {saving ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
           Importa BMC
         </button>
-      </div>
+      </motion.div>
     </div>
   )
 }

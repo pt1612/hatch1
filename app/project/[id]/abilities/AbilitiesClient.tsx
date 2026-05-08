@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import { Send, Loader2, Plus, X, ChevronRight, ChevronDown, Pencil } from 'lucide-react'
 import type { ChatMessage, Ability } from '@/lib/types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useToast } from '@/components/ui/toast'
 
 // ─── Local ability (table row) ────────────────────────────────────────────────
 
@@ -226,6 +228,7 @@ export default function AbilitiesClient({
 }) {
   const router = useRouter()
   const supabase = createClient()
+  const { toast } = useToast()
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -314,6 +317,7 @@ export default function AbilitiesClient({
         )
       }
     }
+    toast('Abilità salvata')
   }
 
   function addEmptyAbility() {
@@ -460,7 +464,10 @@ export default function AbilitiesClient({
         body: JSON.stringify({ conversation }),
       })
       const { opportunities: opps } = await res.json()
-      if (opps?.length > 0) setOpportunities(opps)
+      if (opps?.length > 0) {
+        setOpportunities(opps)
+        toast('Opportunità generate')
+      }
     } catch (err) {
       console.error('[AbilitiesClient] extractOpportunities error:', err)
     }
@@ -523,7 +530,12 @@ export default function AbilitiesClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       {/* Two-column body */}
-      <div className="page-enter" style={{ display: 'flex', flex: 1, overflow: 'hidden', marginTop: 52 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: 'easeOut' }}
+        style={{ display: 'flex', flex: 1, overflow: 'hidden', marginTop: 52 }}
+      >
 
         {/* ── LEFT COLUMN — Abilities table (60%) ── */}
         <div
@@ -541,8 +553,8 @@ export default function AbilitiesClient({
               style={{
                 fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
-                fontSize: 22,
-                letterSpacing: '-0.02em',
+                fontSize: 34,
+                letterSpacing: '-0.03em',
                 color: 'var(--color-ink)',
                 marginBottom: 4,
               }}
@@ -581,19 +593,29 @@ export default function AbilitiesClient({
                   marginBottom: 10,
                 }}
               >
-                {tableAbilities.map((ab) => (
-                  <AbilityCard
-                    key={ab.localId}
-                    ability={ab}
-                    isEditing={editingId === ab.localId}
-                    draft={editDraft}
-                    onDraftChange={setEditDraft}
-                    onEdit={() => startEdit(ab.localId)}
-                    onSave={() => saveAbility(ab.localId)}
-                    onCancel={cancelEdit}
-                    onDelete={() => deleteAbility(ab.localId)}
-                  />
-                ))}
+                <AnimatePresence>
+                  {tableAbilities.map((ab) => (
+                    <motion.div
+                      key={ab.localId}
+                      layout
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 8 }}
+                      transition={{ duration: 0.18 }}
+                    >
+                      <AbilityCard
+                        ability={ab}
+                        isEditing={editingId === ab.localId}
+                        draft={editDraft}
+                        onDraftChange={setEditDraft}
+                        onEdit={() => startEdit(ab.localId)}
+                        onSave={() => saveAbility(ab.localId)}
+                        onCancel={cancelEdit}
+                        onDelete={() => deleteAbility(ab.localId)}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             )}
 
@@ -809,7 +831,13 @@ export default function AbilitiesClient({
           {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
             {messages.map((msg, i) => (
-              <div key={i} className="bubble-enter" style={{ marginBottom: 12 }}>
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.18 }}
+                style={{ marginBottom: 12 }}
+              >
                 <div
                   style={{
                     display: 'flex',
@@ -893,7 +921,7 @@ export default function AbilitiesClient({
                     ))}
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
 
             {loading && messages.length === 0 && (
@@ -998,7 +1026,7 @@ export default function AbilitiesClient({
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

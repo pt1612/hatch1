@@ -4,6 +4,7 @@ import Link from 'next/link'
 import TopNav from '@/components/TopNav'
 import { CheckCircle2, ChevronRight, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 
 type OppWithStatus = {
   id: string
@@ -158,7 +159,12 @@ export default function EvaluationsClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} progressPct={progressPct} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
+      <motion.div
+        className="flex-1 overflow-auto p-8 pt-14"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: 'easeOut' }}
+      >
         <div className="max-w-3xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-2">
@@ -166,8 +172,8 @@ export default function EvaluationsClient({
               style={{
                 fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
-                fontSize: 26,
-                letterSpacing: '-0.02em',
+                fontSize: 34,
+                letterSpacing: '-0.03em',
                 color: 'var(--color-ink)',
               }}
             >
@@ -359,7 +365,7 @@ export default function EvaluationsClient({
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

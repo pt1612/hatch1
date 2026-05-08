@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import { Loader2, ArrowRight } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 export default function IdeaPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -58,7 +59,7 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={projectId} />
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-16">
+      <motion.div className="flex-1 flex flex-col items-center justify-center px-6 py-16" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <div style={{ width: '100%', maxWidth: 480 }}>
           <button
             onClick={() => router.push(`/project/${projectId}/onboarding`)}
@@ -82,8 +83,8 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
             style={{
               fontFamily: "'Lora', Georgia, serif",
               fontWeight: 400,
-              fontSize: 28,
-              letterSpacing: '-0.02em',
+              fontSize: 34,
+              letterSpacing: '-0.03em',
               color: 'var(--color-ink)',
               marginBottom: 8,
             }}
@@ -263,7 +264,7 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

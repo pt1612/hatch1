@@ -9,6 +9,8 @@ import BackButton from '@/components/BackButton'
 import { ChevronRight, Check, Loader2, Plus, X } from 'lucide-react'
 import { computeCategory } from '@/lib/types'
 import type { Opportunity, Strategy, Classification } from '@/lib/types'
+import { motion } from 'framer-motion'
+import { useToast } from '@/components/ui/toast'
 
 export default function StrategyClient({
   project,
@@ -21,6 +23,7 @@ export default function StrategyClient({
 }) {
   const router = useRouter()
   const supabase = createClient()
+  const { toast } = useToast()
 
   const [pursueNowIds, setPursueNowIds] = useState<string[]>(
     existingStrategy?.pursue_now_opportunity_ids ?? []
@@ -66,6 +69,7 @@ export default function StrategyClient({
     }
     setSaving(false)
     setSaved(true)
+    toast('Strategia salvata')
     setTimeout(() => setSaved(false), 2000)
     router.refresh()
   }
@@ -80,7 +84,7 @@ export default function StrategyClient({
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div className="flex-1 overflow-auto p-8 pt-14 page-enter">
+      <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton href={`/project/${project.id}/map`} label="Torna alla mappa" />
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -88,8 +92,8 @@ export default function StrategyClient({
               style={{
                 fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
-                fontSize: 26,
-                letterSpacing: '-0.02em',
+                fontSize: 34,
+                letterSpacing: '-0.03em',
                 color: 'var(--color-ink)',
               }}
             >
@@ -436,7 +440,7 @@ export default function StrategyClient({
 
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   )
 }
