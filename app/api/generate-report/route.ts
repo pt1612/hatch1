@@ -5,15 +5,17 @@ import { numericToLabel } from '@/lib/types'
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(request: NextRequest) {
-  const { opportunityName, application, customerSegment, description, userContext } =
+  const { opportunityName, application, customerSegment, description, userContext, language } =
     await request.json()
 
-  const contextInstruction = userContext
-    ? `Important: This evaluation is being made in the context of: "${userContext}". If the context is written in a language other than English, write the entire report in that same language.`
-    : ''
+  const langInstruction = language === 'it'
+    ? 'Write the entire report in Italian. Use Italian for all text fields (analysis, executive_summary, etc.).'
+    : 'Write the entire report in English.'
+  const contextInstruction = userContext ? `Additional context: "${userContext}".` : ''
 
   const systemPrompt = `You are an expert market strategist evaluating a specific market opportunity using the Market Opportunity Navigator framework.
 
+${langInstruction}
 ${contextInstruction}
 
 Evaluate the following market opportunity across 6 dimensions using a numeric scale of 1-10 for each.

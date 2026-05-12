@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { getInitials } from '@/lib/types'
+import { useI18n, type Lang } from '@/lib/i18n/context'
 
 interface NavItem {
   label: string
@@ -21,22 +22,20 @@ interface TopNavProps {
   entryPath?: 'full' | 'idea' | 'vpc' | 'bmc' | null
 }
 
-// ── Lock rules per entry_path ──────────────────────────────────────────────────
+// Nav labels are ALWAYS in English (technical framework terms — not translated)
 function isItemLocked(label: string, entryPath: string | null | undefined): boolean {
-  // VPC and BMC nav items are only meaningful for vpc/bmc entry paths
   if (label === 'VPC' || label === 'BMC') {
     if (!entryPath || entryPath === 'full' || entryPath === 'idea') return true
-    if (entryPath === 'vpc') return label === 'BMC'   // only BMC locked for vpc path
-    if (entryPath === 'bmc') return label === 'VPC'   // only VPC locked for bmc path
+    if (entryPath === 'vpc') return label === 'BMC'
+    if (entryPath === 'bmc') return label === 'VPC'
   }
   if (!entryPath || entryPath === 'full') return false
-  if (entryPath === 'idea') return label === 'Abilità'
-  if (entryPath === 'vpc') return ['Abilità', 'Opportunità', 'Valutazione', 'Mappa', 'Strategia'].includes(label)
+  if (entryPath === 'idea') return label === 'Skills'
+  if (entryPath === 'vpc') return ['Skills', 'Opportunities', 'Evaluation', 'Map', 'Strategy'].includes(label)
   if (entryPath === 'bmc') return !['VPC', 'BMC'].includes(label)
   return false
 }
 
-// ── Inline lock SVG (10 px) ────────────────────────────────────────────────────
 function LockIcon() {
   return (
     <svg
@@ -53,6 +52,45 @@ function LockIcon() {
   )
 }
 
+function LangToggle() {
+  const { lang, setLang } = useI18n()
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 0,
+        backgroundColor: 'var(--color-linen)',
+        border: '0.5px solid var(--color-border)',
+        borderRadius: 6,
+        overflow: 'hidden',
+        height: 26,
+      }}
+    >
+      {(['en', 'it'] as Lang[]).map((l) => (
+        <button
+          key={l}
+          onClick={() => setLang(l)}
+          style={{
+            fontSize: 11,
+            fontWeight: lang === l ? 600 : 400,
+            color: lang === l ? '#FFFFFF' : 'var(--color-text-muted)',
+            backgroundColor: lang === l ? 'var(--color-amber)' : 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '0 9px',
+            height: '100%',
+            letterSpacing: '0.04em',
+            transition: 'background-color 0.12s, color 0.12s',
+          }}
+        >
+          {l.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export default function TopNav({
   projectId,
   projectTitle,
@@ -63,13 +101,13 @@ export default function TopNav({
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const { t } = useI18n()
 
   const [userInitials, setUserInitials] = useState('')
   const [fetchedEntryPath, setFetchedEntryPath] = useState<'full' | 'idea' | 'vpc' | 'bmc' | null | undefined>(
     undefined
   )
 
-  // Fetch user initials
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       const name = data.user?.user_metadata?.full_name ?? data.user?.email ?? ''
@@ -77,7 +115,6 @@ export default function TopNav({
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch entry_path from project if not provided as prop
   useEffect(() => {
     if (entryPathProp !== undefined) {
       setFetchedEntryPath(entryPathProp)
@@ -99,13 +136,14 @@ export default function TopNav({
 
   const entryPath = entryPathProp ?? fetchedEntryPath
 
+  // Nav labels are ALWAYS English (framework technical terms — not translated)
   const defaultItems: NavItem[] = projectId
     ? [
-        { label: 'Abilità',       href: `/project/${projectId}/abilities`,    hasData: true },
-        { label: 'Opportunità',   href: `/project/${projectId}/opportunities`, hasData: true },
-        { label: 'Valutazione',   href: `/project/${projectId}/evaluations`,   hasData: true },
-        { label: 'Mappa',         href: `/project/${projectId}/map`,           hasData: true },
-        { label: 'Strategia',     href: `/project/${projectId}/strategy`,      hasData: true },
+        { label: 'Skills',        href: `/project/${projectId}/abilities`,    hasData: true },
+        { label: 'Opportunities', href: `/project/${projectId}/opportunities`, hasData: true },
+        { label: 'Evaluation',    href: `/project/${projectId}/evaluations`,   hasData: true },
+        { label: 'Map',           href: `/project/${projectId}/map`,           hasData: true },
+        { label: 'Strategy',      href: `/project/${projectId}/strategy`,      hasData: true },
         { label: 'VPC',           href: `/project/${projectId}/evaluations`,   hasData: true },
         { label: 'BMC',           href: `/project/${projectId}/evaluations`,   hasData: true },
       ]
@@ -126,7 +164,6 @@ export default function TopNav({
 
   return (
     <>
-      {/* ── Fixed nav bar ──────────────────────────────────────────────────────── */}
       <div
         style={{
           position: 'fixed',
@@ -143,7 +180,7 @@ export default function TopNav({
           borderBottom: '0.5px solid var(--color-border)',
         }}
       >
-        {/* Left: logo + wordmark + Dashboard link */}
+        {/* Left: logo + Dashboard link */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
           <Link
             href="/dashboard"
@@ -190,7 +227,7 @@ export default function TopNav({
                 (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)'
             }}
           >
-            Dashboard
+            {t.nav_dashboard}
           </Link>
         </div>
 
@@ -224,7 +261,6 @@ export default function TopNav({
                       ·
                     </span>
                   )}
-
                   {locked ? (
                     <span
                       style={{
@@ -263,8 +299,7 @@ export default function TopNav({
                       }}
                       onMouseLeave={(e) => {
                         if (!active)
-                          (e.currentTarget as HTMLElement).style.color =
-                            'var(--color-text-muted)'
+                          (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)'
                       }}
                     >
                       {item.label}
@@ -276,22 +311,24 @@ export default function TopNav({
           </nav>
         )}
 
-        {/* Right: project title + avatar */}
+        {/* Right: EN/IT toggle + project title + avatar */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 12,
+            gap: 10,
             flexShrink: 0,
             marginLeft: items.length === 0 ? 'auto' : 0,
           }}
         >
+          <LangToggle />
+
           {projectTitle && (
             <span
               style={{
                 fontSize: 12,
                 color: 'var(--color-text-faint)',
-                maxWidth: 160,
+                maxWidth: 140,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -303,7 +340,7 @@ export default function TopNav({
           {userInitials && (
             <button
               onClick={handleSignOut}
-              title="Esci"
+              title={t.nav_signout}
               style={{
                 width: 30,
                 height: 30,
@@ -335,7 +372,6 @@ export default function TopNav({
         </div>
       </div>
 
-      {/* Progress bar below nav (always shown when progressPct > 0) */}
       {progressPct > 0 && (
         <div
           style={{

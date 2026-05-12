@@ -4,12 +4,17 @@ import Anthropic from '@anthropic-ai/sdk'
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(request: NextRequest) {
-  const { conversation } = await request.json()
+  const { conversation, language } = await request.json()
+  const langInstruction = language === 'it'
+    ? 'Write all text fields (name, application, customer_segment, description) in Italian.'
+    : 'Write all text fields in English.'
 
   const msg = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 2048,
     system: `You are a market strategist. You will receive a conversation where a founder described their skills and expertise. Generate a strict application × segment opportunity matrix from their capabilities.
+
+${langInstruction}
 
 MANDATORY STRUCTURE — follow exactly:
 

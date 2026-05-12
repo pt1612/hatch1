@@ -5,6 +5,7 @@ import TopNav from '@/components/TopNav'
 import { CheckCircle2, ChevronRight, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useI18n, type Translations } from '@/lib/i18n/context'
 
 type OppWithStatus = {
   id: string
@@ -45,14 +46,14 @@ function getStepHref(opp: OppWithStatus, projectId: string, step: number): strin
   }
 }
 
-function getActiveStepHref(opp: OppWithStatus, projectId: string): { href: string; label: string } {
-  if (!opp.isEvaluated)   return { href: getStepHref(opp, projectId, 0), label: 'Inizia valutazione' }
-  if (!opp.hasTwins)      return { href: getStepHref(opp, projectId, 1), label: 'Configura Twin' }
-  if (!opp.hasInterviews) return { href: getStepHref(opp, projectId, 2), label: 'Avvia interviste' }
-  if (!opp.hasResults)    return { href: getStepHref(opp, projectId, 3), label: 'Genera risultati' }
-  if (!opp.hasVPC)        return { href: getStepHref(opp, projectId, 4), label: 'Costruisci VPC' }
-  if (!opp.hasBMC)        return { href: getStepHref(opp, projectId, 5), label: 'Costruisci Business Model' }
-  return { href: getStepHref(opp, projectId, 5), label: 'Vedi Business Model' }
+function getActiveStepHref(opp: OppWithStatus, projectId: string, t: Translations): { href: string; label: string } {
+  if (!opp.isEvaluated)   return { href: getStepHref(opp, projectId, 0), label: t.eval_start }
+  if (!opp.hasTwins)      return { href: getStepHref(opp, projectId, 1), label: t.eval_configure_twin }
+  if (!opp.hasInterviews) return { href: getStepHref(opp, projectId, 2), label: t.eval_start_interviews }
+  if (!opp.hasResults)    return { href: getStepHref(opp, projectId, 3), label: t.eval_generate_results }
+  if (!opp.hasVPC)        return { href: getStepHref(opp, projectId, 4), label: t.eval_build_vpc }
+  if (!opp.hasBMC)        return { href: getStepHref(opp, projectId, 5), label: t.eval_build_bmc }
+  return { href: getStepHref(opp, projectId, 5), label: t.eval_view_bmc }
 }
 
 function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: string }) {
@@ -136,6 +137,7 @@ export default function EvaluationsClient({
   )
   const progressPct = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0
 
+  const { t } = useI18n()
   const [collapsedApps, setCollapsedApps] = useState<Set<string>>(new Set())
 
   const grouped = opportunities.reduce<{ app: string; opps: OppWithStatus[] }[]>((acc, opp) => {
@@ -177,14 +179,14 @@ export default function EvaluationsClient({
                 color: 'var(--color-ink)',
               }}
             >
-              Valutazione & Validazione
+              {t.eval_title}
             </h1>
             <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-amber)' }}>
-              {progressPct}% completato
+              {progressPct}{t.eval_completed}
             </span>
           </div>
           <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20 }}>
-            Porta ogni opportunità attraverso 6 fasi — dalla valutazione al Business Model Canvas.
+            {t.eval_subtitle}
           </p>
 
           {/* Overall progress */}
@@ -206,13 +208,13 @@ export default function EvaluationsClient({
                 <circle cx="50" cy="50" r="14" fill="var(--color-linen)" />
               </svg>
               <p style={{ fontSize: 13, fontFamily: "'Lora', Georgia, serif", fontStyle: 'italic', color: 'var(--color-text-muted)' }}>
-                Nessuna opportunità ancora.
+                {t.eval_no_opps}
               </p>
               <Link
                 href={`/project/${project.id}/abilities`}
                 style={{ fontSize: 12, color: 'var(--color-amber)', marginTop: 4, display: 'block' }}
               >
-                Vai alla chat sulle abilità per generare opportunità
+                {t.eval_go_abilities}
               </Link>
             </div>
           ) : (
@@ -248,7 +250,7 @@ export default function EvaluationsClient({
                             border: '0.5px solid var(--color-border)',
                           }}
                         >
-                          {groupDoneSteps}/{groupTotalSteps} passi
+                          {groupDoneSteps}/{groupTotalSteps} {t.eval_steps}
                         </span>
                       </div>
                       <ChevronDown
@@ -266,7 +268,7 @@ export default function EvaluationsClient({
                     {!isCollapsed && (
                       <div style={{ borderTop: '0.5px solid var(--color-border)' }}>
                         {opps.map((opp, idx) => {
-                          const { href, label } = getActiveStepHref(opp, project.id)
+                          const { href, label } = getActiveStepHref(opp, project.id, t)
                           const allDone = getStepDone(opp).every(Boolean)
                           return (
                             <div
@@ -306,7 +308,7 @@ export default function EvaluationsClient({
                                       marginTop: 2,
                                     }}
                                   >
-                                    Completato ✓
+                                    {t.eval_done}
                                   </span>
                                 ) : (
                                   <Link
@@ -359,7 +361,7 @@ export default function EvaluationsClient({
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
               >
-                Vedi mappa di attrattività
+                {t.eval_go_map}
                 <ChevronRight size={16} />
               </Link>
             </div>

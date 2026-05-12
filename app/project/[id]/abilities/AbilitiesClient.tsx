@@ -8,6 +8,7 @@ import { Send, Loader2, Plus, X, ChevronRight, ChevronDown, Pencil } from 'lucid
 import type { ChatMessage, Ability } from '@/lib/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useToast } from '@/components/ui/toast'
+import { useI18n } from '@/lib/i18n/context'
 
 // ─── Local ability (table row) ────────────────────────────────────────────────
 
@@ -27,7 +28,11 @@ type ExtractedOpportunity = {
 
 // ─── System prompt ────────────────────────────────────────────────────────────
 
-const BASE_SYSTEM_PROMPT = `You are a strategic advisor helping a founder map their core capabilities and expertise. Your only goal is to understand what they know how to do.
+function buildBasePrompt(lang: string): string {
+  const langInstruction = lang === 'it'
+    ? 'Use Italian for all your responses.'
+    : 'Use English for all your responses.'
+  return `You are a strategic advisor helping a founder map their core capabilities and expertise. Your only goal is to understand what they know how to do.
 
 Ask about their technical skills, proprietary methods, unique data or assets, domain expertise, and any other specific competencies they have built. Ask follow-up questions that build on what they just said.
 
@@ -40,15 +45,17 @@ Rules you must follow without exception:
 - Never ask for permission or confirmation before moving on. Just ask the next question.
 - After four to five exchanges you have enough information. Wrap up the conversation naturally with a short closing statement. Do not keep asking for more.
 
-Detect the language of the user's first message and use that language throughout the entire conversation. If no user message yet, start in Italian.`
+${langInstruction}`
+}
 
-function buildSystemPrompt(abilities: LocalAbility[]): string {
-  if (abilities.length === 0) return BASE_SYSTEM_PROMPT
+function buildSystemPrompt(abilities: LocalAbility[], lang: string): string {
+  const base = buildBasePrompt(lang)
+  if (abilities.length === 0) return base
   const list = abilities.map((a) => `- ${a.name}: ${a.description}`).join('\n')
-  return `${BASE_SYSTEM_PROMPT}
-
-Abilità già identificate dal fondatore (non ripeterle, approfondisci solo quelle mancanti):
-${list}`
+  const note = lang === 'it'
+    ? 'Abilità già identificate dal fondatore (non ripeterle, approfondisci solo quelle mancanti):'
+    : 'Abilities already identified by the founder (do not repeat them, only explore missing ones):'
+  return `${base}\n\n${note}\n${list}`
 }
 
 let _localIdSeq = 0
@@ -75,6 +82,7 @@ function AbilityCard({
   onCancel: () => void
   onDelete: () => void
 }) {
+  const { t } = useI18n()
   const [hovered, setHovered] = useState(false)
   const nameRef = useRef<HTMLInputElement>(null)
 
@@ -98,7 +106,7 @@ function AbilityCard({
             if (e.key === 'Enter') { e.preventDefault(); onSave() }
             if (e.key === 'Escape') onCancel()
           }}
-          placeholder="Nome abilità…"
+          placeholder={t.abilities_name_placeholder}
           style={{
             width: '100%',
             fontSize: 13,
@@ -114,7 +122,7 @@ function AbilityCard({
           value={draft.description}
           onChange={(e) => onDraftChange({ ...draft, description: e.target.value })}
           onKeyDown={(e) => { if (e.key === 'Escape') onCancel() }}
-          placeholder="Breve descrizione…"
+          placeholder={t.abilities_desc_placeholder}
           rows={2}
           style={{
             width: '100%',
@@ -141,7 +149,7 @@ function AbilityCard({
               padding: '4px 8px',
             }}
           >
-            Annulla
+            {t.abilities_cancel}
           </button>
           <button
             onClick={onSave}
@@ -156,7 +164,7 @@ function AbilityCard({
               cursor: 'pointer',
             }}
           >
-            Salva
+            {t.abilities_save}
           </button>
         </div>
       </div>
@@ -229,6 +237,7 @@ export default function AbilitiesClient({
   const router = useRouter()
   const supabase = createClient()
   const { toast } = useToast()
+  const { t, lang } = useI18n()
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -383,7 +392,7 @@ export default function AbilitiesClient({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         messages: messagesToSend,
-        systemPrompt: buildSystemPrompt(tableAbilitiesRef.current),
+        systemPrompt: buildSystemPrompt(tableAbilitiesRef.current, lang),
         stream: true,
       }),
     })
@@ -461,7 +470,7 @@ export default function AbilitiesClient({
       const res = await fetch('/api/extract-opportunities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversation }),
+        body: JSON.stringify({ conversation, language: lang }),
       })
       const { opportunities: opps } = await res.json()
       if (opps?.length > 0) {
@@ -549,21 +558,56 @@ export default function AbilitiesClient({
         >
           {/* Header */}
           <div style={{ padding: '32px 36px 20px', flexShrink: 0 }}>
-            <h1
-              style={{
-                fontFamily: "'Lora', Georgia, serif",
-                fontWeight: 400,
-                fontSize: 34,
-                letterSpacing: '-0.03em',
-                color: 'var(--color-ink)',
-                marginBottom: 4,
-              }}
-            >
-              Le tue abilità
-            </h1>
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>
-              Inseriscile manualmente o lascia che la chat ti aiuti a scoprirle.
-            </p>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+              <div>
+                <h1
+                  style={{
+                    fontFamily: "'Lora', Georgia, serif",
+                    fontWeight: 400,
+                    fontSize: 34,
+                    letterSpacing: '-0.03em',
+                    color: 'var(--color-ink)',
+                    marginBottom: 4,
+                  }}
+                >
+                  {t.abilities_title}
+                </h1>
+                <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>
+                  {t.abilities_subtitle}
+                </p>
+              </div>
+              {tableAbilities.filter((a) => a.name.trim()).length >= 1 && (
+                <button
+                  onClick={() => router.push(`/project/${project.id}/opportunities`)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 16px',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: '#FFFFFF',
+                    backgroundColor: 'var(--color-amber)',
+                    border: 'none',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    transition: 'background-color 0.15s ease, box-shadow 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#A8612A'
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                    e.currentTarget.style.boxShadow = 'none'
+                  }}
+                >
+                  {t.abilities_continue}
+                  <ChevronRight size={14} />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Scrollable content */}
@@ -581,7 +625,7 @@ export default function AbilitiesClient({
                 }}
               >
                 <p style={{ fontSize: 13, color: 'var(--color-text-faint)', fontStyle: 'italic', margin: 0 }}>
-                  Nessuna abilità ancora — aggiungi una manualmente o usa la chat.
+                  {t.abilities_empty}
                 </p>
               </div>
             ) : (
@@ -648,7 +692,7 @@ export default function AbilitiesClient({
               }}
             >
               <Plus size={14} />
-              Aggiungi abilità
+              {t.abilities_add}
             </button>
 
             {/* ── Opportunities section ── */}
@@ -664,7 +708,7 @@ export default function AbilitiesClient({
                     marginBottom: 12,
                   }}
                 >
-                  Applicazioni di mercato ({opportunities.length})
+                  {t.abilities_market_apps} ({opportunities.length})
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
@@ -781,14 +825,14 @@ export default function AbilitiesClient({
                       <Loader2 size={16} className="animate-spin" />
                     ) : (
                       <>
-                        Genera applicazioni ({opportunities.length})
+                        {t.abilities_generate} ({opportunities.length})
                         <ChevronRight size={16} />
                       </>
                     )}
                   </button>
                 ) : (
                   <p style={{ fontSize: 12, color: 'var(--color-text-faint)', textAlign: 'center' }}>
-                    Le applicazioni appariranno man mano che la conversazione prosegue.
+                    {t.abilities_apps_hint}
                   </p>
                 )}
               </div>
@@ -796,7 +840,7 @@ export default function AbilitiesClient({
 
             {opportunities.length === 0 && tableAbilities.length > 0 && (
               <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
-                Le applicazioni di mercato appariranno qui dopo alcune risposte nella chat.
+                {t.abilities_apps_hint}
               </p>
             )}
           </div>
@@ -821,10 +865,10 @@ export default function AbilitiesClient({
             }}
           >
             <h2 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 2 }}>
-              Scopri le tue abilità
+              {t.abilities_chat_title}
             </h2>
             <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: 0 }}>
-              La chat ti guida — aggiungi le abilità emerse alla tabella.
+              {t.abilities_chat_subtitle}
             </p>
           </div>
 
@@ -915,7 +959,7 @@ export default function AbilitiesClient({
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       >
                         <Plus size={10} />
-                        Aggiungi alla tabella:{' '}
+                        {t.abilities_add_table}{' '}
                         <span style={{ fontWeight: 600 }}>{sug.name}</span>
                       </button>
                     ))}
@@ -973,7 +1017,7 @@ export default function AbilitiesClient({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
                 }}
-                placeholder="Scrivi la tua risposta… (Invio per inviare)"
+                placeholder={t.abilities_chat_placeholder}
                 disabled={loading}
                 rows={1}
                 className="resize-none outline-none disabled:opacity-50"

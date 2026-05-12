@@ -7,15 +7,7 @@ import BackButton from '@/components/BackButton'
 import { ChevronRight, Loader2 } from 'lucide-react'
 import type { Opportunity } from '@/lib/types'
 import { motion } from 'framer-motion'
-
-const DIMENSIONS = [
-  { label: 'Ragione d\'acquisto',    desc: 'Quanto urgentemente i clienti ne hanno bisogno?' },
-  { label: 'Volume di mercato',      desc: 'Quanto è grande il mercato indirizzabile?' },
-  { label: 'Viabilità economica',    desc: 'Quali sono i margini e le economie unitarie?' },
-  { label: 'Ostacoli implementativi', desc: 'Quanto è difficile costruirlo e lanciarlo?' },
-  { label: 'Tempo al ricavo',        desc: 'Quanto ci vorrà per generare ricavi significativi?' },
-  { label: 'Rischi esterni',         desc: 'Rischi normativi, competitivi e macro.' },
-]
+import { useI18n } from '@/lib/i18n/context'
 
 export default function ContextClient({
   project,
@@ -25,8 +17,18 @@ export default function ContextClient({
   opportunity: Opportunity
 }) {
   const router = useRouter()
+  const { t } = useI18n()
   const [context, setContext] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const DIMENSIONS = [
+    { label: t.dim_reason_to_buy,              desc: t.ctx_dim_reason_to_buy },
+    { label: t.dim_market_volume,              desc: t.ctx_dim_market_volume },
+    { label: t.dim_economic_viability,         desc: t.ctx_dim_economic_viability },
+    { label: t.dim_implementation_obstacles,   desc: t.ctx_dim_implementation_obstacles },
+    { label: t.dim_time_to_revenue,            desc: t.ctx_dim_time_to_revenue },
+    { label: t.dim_external_risks,             desc: t.ctx_dim_external_risks },
+  ]
 
   function handleGenerate() {
     setLoading(true)
@@ -41,7 +43,7 @@ export default function ContextClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
-        <BackButton href={`/project/${project.id}/opportunities`} label="Torna alle opportunità" />
+        <BackButton href={`/project/${project.id}/opportunities`} label={t.ctx_back} />
 
         <div style={{ maxWidth: 896 }}>
           <h1
@@ -74,15 +76,15 @@ export default function ContextClient({
                 marginBottom: 4,
               }}
             >
-              Aggiungi contesto (opzionale)
+              {t.ctx_context_title}
             </h2>
             <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 16 }}>
-              Descrivi all'AI tutto ciò che dovrebbe sapere prima di valutare questa opportunità — es. clienti esistenti, esperienza del team, partnership, vantaggi competitivi.
+              {t.ctx_context_desc}
             </p>
             <textarea
               value={context}
               onChange={(e) => setContext(e.target.value)}
-              placeholder="es. Abbiamo già 3 clienti paganti in questo segmento. Il nostro team ha 5 anni di esperienza nel software manifatturiero."
+              placeholder={t.ctx_context_placeholder}
               rows={5}
               className="w-full px-4 py-3 text-sm resize-none outline-none transition-colors"
               style={{
@@ -116,7 +118,7 @@ export default function ContextClient({
                 marginBottom: 16,
               }}
             >
-              L'AI valuterà su 6 dimensioni
+              {t.ctx_dims_title}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {DIMENSIONS.map((d) => (
@@ -160,7 +162,7 @@ export default function ContextClient({
               <Loader2 size={16} className="animate-spin" />
             ) : (
               <>
-                Genera valutazione
+                {t.ctx_generate_btn}
                 <ChevronRight size={16} />
               </>
             )}

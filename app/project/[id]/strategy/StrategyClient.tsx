@@ -11,6 +11,7 @@ import { computeCategory } from '@/lib/types'
 import type { Opportunity, Strategy, Classification } from '@/lib/types'
 import { motion } from 'framer-motion'
 import { useToast } from '@/components/ui/toast'
+import { useI18n } from '@/lib/i18n/context'
 
 export default function StrategyClient({
   project,
@@ -24,6 +25,7 @@ export default function StrategyClient({
   const router = useRouter()
   const supabase = createClient()
   const { toast } = useToast()
+  const { t } = useI18n()
 
   const [pursueNowIds, setPursueNowIds] = useState<string[]>(
     existingStrategy?.pursue_now_opportunity_ids ?? []
@@ -85,7 +87,7 @@ export default function StrategyClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
-        <BackButton href={`/project/${project.id}/map`} label="Torna alla mappa" />
+        <BackButton href={`/project/${project.id}/map`} label={t.strategy_back} />
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1
@@ -97,7 +99,7 @@ export default function StrategyClient({
                 color: 'var(--color-ink)',
               }}
             >
-              Prioritizzazione Strategica
+              {t.strategy_title}
             </h1>
             <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
               Agile Focus Dartboard
@@ -128,9 +130,9 @@ export default function StrategyClient({
             {saving ? (
               <Loader2 size={15} className="animate-spin" />
             ) : saved ? (
-              <><Check size={15} />Salvato</>
+              <><Check size={15} />{t.strategy_saved}</>
             ) : (
-              'Salva strategia'
+              t.strategy_save
             )}
           </button>
         </div>
@@ -141,12 +143,12 @@ export default function StrategyClient({
               <circle cx="50" cy="50" r="35" fill="var(--color-amber-bg)" />
               <circle cx="50" cy="50" r="18" fill="var(--color-linen)" />
             </svg>
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Nessuna opportunità ancora.</p>
+            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>{t.strategy_no_opps}</p>
             <Link
               href={`/project/${project.id}/opportunities`}
               style={{ fontSize: 12, color: 'var(--color-amber)', marginTop: 4, display: 'block' }}
             >
-              Aggiungi prima le opportunità
+              {t.strategy_add_opps_first}
             </Link>
           </div>
         ) : (
@@ -165,7 +167,7 @@ export default function StrategyClient({
                   color: 'var(--color-text-muted)',
                 }}
               >
-                Persegui ora
+                {t.strategy_pursue_now}
               </h2>
 
               {pursueNowOpps.length > 0 && (
@@ -218,7 +220,7 @@ export default function StrategyClient({
                         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)')}
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)')}
                       >
-                        Entra nella fase Twin
+                        {t.strategy_enter_twin}
                         <ChevronRight size={12} />
                       </Link>
                     </div>
@@ -238,7 +240,7 @@ export default function StrategyClient({
                       color: 'var(--color-text-faint)',
                     }}
                   >
-                    {pursueNowOpps.length === 0 ? 'Seleziona opportunità da perseguire' : 'Aggiungi altri'}
+                    {pursueNowOpps.length === 0 ? t.strategy_select_opps : t.strategy_add_more}
                   </p>
                   <div className="space-y-2">
                     {evaluatedOpps
@@ -275,7 +277,7 @@ export default function StrategyClient({
                   </div>
                   {evaluatedOpps.filter((o) => !pursueNowIds.includes(o.id)).length === 0 && (
                     <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
-                      Tutte le opportunità valutate sono già in Persegui ora.
+                      {t.strategy_all_in_pursue}
                     </p>
                   )}
                 </div>
@@ -283,7 +285,7 @@ export default function StrategyClient({
 
               {evaluatedOpps.length === 0 && (
                 <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
-                  Valuta prima le opportunità per selezionarle qui.
+                  {t.strategy_evaluate_first}
                 </p>
               )}
             </div>
@@ -301,10 +303,10 @@ export default function StrategyClient({
                   color: 'var(--color-text-muted)',
                 }}
               >
-                Mantieni opzioni aperte
+                {t.strategy_keep_options}
               </h2>
               {otherOpps.length === 0 ? (
-                <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>Nessun'altra opportunità.</p>
+                <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>{t.strategy_none_other}</p>
               ) : (
                 <div className="space-y-3">
                   {otherOpps.map((opp) => {
@@ -334,7 +336,7 @@ export default function StrategyClient({
                                 className="px-2 py-0.5 rounded-full"
                                 style={{ fontSize: 10, fontWeight: 500, backgroundColor: 'var(--color-linen)', color: 'var(--color-text-muted)' }}
                               >
-                                Non valutata
+                                {t.strategy_not_evaluated}
                               </span>
                             )}
                             <span
@@ -380,28 +382,28 @@ export default function StrategyClient({
                   color: 'var(--color-text-muted)',
                 }}
               >
-                Riepilogo strategia
+                {t.strategy_summary}
               </h2>
 
               <div className="space-y-4">
                 {[
                   {
-                    title: `Persegui ora (${pursueNowOpps.length})`,
+                    title: `${t.strategy_pursue_now_count} (${pursueNowOpps.length})`,
                     items: pursueNowOpps,
                     dotColor: 'var(--color-amber)',
-                    emptyText: 'Nessuno selezionato',
+                    emptyText: t.strategy_empty_selected,
                   },
                   {
-                    title: 'Mantieni opzioni aperte',
+                    title: t.strategy_keep_options,
                     items: [...growthOpps, ...backupOpps],
                     dotColor: 'var(--color-sage)',
-                    emptyText: 'Nessuno ancora',
+                    emptyText: t.strategy_empty_keep,
                   },
                   {
-                    title: 'Archivia',
+                    title: t.strategy_archive,
                     items: storageOpps,
                     dotColor: 'var(--color-linen)',
-                    emptyText: 'Nessuno',
+                    emptyText: t.strategy_empty_archive,
                   },
                 ].map(({ title, items, dotColor, emptyText }) => (
                   <div

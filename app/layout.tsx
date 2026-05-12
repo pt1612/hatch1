@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { ToastProvider } from '@/components/ui/toast'
+import { I18nProvider } from '@/lib/i18n/context'
 
 export const metadata: Metadata = {
   title: 'Hatch — From idea to venture',
@@ -28,7 +29,9 @@ export default function RootLayout({
           fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         }}
       >
-        <ToastProvider>{children}</ToastProvider>
+        <I18nProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </I18nProvider>
       </body>
     </html>
   )

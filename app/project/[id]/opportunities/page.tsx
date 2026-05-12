@@ -34,11 +34,18 @@ export default async function OpportunitiesPage({ params }: { params: Promise<{ 
     evaluations = data ?? []
   }
 
+  const { data: abilities } = await supabase
+    .from('abilities')
+    .select('*')
+    .eq('project_id', id)
+    .order('created_at', { ascending: true })
+
   return (
     <OpportunitiesClient
       project={project}
       opportunities={opportunities ?? []}
       evaluations={evaluations}
+      abilities={abilities ?? []}
     />
   )
 }

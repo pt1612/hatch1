@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import { Plus, ArrowRight, MoreHorizontal, Calendar, Pencil } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useI18n } from '@/lib/i18n/context'
 
 const PHASE_LABELS = ['Abilities', 'Evaluation', 'Map', 'Strategy']
 
@@ -32,14 +33,18 @@ export default function DashboardClient({
 }) {
   const router = useRouter()
   const supabase = createClient()
+  const { t, lang } = useI18n()
   const [creating, setCreating] = useState(false)
   const [projectList, setProjectList] = useState(projects)
   const [deleting, setDeleting] = useState<string | null>(null)
 
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Buongiorno' : hour < 17 ? 'Buon pomeriggio' : 'Buona sera'
+  const greeting = hour < 12 ? t.dash_greeting_morning : hour < 17 ? t.dash_greeting_afternoon : t.dash_greeting_evening
   const firstName = userName?.split(' ')[0] ?? ''
   const activeCount = projects.filter((p) => p.completed_phases.some(Boolean)).length
+  const activeText = lang === 'it'
+    ? `Hai ${activeCount} progetto${activeCount === 1 ? '' : 'i'} attivo${activeCount === 1 ? '' : 'i'}.`
+    : `You have ${activeCount} active project${activeCount === 1 ? '' : 's'}.`
 
   async function handleRename(projectId: string, newName: string) {
     const trimmed = newName.trim()
@@ -51,7 +56,7 @@ export default function DashboardClient({
   }
 
   async function handleDeleteProject(projectId: string) {
-    if (!window.confirm('Eliminare questo progetto? Tutte le opportunità, i Twin, le interviste e i canvas verranno rimossi definitivamente.')) return
+    if (!window.confirm(t.dash_delete_confirm)) return
     setDeleting(projectId)
     try {
       const { data: opps } = await supabase.from('opportunities').select('id').eq('project_id', projectId)
@@ -81,7 +86,7 @@ export default function DashboardClient({
     setCreating(true)
     const { data, error } = await supabase
       .from('projects')
-      .insert({ user_id: userId, title: 'Nuovo Progetto' })
+      .insert({ user_id: userId, title: t.dash_new_project_title })
       .select()
       .single()
     if (!error && data) {
@@ -114,9 +119,7 @@ export default function DashboardClient({
                 {greeting}{firstName ? `, ${firstName}` : ''}.
               </h1>
               <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
-                {projects.length === 0
-                  ? 'Nessun progetto ancora — crea il primo.'
-                  : `Hai ${activeCount} progetto${activeCount === 1 ? '' : 'i'} attivo${activeCount === 1 ? '' : 'i'}.`}
+                {projects.length === 0 ? t.dash_no_projects : activeText}
               </p>
             </div>
             <button
@@ -144,7 +147,7 @@ export default function DashboardClient({
               }}
             >
               <Plus size={16} />
-              {creating ? 'Creazione…' : 'Nuovo progetto'}
+              {creating ? t.dash_creating : t.dash_new_project}
             </button>
           </div>
 
@@ -166,7 +169,7 @@ export default function DashboardClient({
                   marginBottom: 20,
                 }}
               >
-                Inizia il tuo primo progetto.
+                {t.dash_empty_tagline}
               </p>
               <button
                 onClick={handleNewProject}
@@ -193,7 +196,7 @@ export default function DashboardClient({
                 }}
               >
                 <Plus size={16} />
-                {creating ? 'Creazione…' : 'Crea il primo progetto'}
+                {creating ? t.dash_creating : t.dash_create_first_project}
               </button>
             </div>
           )}
@@ -238,6 +241,7 @@ function ProjectCard({
   onDelete: () => void
   onRename: (newName: string) => void
 }) {
+  const { t } = useI18n()
   const [menuOpen, setMenuOpen] = useState(false)
   const [hoveringTitle, setHoveringTitle] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -265,12 +269,12 @@ function ProjectCard({
         padding: 24,
         transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
       }}
-      onMouseEnter={(e) => {
+      onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
         const el = e.currentTarget as HTMLElement
         el.style.borderColor = 'var(--color-amber)'
         el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
         const el = e.currentTarget as HTMLElement
         el.style.borderColor = 'var(--color-border)'
         el.style.boxShadow = 'none'
@@ -379,7 +383,7 @@ function ProjectCard({
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                 onClick={() => { setMenuOpen(false); onDelete() }}
               >
-                {isDeleting ? 'Eliminazione…' : 'Elimina'}
+                {isDeleting ? t.dash_deleting : t.dash_delete}
               </button>
             </div>
           )}
@@ -396,11 +400,11 @@ function ProjectCard({
             fontWeight: 500,
           }}
         >
-          {project.opportunity_count} opportunità
+          {project.opportunity_count} {t.dash_opportunities}
         </span>
         {project.evaluated_count > 0 && (
           <span style={{ color: 'var(--color-text-faint)' }}>
-            {project.evaluated_count}/{project.opportunity_count} valutate
+            {project.evaluated_count}/{project.opportunity_count} {t.dash_evaluated}
           </span>
         )}
       </div>
@@ -409,7 +413,7 @@ function ProjectCard({
       <div>
         <div className="flex items-center justify-between mb-2">
           <span style={{ fontSize: 11, color: 'var(--color-text-faint)' }}>
-            {completed}/{total} fasi
+            {completed}/{total} {t.dash_phases}
           </span>
         </div>
         <div className="flex gap-1">
@@ -483,7 +487,7 @@ function ProjectCard({
           e.currentTarget.style.boxShadow = 'none'
         }}
       >
-        Continua
+        {t.dash_continue}
         <ArrowRight size={15} />
       </Link>
     </motion.div>

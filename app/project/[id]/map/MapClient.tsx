@@ -8,6 +8,7 @@ import { ChevronRight } from 'lucide-react'
 import { MAP_DOT_PALETTE, SCORE_TO_POSITION } from '@/lib/constants'
 import type { Opportunity } from '@/lib/types'
 import { motion } from 'framer-motion'
+import { useI18n } from '@/lib/i18n/context'
 
 const JITTER_PX = 20
 
@@ -30,16 +31,17 @@ export default function MapClient({
   opportunities: OppWithReport[]
 }) {
   const [tooltip, setTooltip] = useState<string | null>(null)
+  const { t } = useI18n()
 
   const evaluated = opportunities.filter((o) => o.potential_score && o.challenge_score && o.report)
 
   function getQuadrantLabel(potential: string, challenge: string) {
     const highPotential = potential === 'high' || potential === 'super_high'
     const highChallenge = challenge === 'high' || challenge === 'super_high'
-    if (highPotential && !highChallenge) return 'Miniera d\'oro'
-    if (highPotential && highChallenge) return 'Grande sfida'
-    if (!highPotential && !highChallenge) return 'Vittoria rapida'
-    return 'Discutibile'
+    if (highPotential && !highChallenge) return 'Gold mine'
+    if (highPotential && highChallenge) return 'Moonshot'
+    if (!highPotential && !highChallenge) return 'Quick win'
+    return 'Questionable'
   }
 
   return (
@@ -47,7 +49,7 @@ export default function MapClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
-        <BackButton href={`/project/${project.id}/evaluations`} label="Torna alla valutazione" />
+        <BackButton href={`/project/${project.id}/evaluations`} label={t.map_back} />
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1
@@ -59,10 +61,10 @@ export default function MapClient({
                 color: 'var(--color-ink)',
               }}
             >
-              Mappa di Attrattività
+              Attractiveness Map
             </h1>
             <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
-              {`${evaluated.length} opportunità valutata${evaluated.length === 1 ? '' : 'e'}`}
+              {`${evaluated.length} ${t.map_evaluated}${evaluated.length === 1 ? t.map_evaluated_singular : t.map_evaluated_plural}`}
             </p>
           </div>
           {evaluated.length >= 2 && (
@@ -78,7 +80,7 @@ export default function MapClient({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
-              Continua alla strategia
+              {t.map_continue}
               <ChevronRight size={15} />
             </Link>
           )}
@@ -101,13 +103,13 @@ export default function MapClient({
                 marginBottom: 8,
               }}
             >
-              Nessuna opportunità valutata ancora.
+              {t.map_empty}
             </p>
             <Link
               href={`/project/${project.id}/evaluations`}
               style={{ fontSize: 12, color: 'var(--color-amber)' }}
             >
-              Vai a valutare le opportunità
+              {t.map_go_evaluate}
             </Link>
           </div>
         ) : (
@@ -128,7 +130,7 @@ export default function MapClient({
                       transformOrigin: 'center',
                     }}
                   >
-                    Difficoltà ↑
+                    Difficulty ↑
                   </span>
                 </div>
 
@@ -148,12 +150,12 @@ export default function MapClient({
                   <div className="absolute left-1/2 top-0 bottom-0 w-px" style={{ backgroundColor: 'var(--color-border)' }} />
                   <div className="absolute top-1/2 left-0 right-0 h-px" style={{ backgroundColor: 'var(--color-border)' }} />
 
-                  {/* Quadrant labels */}
+                  {/* Quadrant labels — Y axis: top = high difficulty, bottom = low difficulty */}
                   {[
-                    { x: '25%', y: '10%', label: 'Vittoria rapida', color: 'var(--color-warm-gray)' },
-                    { x: '75%', y: '10%', label: 'Miniera d\'oro', color: 'var(--color-sage)' },
-                    { x: '25%', y: '60%', label: 'Discutibile', color: 'var(--color-text-faint)' },
-                    { x: '75%', y: '60%', label: 'Grande sfida', color: 'var(--color-amber)' },
+                    { x: '25%', y: '10%', label: 'Questionable', color: 'var(--color-text-faint)' },
+                    { x: '75%', y: '10%', label: 'Moonshot',     color: 'var(--color-amber)' },
+                    { x: '25%', y: '60%', label: 'Quick win',    color: 'var(--color-warm-gray)' },
+                    { x: '75%', y: '60%', label: 'Gold mine',    color: 'var(--color-sage)' },
                   ].map(({ x, y, label, color }) => (
                     <span
                       key={label}
@@ -217,10 +219,10 @@ export default function MapClient({
                           >
                             <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4 }}>{opp.name}</p>
                             <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
-                              Potenziale: <span style={{ fontWeight: 500, color: 'var(--color-ink)' }}>{opp.potential_score?.replace('_', ' ')}</span>
+                              {t.map_tooltip_potential} <span style={{ fontWeight: 500, color: 'var(--color-ink)' }}>{opp.potential_score?.replace('_', ' ')}</span>
                             </p>
                             <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
-                              Difficoltà: <span style={{ fontWeight: 500, color: 'var(--color-ink)' }}>{opp.challenge_score?.replace('_', ' ')}</span>
+                              {t.map_tooltip_challenge} <span style={{ fontWeight: 500, color: 'var(--color-ink)' }}>{opp.challenge_score?.replace('_', ' ')}</span>
                             </p>
                             {opp.report?.summary && (
                               <p
@@ -248,7 +250,7 @@ export default function MapClient({
                   letterSpacing: '0.1em',
                 }}
               >
-                Potenziale →
+                Potential →
               </p>
 
               <div className="mt-6 flex justify-end">
@@ -264,7 +266,7 @@ export default function MapClient({
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
                 >
-                  Continua alla Prioritizzazione Strategica →
+                  {t.map_go_strategy}
                 </Link>
               </div>
             </div>
@@ -281,7 +283,7 @@ export default function MapClient({
                   color: 'var(--color-text-muted)',
                 }}
               >
-                Legenda
+                {t.map_legend}
               </h3>
               <div className="space-y-2">
                 {evaluated.map((opp, idx) => (
@@ -312,7 +314,7 @@ export default function MapClient({
                       color: 'var(--color-text-faint)',
                     }}
                   >
-                    Non ancora valutate
+                    {t.map_not_evaluated}
                   </p>
                   {opportunities
                     .filter((o) => !o.potential_score)
