@@ -241,7 +241,7 @@ function ProjectCard({
   onDelete: () => void
   onRename: (newName: string) => void
 }) {
-  const { t } = useI18n()
+  const { t, lang } = useI18n()
   const [menuOpen, setMenuOpen] = useState(false)
   const [hoveringTitle, setHoveringTitle] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -250,7 +250,7 @@ function ProjectCard({
   const total = project.completed_phases.length
   const isDraft = completed === 0
 
-  const formattedDate = new Date(project.updated_at).toLocaleDateString('en-US', {
+  const formattedDate = new Date(project.updated_at).toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

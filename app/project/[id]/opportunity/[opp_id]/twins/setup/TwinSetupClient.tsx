@@ -11,6 +11,7 @@ import { TWIN_AVATAR_COLORS } from '@/lib/constants'
 import type { Opportunity, TwinRow } from '@/lib/types'
 import { motion } from 'framer-motion'
 import { useToast } from '@/components/ui/toast'
+import { useI18n } from '@/lib/i18n/context'
 
 type MinimalTwin = {
   id: string
@@ -44,6 +45,7 @@ export default function TwinSetupClient({
   const router = useRouter()
   const supabase = createClient()
   const { toast } = useToast()
+  const { t } = useI18n()
 
   const [segments, setSegments] = useState<string[]>(twinSession?.suggested_segments ?? [])
   const [newSegment, setNewSegment] = useState('')
@@ -51,7 +53,7 @@ export default function TwinSetupClient({
   const [loadingSegments, setLoadingSegments] = useState(segments.length === 0)
 
   const [twins, setTwins] = useState<MinimalTwin[]>(
-    existingTwins.length > 0 ? existingTwins.map((t, i) => twinRowToMinimalTwin(t, i)) : []
+    existingTwins.length > 0 ? existingTwins.map((tw, i) => twinRowToMinimalTwin(tw, i)) : []
   )
   const [generatingTwins, setGeneratingTwins] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -99,17 +101,17 @@ export default function TwinSetupClient({
     })
     const { twins: generated } = await res.json()
     const mapped: MinimalTwin[] = (generated ?? []).map(
-      (t: { id: string; name: string; occupation?: string; role?: string; segment: string; context: string }) => ({
-        id: t.id,
-        name: t.name,
-        role: t.occupation ?? t.role ?? '',
-        segment: t.segment,
-        context: t.context ?? '',
+      (tw: { id: string; name: string; occupation?: string; role?: string; segment: string; context: string }) => ({
+        id: tw.id,
+        name: tw.name,
+        role: tw.occupation ?? tw.role ?? '',
+        segment: tw.segment,
+        context: tw.context ?? '',
       })
     )
     setTwins(mapped)
     setGeneratingTwins(false)
-    toast('Profili Twin generati')
+    toast(t.toast_twin_generated)
   }
 
   async function handleStartInterviews() {
@@ -122,13 +124,13 @@ export default function TwinSetupClient({
     }
     await supabase.from('twins').delete().eq('opportunity_id', opportunity.id)
     await supabase.from('twins').insert(
-      twins.map((t) => ({
+      twins.map((tw) => ({
         project_id: project.id,
         opportunity_id: opportunity.id,
-        name: t.name,
-        role: t.role,
-        segment: t.segment,
-        personality: t.context,
+        name: tw.name,
+        role: tw.role,
+        segment: tw.segment,
+        personality: tw.context,
         pain_points: [],
         tech_level: 'medium',
         budget_tier: 'mid',
@@ -144,7 +146,7 @@ export default function TwinSetupClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
-        <BackButton href={`/project/${project.id}/evaluations`} label="Torna alla valutazione" />
+        <BackButton href={`/project/${project.id}/evaluations`} label={t.twin_back} />
 
         <div className="mb-6">
           <h1
@@ -156,7 +158,7 @@ export default function TwinSetupClient({
               color: 'var(--color-ink)',
             }}
           >
-            Configurazione Twin
+            {t.twin_title}
           </h1>
           <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
         </div>
@@ -175,7 +177,7 @@ export default function TwinSetupClient({
                 color: 'var(--color-ink)',
               }}
             >
-              Segmenti di mercato
+              {t.twin_segments_title}
             </h2>
             <button
               onClick={suggestSegments}
@@ -184,17 +186,17 @@ export default function TwinSetupClient({
               style={{ fontSize: 12, color: 'var(--color-amber)', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               <RefreshCw size={11} />
-              Ri-suggerisci
+              {t.twin_re_suggest}
             </button>
           </div>
           <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 16 }}>
-            Segmenti suggeriti dall'AI. Modifica, rimuovi o aggiungi i tuoi.
+            {t.twin_segments_desc}
           </p>
 
           {loadingSegments ? (
             <div className="flex items-center gap-2" style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
               <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
-              Suggerimento segmenti…
+              {t.twin_loading_segments}
             </div>
           ) : (
             <>
@@ -223,7 +225,7 @@ export default function TwinSetupClient({
                   value={newSegment}
                   onChange={(e) => setNewSegment(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && addSegment()}
-                  placeholder="Aggiungi segmento…"
+                  placeholder={t.twin_add_segment_placeholder}
                   className="flex-1 px-3 py-2 text-xs outline-none transition-colors"
                   style={{
                     backgroundColor: '#FFFFFF',
@@ -248,7 +250,7 @@ export default function TwinSetupClient({
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
                 >
                   <Plus size={12} />
-                  Aggiungi
+                  {t.common_add}
                 </button>
               </div>
             </>
@@ -269,7 +271,7 @@ export default function TwinSetupClient({
               marginBottom: 16,
             }}
           >
-            Numero di Twin
+            {t.twin_count_title}
           </h2>
           <div className="flex items-center gap-3 mb-5">
             {[2, 3, 4, 5].map((n) => (
@@ -318,11 +320,11 @@ export default function TwinSetupClient({
             {generatingTwins ? (
               <>
                 <Loader2 size={15} className="animate-spin" />
-                Generazione profili…
+                {t.twin_generating}
               </>
             ) : (
               <>
-                Genera profili Twin
+                {t.twin_generate}
                 <ChevronRight size={15} />
               </>
             )}
@@ -341,7 +343,7 @@ export default function TwinSetupClient({
                 marginBottom: 16,
               }}
             >
-              Profili Twin ({twins.length})
+              {t.twin_profiles_title.replace('{n}', String(twins.length))}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
               {twins.map((twin, idx) => {
@@ -376,7 +378,7 @@ export default function TwinSetupClient({
                         />
                         <button
                           onClick={() => {
-                            setTwins((prev) => prev.map((t, i) => (i === idx ? { ...t, name: editName } : t)))
+                            setTwins((prev) => prev.map((tw, i) => (i === idx ? { ...tw, name: editName } : tw)))
                             setEditingIdx(null)
                           }}
                         >
@@ -458,7 +460,7 @@ export default function TwinSetupClient({
                 <Loader2 size={15} className="animate-spin" />
               ) : (
                 <>
-                  Inizia interviste
+                  {t.twin_start_interviews}
                   <ChevronRight size={15} />
                 </>
               )}

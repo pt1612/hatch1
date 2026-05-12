@@ -10,13 +10,53 @@ import { TWIN_AVATAR_COLORS, TWIN_BUBBLE_COLORS } from '@/lib/constants'
 import { getTwinIndex, getInitials, formatTime } from '@/lib/types'
 import type { TwinMessage, DigitalTwin, Opportunity } from '@/lib/types'
 import { motion } from 'framer-motion'
+import { useI18n } from '@/lib/i18n/context'
 
-const QUESTION_CATEGORIES = [
+const QUESTION_CATEGORIES_EN = [
+  {
+    label: 'Problem Validation',
+    questions: [
+      { text: 'Tell me about the last time this cost you real time or money.', hint: 'urgency' },
+      { text: 'What is your current workaround and what do you hate most about it?', hint: 'workaround' },
+      { text: 'How often does this actually block your work — every day, every week?', hint: 'frequency' },
+      { text: 'Have you tried to solve this before? What stopped you?', hint: 'history' },
+    ],
+  },
+  {
+    label: 'Pain',
+    questions: [
+      { text: 'What frustrates you most about how you handle this today?', hint: 'frustration' },
+      { text: 'How much has this problem cost you — in time, money, or stress — in the last month?', hint: 'cost' },
+      { text: 'What would happen if this problem stayed unsolved for another year?', hint: 'consequence' },
+      { text: 'Who else on your team or in your company suffers from this problem?', hint: 'scope' },
+    ],
+  },
+  {
+    label: 'Gain',
+    questions: [
+      { text: 'If this were solved perfectly, how would your day look different?', hint: 'desired outcome' },
+      { text: 'What would success look like 6 months after adopting a solution?', hint: 'success vision' },
+      { text: 'What would make you look good internally if this were solved?', hint: 'social gain' },
+      { text: 'Which part of your workflow would you most like to speed up or simplify?', hint: 'priority' },
+    ],
+  },
+  {
+    label: 'Jobs to be Done',
+    questions: [
+      { text: 'When this problem comes up, what are you ultimately trying to accomplish?', hint: 'functional job' },
+      { text: 'What does "done" look like when you handle this task well?', hint: 'completion criteria' },
+      { text: 'Why does this matter to you beyond the immediate task?', hint: 'deeper motivation' },
+      { text: 'What drives you to look for a solution — what triggers it?', hint: 'trigger' },
+    ],
+  },
+]
+
+const QUESTION_CATEGORIES_IT = [
   {
     label: 'Validazione del problema',
     questions: [
-      { text: 'Raccontami l\'ultima volta che questo ti ha fatto perdere tempo o denaro reale.', hint: 'urgenza' },
-      { text: 'Qual è il tuo workaround attuale e cosa odi di più?', hint: 'workaround' },
+      { text: "Raccontami l'ultima volta che questo ti ha fatto perdere tempo o denaro reale.", hint: 'urgenza' },
+      { text: "Qual è il tuo workaround attuale e cosa odi di più?", hint: 'workaround' },
       { text: 'Con che frequenza questo blocca davvero il tuo lavoro — ogni giorno, ogni settimana?', hint: 'frequenza' },
       { text: 'Hai mai provato a risolvere questo problema prima? Cosa ti ha fermato?', hint: 'storico' },
     ],
@@ -25,7 +65,7 @@ const QUESTION_CATEGORIES = [
     label: 'Pain',
     questions: [
       { text: 'Cosa ti frustra di più nel modo in cui gestisci questo problema oggi?', hint: 'frustrazione' },
-      { text: 'Quanto ti è costato questo problema — in tempo, denaro o stress — nell\'ultimo mese?', hint: 'costo' },
+      { text: "Quanto ti è costato questo problema — in tempo, denaro o stress — nell'ultimo mese?", hint: 'costo' },
       { text: 'Cosa succederebbe se questo problema restasse irrisolto per un altro anno?', hint: 'conseguenza' },
       { text: 'Chi altro nel tuo team o nella tua azienda soffre di questo problema?', hint: 'portata' },
     ],
@@ -113,7 +153,7 @@ function ChatBubble({ message, twins }: { message: TwinMessage; twins: DigitalTw
 
   const twinIdx = getTwinIndex(message.twinId ?? 'twin1')
   const bubbleClass = TWIN_BUBBLE_COLORS[twinIdx % TWIN_BUBBLE_COLORS.length]
-  const twin = twins.find((t) => t.id === message.twinId)
+  const twin = twins.find((tw) => tw.id === message.twinId)
 
   return (
     <motion.div className="flex items-end gap-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18 }}>
@@ -167,6 +207,9 @@ export default function InterviewClient({
 }) {
   const router = useRouter()
   const supabase = createClient()
+  const { t, lang } = useI18n()
+
+  const QUESTION_CATEGORIES = lang === 'it' ? QUESTION_CATEGORIES_IT : QUESTION_CATEGORIES_EN
 
   const [messages, setMessages] = useState<TwinMessage[]>(existingMessages)
   const [input, setInput] = useState('')
@@ -256,7 +299,7 @@ export default function InterviewClient({
         setMessages(finalMessages)
         await persistMessages(finalMessages)
       } else {
-        const twin = twins.find((t) => t.id === selectedTwinId)
+        const twin = twins.find((tw) => tw.id === selectedTwinId)
         const res = await fetch('/api/twin-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -292,15 +335,18 @@ export default function InterviewClient({
         await persistMessages(finalMessages)
       }
     } catch {
-      setMessages((prev) => [...prev, { role: 'assistant', content: 'Qualcosa è andato storto. Riprova.', timestamp: formatTime() }])
+      setMessages((prev) => [...prev, { role: 'assistant', content: t.results_error, timestamp: formatTime() }])
     } finally {
       setLoading(false)
       inputRef.current?.focus()
     }
   }
 
-  const selectedTwin = selectedTwinId !== 'all' ? twins.find((t) => t.id === selectedTwinId) ?? null : null
+  const selectedTwin = selectedTwinId !== 'all' ? twins.find((tw) => tw.id === selectedTwinId) ?? null : null
   const typingTwins = selectedTwinId === 'all' ? twins : selectedTwin ? [selectedTwin] : []
+
+  const missingCount = 2 - userQCount
+  const unlockText = `${missingCount} ${missingCount === 1 ? t.interview_unlock_singular : t.interview_unlock_plural}`
 
   if (twins.length === 0) {
     return (
@@ -308,10 +354,10 @@ export default function InterviewClient({
         <TopNav projectId={project.id} projectTitle={project.title} />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <p style={{ fontFamily: "'Lora', Georgia, serif", fontStyle: 'italic', fontSize: 16, color: 'var(--color-text-muted)', marginBottom: 12 }}>
-            Nessun Twin configurato.
+            {t.interview_no_twins}
           </p>
           <p style={{ fontSize: 13, color: 'var(--color-text-faint)', marginBottom: 20 }}>
-            Crea prima i Twin per questa opportunità prima di iniziare le interviste.
+            {t.interview_no_twins_hint}
           </p>
           <a
             href={`/project/${project.id}/opportunity/${opportunity.id}/twins/setup`}
@@ -322,7 +368,7 @@ export default function InterviewClient({
               borderRadius: 8, textDecoration: 'none',
             }}
           >
-            Configura Twin →
+            {t.interview_go_setup}
           </a>
         </div>
       </div>
@@ -349,7 +395,7 @@ export default function InterviewClient({
               color: 'var(--color-text-muted)',
             }}
           >
-            Partecipanti
+            {t.interview_participants}
           </h2>
 
           <button
@@ -373,7 +419,7 @@ export default function InterviewClient({
             >
               G
             </div>
-            <span style={{ fontSize: 12 }}>Intervista di gruppo</span>
+            <span style={{ fontSize: 12 }}>{t.interview_group}</span>
           </button>
 
           <div className="my-2" style={{ borderTop: '0.5px solid var(--color-border)' }} />
@@ -420,10 +466,10 @@ export default function InterviewClient({
           <div className="mb-3">
             <div className="flex items-center justify-between mb-1.5">
               <span style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)' }}>
-                Progresso
+                {t.interview_progress}
               </span>
               <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)' }}>
-                {userQCount}/6 domande
+                {userQCount}{t.interview_questions_suffix}
               </span>
             </div>
             <div className="w-full rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'var(--color-linen)' }}>
@@ -441,12 +487,12 @@ export default function InterviewClient({
             onMouseEnter={(e) => canReport && ((e.currentTarget).style.backgroundColor = '#A8612A')}
             onMouseLeave={(e) => ((e.currentTarget).style.backgroundColor = 'var(--color-amber)')}
           >
-            Genera risultati
+            {t.interview_generate_results}
             <ChevronRight size={12} />
           </button>
           {!canReport && (
             <p style={{ fontSize: 10, color: 'var(--color-text-faint)', textAlign: 'center', marginTop: 6 }}>
-              {`Mancano ${2 - userQCount} domanda${2 - userQCount !== 1 ? 'e' : ''} per sbloccare`}
+              {unlockText}
             </p>
           )}
         </div>
@@ -461,7 +507,7 @@ export default function InterviewClient({
         >
           <BackButton
             href={`/project/${project.id}/opportunity/${opportunity.id}/twins/setup`}
-            label="Torna alla configurazione"
+            label={t.interview_back}
           />
         </div>
 
@@ -474,10 +520,10 @@ export default function InterviewClient({
                 <path d="M38 50 Q50 38 62 50 Q50 62 38 50" fill="var(--color-amber-light)" opacity="0.5" />
               </svg>
               <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4 }}>
-                Inizia l'intervista
+                {t.interview_start}
               </h3>
               <p style={{ fontSize: 12, color: 'var(--color-text-muted)', maxWidth: 320, lineHeight: '1.6' }}>
-                Chiedi dei pain point, dei risultati desiderati e dei job to be done. Usa Spunti per domande per suggerimenti.
+                {t.interview_prompt_btn}
               </p>
             </div>
           ) : (
@@ -501,7 +547,7 @@ export default function InterviewClient({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
-              Spunti per domande 💡
+              {t.interview_prompt_btn}
               {guidelinesOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
 
@@ -579,7 +625,11 @@ export default function InterviewClient({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input) }
               }}
-              placeholder={selectedTwinId === 'all' ? 'Chiedi a tutti i Twin…' : `Chiedi a ${selectedTwin?.name ?? 'Twin'}…`}
+              placeholder={
+                selectedTwinId === 'all'
+                  ? t.interview_placeholder_all
+                  : t.interview_placeholder_twin.replace('{name}', selectedTwin?.name ?? 'Twin')
+              }
               className="flex-1 px-4 py-3 text-sm resize-none outline-none transition-colors scrollbar-thin"
               style={{
                 backgroundColor: '#FFFFFF',
@@ -606,7 +656,7 @@ export default function InterviewClient({
             </button>
           </div>
           <p style={{ fontSize: 10, color: 'var(--color-text-faint)', marginTop: 8 }}>
-            Invio per inviare · Shift+Invio per nuova riga
+            {t.interview_input_hint}
           </p>
         </div>
       </div>
