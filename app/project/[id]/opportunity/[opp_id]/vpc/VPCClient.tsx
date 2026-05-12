@@ -10,6 +10,7 @@ import { TWIN_AVATAR_COLORS, TWIN_COLORS_HEX } from '@/lib/constants'
 import { getTwinIndex, getInitials, getAffinityDisplay } from '@/lib/types'
 import type { DigitalTwin, TwinInterview, Opportunity } from '@/lib/types'
 import { motion } from 'framer-motion'
+import { useI18n } from '@/lib/i18n/context'
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -178,13 +179,14 @@ function VPCSubCol({
   renderPill: (text: string, index: number) => React.ReactNode
   onAddAll?: () => void
 }) {
+  const { t } = useI18n()
   const [adding, setAdding] = useState(false)
   const [val, setVal] = useState('')
   const [addedAll, setAddedAll] = useState(false)
 
   function submit() {
-    const t = val.trim()
-    if (t) onAdd(t)
+    const trimmed = val.trim()
+    if (trimmed) onAdd(trimmed)
     setVal('')
     setAdding(false)
   }
@@ -221,7 +223,7 @@ function VPCSubCol({
               border: addedAll ? '0.5px solid rgba(76,175,125,0.3)' : '0.5px solid rgba(199,123,58,0.2)',
             }}
           >
-            {addedAll ? '✓ Added' : '+ Add all to VPC'}
+            {addedAll ? t.vpc_added_all : t.vpc_add_all}
           </button>
         )}
       </div>
@@ -241,7 +243,7 @@ function VPCSubCol({
               if (e.key === 'Enter') submit()
               if (e.key === 'Escape') { setAdding(false); setVal('') }
             }}
-            placeholder="Add…"
+            placeholder={t.vpc_add_item}
             className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
             style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
             onFocus={(e) => {
@@ -258,7 +260,7 @@ function VPCSubCol({
             className="text-[10px] px-1.5 py-1 rounded-lg flex-shrink-0"
             style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
           >
-            Add
+            {t.vpc_add_btn}
           </button>
           <button onClick={() => { setAdding(false); setVal('') }} className="flex-shrink-0">
             <X size={10} style={{ color: 'var(--color-text-faint)' }} />
@@ -285,12 +287,13 @@ function FinalSubCol({
   onAdd: (text: string) => void
   onRemove: (index: number) => void
 }) {
+  const { t } = useI18n()
   const [adding, setAdding] = useState(false)
   const [val, setVal] = useState('')
 
   function submit() {
-    const t = val.trim()
-    if (t) onAdd(t)
+    const trimmed = val.trim()
+    if (trimmed) onAdd(trimmed)
     setVal('')
     setAdding(false)
   }
@@ -329,7 +332,7 @@ function FinalSubCol({
               if (e.key === 'Enter') submit()
               if (e.key === 'Escape') { setAdding(false); setVal('') }
             }}
-            placeholder="Add…"
+            placeholder={t.vpc_add_item}
             className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
             style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
             onFocus={(e) => {
@@ -346,7 +349,7 @@ function FinalSubCol({
             className="text-[10px] px-1.5 py-1 rounded-lg flex-shrink-0"
             style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
           >
-            Add
+            {t.vpc_add_btn}
           </button>
           <button onClick={() => { setAdding(false); setVal('') }} className="flex-shrink-0">
             <X size={10} style={{ color: 'var(--color-text-faint)' }} />
@@ -379,6 +382,7 @@ export default function VPCClient({
   existingFinalVPC: unknown
 }) {
   const supabase = createClient()
+  const { t, lang } = useI18n()
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(sessionId)
 
   // ── Per-twin customer profiles (jobs / pains / gains) ───────────────────────
@@ -598,9 +602,9 @@ export default function VPCClient({
 
   // ── Download final VPC as .txt ─────────────────────────────────────────────
   function downloadVPC() {
-    const today = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    const today = new Date().toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })
     const list = (items: FinalVPCItem[]) =>
-      items.length > 0 ? items.map((i) => `- ${i.text}`).join('\n') : '- (nessun elemento)'
+      items.length > 0 ? items.map((i) => `- ${i.text}`).join('\n') : `- (${t.vpc_none_yet})`
 
     const content = [
       'HATCH — Value Proposition Canvas',
@@ -646,7 +650,7 @@ export default function VPCClient({
       <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/twins/results`}
-          label="Torna ai risultati"
+          label={t.vpc_back}
         />
 
         <div className="mb-6">
@@ -675,10 +679,9 @@ export default function VPCClient({
               <rect x="30" y="45" width="30" height="5" rx="2" fill="var(--color-linen)" />
               <rect x="30" y="55" width="35" height="5" rx="2" fill="var(--color-linen)" />
             </svg>
-            <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 8 }}>No VPC data yet</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 8 }}>{t.vpc_no_data_title}</h3>
             <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20, lineHeight: '1.6' }}>
-              Complete at least one twin interview and generate results to start building your Value
-              Proposition Canvas.
+              {t.vpc_no_data_desc}
             </p>
             <Link
               href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`}
@@ -687,7 +690,7 @@ export default function VPCClient({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
-              Go to Twin Interviews
+              {t.vpc_go_interviews}
             </Link>
           </div>
         ) : (
@@ -801,8 +804,8 @@ export default function VPCClient({
                                   title="Products & Services"
                                   items={vm.productsAndServices}
                                   pillClass={PRODUCT_CLASS}
-                                  emptyText="None yet"
-                                  onAdd={(t) => addVMItem(ivId, 'productsAndServices', t)}
+                                  emptyText={t.vpc_none_yet}
+                                  onAdd={(text) => addVMItem(ivId, 'productsAndServices', text)}
                                   onAddAll={() => addSectionToFinalVPC('productsAndServices', vm.productsAndServices, twinIdx)}
                                   renderPill={(text, i) => (
                                     <TwinPill
@@ -819,8 +822,8 @@ export default function VPCClient({
                                   title="Pain Relievers"
                                   items={vm.painRelievers}
                                   pillClass={RELIEVER_CLASS}
-                                  emptyText="None yet"
-                                  onAdd={(t) => addVMItem(ivId, 'painRelievers', t)}
+                                  emptyText={t.vpc_none_yet}
+                                  onAdd={(text) => addVMItem(ivId, 'painRelievers', text)}
                                   onAddAll={() => addSectionToFinalVPC('painRelievers', vm.painRelievers, twinIdx)}
                                   renderPill={(text, i) => (
                                     <TwinPill
@@ -837,8 +840,8 @@ export default function VPCClient({
                                   title="Gain Creators"
                                   items={vm.gainCreators}
                                   pillClass={CREATOR_CLASS}
-                                  emptyText="None yet"
-                                  onAdd={(t) => addVMItem(ivId, 'gainCreators', t)}
+                                  emptyText={t.vpc_none_yet}
+                                  onAdd={(text) => addVMItem(ivId, 'gainCreators', text)}
                                   onAddAll={() => addSectionToFinalVPC('gainCreators', vm.gainCreators, twinIdx)}
                                   renderPill={(text, i) => (
                                     <TwinPill
@@ -864,8 +867,8 @@ export default function VPCClient({
                               title="Jobs to be Done"
                               items={profile?.jobs ?? []}
                               pillClass={JOB_CLASS}
-                              emptyText="No jobs extracted"
-                              onAdd={(t) => addProfileItem(ivId, 'jobs', t)}
+                              emptyText={t.vpc_no_jobs}
+                              onAdd={(text) => addProfileItem(ivId, 'jobs', text)}
                               onAddAll={() => addSectionToFinalVPC('jobs', profile?.jobs ?? [], twinIdx)}
                               renderPill={(text, i) => (
                                 <TwinPill
@@ -882,8 +885,8 @@ export default function VPCClient({
                               title="Pains"
                               items={profile?.pains ?? []}
                               pillClass={PAIN_CLASS}
-                              emptyText="No pains extracted"
-                              onAdd={(t) => addProfileItem(ivId, 'pains', t)}
+                              emptyText={t.vpc_no_pains}
+                              onAdd={(text) => addProfileItem(ivId, 'pains', text)}
                               onAddAll={() => addSectionToFinalVPC('pains', profile?.pains ?? [], twinIdx)}
                               renderPill={(text, i) => (
                                 <TwinPill
@@ -900,8 +903,8 @@ export default function VPCClient({
                               title="Gains"
                               items={profile?.gains ?? []}
                               pillClass={GAIN_CLASS}
-                              emptyText="No gains extracted"
-                              onAdd={(t) => addProfileItem(ivId, 'gains', t)}
+                              emptyText={t.vpc_no_gains}
+                              onAdd={(text) => addProfileItem(ivId, 'gains', text)}
                               onAddAll={() => addSectionToFinalVPC('gains', profile?.gains ?? [], twinIdx)}
                               renderPill={(text, i) => (
                                 <TwinPill
@@ -927,7 +930,7 @@ export default function VPCClient({
             <div>
               <div className="flex items-center justify-between mb-1">
                 <h2 style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', fontFamily: 'inherit' }}>
-                  Your Final Value Proposition Canvas
+                  {t.vpc_your_final}
                 </h2>
                 {hasFinalData && (
                   <button
@@ -942,7 +945,7 @@ export default function VPCClient({
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
                   >
                     <Download size={11} />
-                    Scarica VPC
+                    {t.vpc_download}
                   </button>
                 )}
               </div>
@@ -964,7 +967,7 @@ export default function VPCClient({
                   ))}
                   <span className="flex items-center gap-1.5" style={{ fontSize: 10, color: 'var(--color-text-faint)' }}>
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--color-warm-gray)' }} />
-                    Custom
+                    {t.vpc_legend_custom}
                   </span>
                 </div>
               )}
@@ -972,7 +975,7 @@ export default function VPCClient({
               <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
                 {!hasFinalData && (
                   <div className="px-5 py-4" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>
-                    Canvas is empty — click <Plus size={9} className="inline" /> on any twin pill above to add items here, or use the + buttons below.
+                    {t.vpc_empty_canvas}
                   </div>
                 )}
                 <div className="grid grid-cols-2" style={{ borderTop: hasFinalData ? undefined : '0.5px solid var(--color-border)' }}>
@@ -985,24 +988,24 @@ export default function VPCClient({
                       title="Products & Services"
                       items={finalVPC.productsAndServices}
                       pillClass={PRODUCT_CLASS}
-                      emptyText="None added yet"
-                      onAdd={(t) => addCustomToFinalVPC('productsAndServices', t)}
+                      emptyText={t.vpc_none_added}
+                      onAdd={(text) => addCustomToFinalVPC('productsAndServices', text)}
                       onRemove={(i) => removeFromFinalVPC('productsAndServices', i)}
                     />
                     <FinalSubCol
                       title="Pain Relievers"
                       items={finalVPC.painRelievers}
                       pillClass={RELIEVER_CLASS}
-                      emptyText="None added yet"
-                      onAdd={(t) => addCustomToFinalVPC('painRelievers', t)}
+                      emptyText={t.vpc_none_added}
+                      onAdd={(text) => addCustomToFinalVPC('painRelievers', text)}
                       onRemove={(i) => removeFromFinalVPC('painRelievers', i)}
                     />
                     <FinalSubCol
                       title="Gain Creators"
                       items={finalVPC.gainCreators}
                       pillClass={CREATOR_CLASS}
-                      emptyText="None added yet"
-                      onAdd={(t) => addCustomToFinalVPC('gainCreators', t)}
+                      emptyText={t.vpc_none_added}
+                      onAdd={(text) => addCustomToFinalVPC('gainCreators', text)}
                       onRemove={(i) => removeFromFinalVPC('gainCreators', i)}
                     />
                   </div>
@@ -1016,24 +1019,24 @@ export default function VPCClient({
                       title="Jobs to be Done"
                       items={finalVPC.jobs}
                       pillClass={JOB_CLASS}
-                      emptyText="None added yet"
-                      onAdd={(t) => addCustomToFinalVPC('jobs', t)}
+                      emptyText={t.vpc_none_added}
+                      onAdd={(text) => addCustomToFinalVPC('jobs', text)}
                       onRemove={(i) => removeFromFinalVPC('jobs', i)}
                     />
                     <FinalSubCol
                       title="Pains"
                       items={finalVPC.pains}
                       pillClass={PAIN_CLASS}
-                      emptyText="None added yet"
-                      onAdd={(t) => addCustomToFinalVPC('pains', t)}
+                      emptyText={t.vpc_none_added}
+                      onAdd={(text) => addCustomToFinalVPC('pains', text)}
                       onRemove={(i) => removeFromFinalVPC('pains', i)}
                     />
                     <FinalSubCol
                       title="Gains"
                       items={finalVPC.gains}
                       pillClass={GAIN_CLASS}
-                      emptyText="None added yet"
-                      onAdd={(t) => addCustomToFinalVPC('gains', t)}
+                      emptyText={t.vpc_none_added}
+                      onAdd={(text) => addCustomToFinalVPC('gains', text)}
                       onRemove={(i) => removeFromFinalVPC('gains', i)}
                     />
                   </div>
@@ -1050,7 +1053,7 @@ export default function VPCClient({
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
               >
-                Continue to Business Model Canvas →
+                {t.vpc_continue_bmc}
               </Link>
             </div>
 

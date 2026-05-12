@@ -130,65 +130,74 @@ export default function MapClient({
                       transformOrigin: 'center',
                     }}
                   >
-                    Difficulty ↑
+                    Challenge ↑
                   </span>
                 </div>
 
+                {/* Map outer — no overflow-hidden so tooltips can spill out */}
                 <div
-                  className="relative flex-1 rounded-xl overflow-hidden"
-                  style={{ height: 420, border: '0.5px solid var(--color-border)' }}
+                  className="relative flex-1"
+                  style={{ height: 420, border: '0.5px solid var(--color-border)', borderRadius: 12 }}
                 >
-                  {/* Quadrant backgrounds */}
-                  <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
-                    <div style={{ backgroundColor: 'rgba(180,168,136,0.06)' }} />
-                    <div style={{ backgroundColor: 'rgba(76,175,125,0.06)' }} />
-                    <div style={{ backgroundColor: 'var(--color-cream)' }} />
-                    <div style={{ backgroundColor: 'rgba(199,123,58,0.06)' }} />
+                  {/* Background layer — clipped to rounded corners */}
+                  <div className="absolute inset-0 rounded-xl overflow-hidden">
+                    {/* Quadrant backgrounds */}
+                    <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
+                      <div style={{ backgroundColor: 'rgba(180,168,136,0.06)' }} />
+                      <div style={{ backgroundColor: 'rgba(76,175,125,0.06)' }} />
+                      <div style={{ backgroundColor: 'var(--color-cream)' }} />
+                      <div style={{ backgroundColor: 'rgba(199,123,58,0.06)' }} />
+                    </div>
+
+                    {/* Dividers */}
+                    <div className="absolute left-1/2 top-0 bottom-0 w-px" style={{ backgroundColor: 'var(--color-border)' }} />
+                    <div className="absolute top-1/2 left-0 right-0 h-px" style={{ backgroundColor: 'var(--color-border)' }} />
+
+                    {/* Quadrant labels */}
+                    {[
+                      { x: '25%', y: '10%', label: 'Questionable', color: 'var(--color-text-faint)' },
+                      { x: '75%', y: '10%', label: 'Moonshot',     color: 'var(--color-amber)' },
+                      { x: '25%', y: '60%', label: 'Quick win',    color: 'var(--color-warm-gray)' },
+                      { x: '75%', y: '60%', label: 'Gold mine',    color: 'var(--color-sage)' },
+                    ].map(({ x, y, label, color }) => (
+                      <span
+                        key={label}
+                        className="absolute"
+                        style={{
+                          left: x,
+                          top: y,
+                          transform: 'translateX(-50%)',
+                          fontSize: 10,
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.08em',
+                          color,
+                        }}
+                      >
+                        {label}
+                      </span>
+                    ))}
                   </div>
 
-                  {/* Dividers */}
-                  <div className="absolute left-1/2 top-0 bottom-0 w-px" style={{ backgroundColor: 'var(--color-border)' }} />
-                  <div className="absolute top-1/2 left-0 right-0 h-px" style={{ backgroundColor: 'var(--color-border)' }} />
-
-                  {/* Quadrant labels — Y axis: top = high difficulty, bottom = low difficulty */}
-                  {[
-                    { x: '25%', y: '10%', label: 'Questionable', color: 'var(--color-text-faint)' },
-                    { x: '75%', y: '10%', label: 'Moonshot',     color: 'var(--color-amber)' },
-                    { x: '25%', y: '60%', label: 'Quick win',    color: 'var(--color-warm-gray)' },
-                    { x: '75%', y: '60%', label: 'Gold mine',    color: 'var(--color-sage)' },
-                  ].map(({ x, y, label, color }) => (
-                    <span
-                      key={label}
-                      className="absolute"
-                      style={{
-                        left: x,
-                        top: y,
-                        transform: 'translateX(-50%)',
-                        fontSize: 10,
-                        fontWeight: 600,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
-                        color,
-                      }}
-                    >
-                      {label}
-                    </span>
-                  ))}
-
-                  {/* Dots */}
+                  {/* Dots layer — z-10, overflows for tooltips */}
                   {evaluated.map((opp, idx) => {
                     const potScore = SCORE_TO_POSITION[opp.potential_score!] ?? 38
                     const chalScore = SCORE_TO_POSITION[opp.challenge_score!] ?? 38
-                    const leftPct = Math.min(Math.max(potScore + seededJitter(opp.id, 'x') * 0.5, 5), 95)
-                    const topPct = Math.min(Math.max(100 - chalScore + seededJitter(opp.id, 'y') * 0.5, 5), 95)
+                    const leftPct = Math.min(Math.max(potScore + seededJitter(opp.id, 'x') * 0.5, 7), 93)
+                    const topPct = Math.min(Math.max(100 - chalScore + seededJitter(opp.id, 'y') * 0.5, 7), 93)
                     const color = MAP_DOT_PALETTE[idx % MAP_DOT_PALETTE.length]
                     const isHovered = tooltip === opp.id
+
+                    const tipLeft = leftPct > 65
+                    const tipBelow = topPct < 30
+                    const labelTop = topPct < 12 ? '20px' : idx % 2 === 0 ? '-18px' : '20px'
+                    const labelAlign = leftPct < 15 ? 'left' : leftPct > 85 ? 'right' : 'center'
 
                     return (
                       <div
                         key={opp.id}
                         className="absolute"
-                        style={{ left: `${leftPct}%`, top: `${topPct}%`, transform: 'translate(-50%, -50%)' }}
+                        style={{ left: `${leftPct}%`, top: `${topPct}%`, transform: 'translate(-50%, -50%)', zIndex: 10 }}
                         onMouseEnter={() => setTooltip(opp.id)}
                         onMouseLeave={() => setTooltip(null)}
                       >
@@ -202,19 +211,28 @@ export default function MapClient({
                             fontSize: 10,
                             fontWeight: 500,
                             color: 'var(--color-ink)',
-                            left: '50%',
-                            top: idx % 2 === 0 ? '-18px' : '20px',
-                            transform: 'translateX(-50%)',
+                            top: labelTop,
+                            ...(labelAlign === 'center'
+                              ? { left: '50%', transform: 'translateX(-50%)' }
+                              : labelAlign === 'left'
+                              ? { left: 0 }
+                              : { right: 0 }),
                           }}
                         >
                           {opp.name.length > 22 ? opp.name.slice(0, 22) + '…' : opp.name}
                         </span>
                         {isHovered && (
                           <div
-                            className="absolute z-20 bottom-8 left-1/2 -translate-x-1/2 p-3 w-48 pointer-events-none rounded-xl shadow-lg"
+                            className="absolute z-20 p-3 w-48 pointer-events-none rounded-xl shadow-lg"
                             style={{
                               backgroundColor: '#FFFFFF',
                               border: '0.5px solid var(--color-border)',
+                              ...(tipLeft
+                                ? { right: '100%', marginRight: 8, left: 'auto', transform: 'none' }
+                                : { left: '50%', transform: 'translateX(-50%)' }),
+                              ...(tipBelow
+                                ? { top: '100%', marginTop: 8, bottom: 'auto' }
+                                : { bottom: '100%', marginBottom: 8, top: 'auto' }),
                             }}
                           >
                             <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4 }}>{opp.name}</p>

@@ -11,6 +11,7 @@ import {
 import { TWIN_COLORS_HEX } from '@/lib/constants'
 import type { Opportunity } from '@/lib/types'
 import { motion } from 'framer-motion'
+import { useI18n } from '@/lib/i18n/context'
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -290,6 +291,7 @@ function BMCBlock({
   getTwinDots?: (text: string) => string[]
   forceGeneratable?: boolean
 }) {
+  const { t } = useI18n()
   const [adding, setAdding] = useState(false)
   const [inputVal, setInputVal] = useState('')
   const [editingIdx, setEditingIdx] = useState<number | null>(null)
@@ -300,19 +302,19 @@ function BMCBlock({
   const hasItems = items.length > 0
 
   function submit() {
-    const t = inputVal.trim()
-    if (!t) return
-    onAdd(t)
+    const trimmed = inputVal.trim()
+    if (!trimmed) return
+    onAdd(trimmed)
     setInputVal('')
     setAdding(false)
   }
 
   function commitEdit(idx: number) {
-    const t = editVal.trim()
-    if (!t) {
+    const trimmed = editVal.trim()
+    if (!trimmed) {
       onRemove(idx)
     } else {
-      onEdit(idx, t)
+      onEdit(idx, trimmed)
     }
     setEditingIdx(null)
     setEditVal('')
@@ -343,7 +345,7 @@ function BMCBlock({
       <div className="flex-1 overflow-y-auto px-3 pb-2.5 min-h-0 scrollbar-thin">
         {isPreFilled && !hasItems && (
           <p className="text-[9px] italic mt-1" style={{ color: 'var(--color-text-faint)' }}>
-            Complete the VPC Canvas first to pre-fill this section.
+            {t.bmc_complete_vpc_first}
           </p>
         )}
 
@@ -352,7 +354,7 @@ function BMCBlock({
             {isGenerating ? (
               <div className="flex items-center gap-1.5 text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
                 <Loader2 size={11} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
-                Generating…
+                {t.bmc_generating}
               </div>
             ) : (
               <>
@@ -365,10 +367,10 @@ function BMCBlock({
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
                 >
                   <Sparkles size={9} />
-                  Generate ✨
+                  {t.bmc_generate}
                 </button>
                 {!isUnlocked && (
-                  <p className="text-[9px] italic mt-1.5" style={{ color: 'var(--color-text-faint)' }}>Complete the previous block first.</p>
+                  <p className="text-[9px] italic mt-1.5" style={{ color: 'var(--color-text-faint)' }}>{t.bmc_complete_previous}</p>
                 )}
               </>
             )}
@@ -447,7 +449,7 @@ function BMCBlock({
                 onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
               >
                 {isGenerating ? <Loader2 size={9} className="animate-spin" /> : <Sparkles size={9} />}
-                Regenerate
+                {t.bmc_regenerate}
               </button>
             )}
           </>
@@ -464,7 +466,7 @@ function BMCBlock({
                 if (e.key === 'Enter') submit()
                 if (e.key === 'Escape') { setAdding(false); setInputVal('') }
               }}
-              placeholder="Add item…"
+              placeholder={t.bmc_add_item}
               className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
               style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
               onFocus={(e) => {
@@ -483,7 +485,7 @@ function BMCBlock({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
-              Add
+              {t.common_add}
             </button>
             <button onClick={() => { setAdding(false); setInputVal('') }} className="flex-shrink-0">
               <X size={10} style={{ color: 'var(--color-text-faint)' }} />
@@ -593,6 +595,7 @@ export default function BMCClient({
   existingBMC: BMCRow | null
 }) {
   const supabase = createClient()
+  const { t } = useI18n()
   const finalVPC = (vpcValueMap as FinalVPC | null) ?? null
 
   // tabIndex: 0..n-1 = per-twin, n = aggregated
@@ -938,7 +941,7 @@ export default function BMCClient({
       <motion.div className="flex-1 overflow-auto p-6 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton
           href={`/project/${project.id}/opportunity/${opportunity.id}/vpc`}
-          label="Torna al VPC Canvas"
+          label={t.bmc_back}
         />
 
         {/* Page header */}
@@ -1002,7 +1005,7 @@ export default function BMCClient({
               onMouseEnter={(e) => !isAggTab && (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
               onMouseLeave={(e) => !isAggTab && (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              Aggregated
+              {t.bmc_aggregated}
             </button>
           </div>
         )}
@@ -1010,7 +1013,7 @@ export default function BMCClient({
         {/* Legend (aggregated tab only, when twins exist) */}
         {isAggTab && twinInterviews.length > 0 && (
           <div className="flex flex-wrap items-center gap-3 mb-4" style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
-            <span style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-faint)' }}>Dots:</span>
+            <span style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-faint)' }}>{t.bmc_dots_label}</span>
             {twinInterviews.map((iv, i) => (
               <span key={i} className="flex items-center gap-1">
                 <span
@@ -1020,7 +1023,7 @@ export default function BMCClient({
                 {iv.twinName}
               </span>
             ))}
-            <span style={{ fontStyle: 'italic', color: 'var(--color-text-faint)' }}>Dots show which twins&apos; VPC elements inspired each item.</span>
+            <span style={{ fontStyle: 'italic', color: 'var(--color-text-faint)' }}>{t.bmc_dots_desc}</span>
           </div>
         )}
 
@@ -1053,7 +1056,7 @@ export default function BMCClient({
         )}
 
         <p className="mt-4 text-center" style={{ fontSize: 10, color: 'var(--color-text-faint)' }}>
-          Generate blocks in order — each one unlocks the next.
+          {t.bmc_order_hint}
         </p>
       </motion.div>
     </div>

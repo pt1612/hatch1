@@ -189,10 +189,10 @@ function AbilityCard({
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
         <div style={{ minWidth: 0, flex: 1 }}>
           <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4, lineHeight: 1.3 }}>
-            {ability.name || <span style={{ color: 'var(--color-text-faint)', fontStyle: 'italic' }}>Nome…</span>}
+            {ability.name || <span style={{ color: 'var(--color-text-faint)', fontStyle: 'italic' }}>{t.abilities_name_placeholder}</span>}
           </p>
           <p style={{ fontSize: 12, color: 'var(--color-text-muted)', lineHeight: 1.5, margin: 0 }}>
-            {ability.description || <span style={{ fontStyle: 'italic', color: 'var(--color-text-faint)' }}>Descrizione…</span>}
+            {ability.description || <span style={{ fontStyle: 'italic', color: 'var(--color-text-faint)' }}>{t.abilities_desc_placeholder}</span>}
           </p>
         </div>
         {hovered && (
@@ -326,7 +326,7 @@ export default function AbilitiesClient({
         )
       }
     }
-    toast('Abilità salvata')
+    toast(t.toast_ability_saved)
   }
 
   function addEmptyAbility() {
@@ -475,7 +475,7 @@ export default function AbilitiesClient({
       const { opportunities: opps } = await res.json()
       if (opps?.length > 0) {
         setOpportunities(opps)
-        toast('Opportunità generate')
+        toast(t.toast_opps_generated)
       }
     } catch (err) {
       console.error('[AbilitiesClient] extractOpportunities error:', err)

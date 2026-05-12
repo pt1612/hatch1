@@ -20,14 +20,7 @@ type OppWithStatus = {
   hasBMC: boolean
 }
 
-const STEPS: { label: string; short: string }[] = [
-  { label: 'Valutazione',          short: 'Val' },
-  { label: 'Configurazione Twin',  short: 'Twin' },
-  { label: 'Interviste',           short: 'Intrvw' },
-  { label: 'Risultati',            short: 'Risp' },
-  { label: 'VPC Canvas',           short: 'VPC' },
-  { label: 'Business Model',       short: 'BMC' },
-]
+const STEPS = [0, 1, 2, 3, 4, 5]
 
 function getStepDone(opp: OppWithStatus): boolean[] {
   return [opp.isEvaluated, opp.hasTwins, opp.hasInterviews, opp.hasResults, opp.hasVPC, opp.hasBMC]
@@ -57,12 +50,14 @@ function getActiveStepHref(opp: OppWithStatus, projectId: string, t: Translation
 }
 
 function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: string }) {
+  const { t } = useI18n()
   const done = getStepDone(opp)
   const activeIdx = done.findIndex((d) => !d)
+  const stepShorts = [t.eval_step_eval_short, 'Twin', 'Intrvw', t.eval_step_results_short, 'VPC', 'BMC']
 
   return (
     <div className="flex items-center gap-0">
-      {STEPS.map((step, i) => {
+      {STEPS.map((_, i) => {
         const isDone   = done[i]
         const isActive = i === activeIdx
         const isLocked = !isDone && i > activeIdx && activeIdx >= 0
@@ -92,7 +87,7 @@ function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: strin
                 color: isDone ? 'var(--color-amber)' : isActive ? 'var(--color-ink)' : 'var(--color-text-faint)',
               }}
             >
-              {step.short}
+              {stepShorts[i]}
             </span>
           </div>
         )

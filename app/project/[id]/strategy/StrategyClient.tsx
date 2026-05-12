@@ -71,7 +71,7 @@ export default function StrategyClient({
     }
     setSaving(false)
     setSaved(true)
-    toast('Strategia salvata')
+    toast(t.toast_strategy_saved)
     setTimeout(() => setSaved(false), 2000)
     router.refresh()
   }

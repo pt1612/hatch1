@@ -8,32 +8,10 @@ import BackButton from '@/components/BackButton'
 import { Loader2, ChevronRight, RefreshCw, Download } from 'lucide-react'
 import type { DigitalTwin, TwinMessage, TwinReport, Opportunity } from '@/lib/types'
 import { motion } from 'framer-motion'
-
-const VERDICT_CONFIG = {
-  strong_fit: {
-    headline: 'Validazione di mercato confermata con alta risonanza.',
-    label: 'Strong Fit',
-    tagline: 'Forte allineamento tra problema e soluzione proposta.',
-    bgColor: 'var(--color-sage)',
-    badgeStyle: { backgroundColor: 'rgba(76,175,125,0.15)', color: '#2D7A57' },
-  },
-  weak_fit: {
-    headline: 'Risonanza parziale rilevata — serve un raffinamento.',
-    label: 'Weak Fit',
-    tagline: 'Esiste un certo allineamento ma il fit necessita di miglioramenti significativi.',
-    bgColor: 'var(--color-amber)',
-    badgeStyle: { backgroundColor: 'rgba(232,169,106,0.2)', color: '#7A4A20' },
-  },
-  pivot_needed: {
-    headline: 'Mismatch di mercato identificato — consigliato un pivot strategico.',
-    label: 'Pivot Needed',
-    tagline: 'È consigliato un ripensamento fondamentale del problema o della soluzione.',
-    bgColor: '#C0392B',
-    badgeStyle: { backgroundColor: 'rgba(220,38,38,0.1)', color: '#DC2626' },
-  },
-}
+import { useI18n } from '@/lib/i18n/context'
 
 function MetricCard({ label, score, description }: { label: string; score: number; description: string }) {
+  const { t } = useI18n()
   const displayScore = (score / 10).toFixed(1)
   const color = score >= 70 ? 'var(--color-sage)' : score >= 40 ? 'var(--color-amber)' : '#DC2626'
   const barColor = score >= 70 ? 'var(--color-sage)' : score >= 40 ? 'var(--color-amber)' : '#EF4444'
@@ -50,7 +28,7 @@ function MetricCard({ label, score, description }: { label: string; score: numbe
         {label}
       </p>
       <p style={{ fontSize: 36, fontWeight: 700, marginBottom: 2, color }}>{displayScore}</p>
-      <p style={{ fontSize: 11, color: 'var(--color-text-faint)', marginBottom: 12 }}>su 10</p>
+      <p style={{ fontSize: 11, color: 'var(--color-text-faint)', marginBottom: 12 }}>{t.results_out_of_ten}</p>
       <div className="w-full rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'var(--color-linen)' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
@@ -91,13 +69,38 @@ export default function ResultsClient({
   twinSessionId: string | null
 }) {
   const supabase = createClient()
+  const { t, lang } = useI18n()
   const [report, setReport] = useState<TwinReport | null>(existingReport)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const VERDICT_CONFIG = {
+    strong_fit: {
+      headline: t.verdict_strong_headline,
+      label: 'Strong Fit',
+      tagline: t.verdict_strong_tagline,
+      bgColor: 'var(--color-sage)',
+      badgeStyle: { backgroundColor: 'rgba(76,175,125,0.15)', color: '#2D7A57' },
+    },
+    weak_fit: {
+      headline: t.verdict_weak_headline,
+      label: 'Weak Fit',
+      tagline: t.verdict_weak_tagline,
+      bgColor: 'var(--color-amber)',
+      badgeStyle: { backgroundColor: 'rgba(232,169,106,0.2)', color: '#7A4A20' },
+    },
+    pivot_needed: {
+      headline: t.verdict_pivot_headline,
+      label: 'Pivot Needed',
+      tagline: t.verdict_pivot_tagline,
+      bgColor: '#C0392B',
+      badgeStyle: { backgroundColor: 'rgba(220,38,38,0.1)', color: '#DC2626' },
+    },
+  }
+
   async function generateReport() {
     if (messages.length === 0) {
-      setError('Nessun messaggio trovato. Completa almeno un\'intervista prima di generare i risultati.')
+      setError(t.results_no_messages)
       return
     }
     setGenerating(true)
@@ -140,7 +143,7 @@ export default function ResultsClient({
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Qualcosa è andato storto. Riprova.')
+      setError(err instanceof Error ? err.message : t.results_error)
     } finally {
       setGenerating(false)
     }
@@ -148,9 +151,8 @@ export default function ResultsClient({
 
   const verdict = report ? VERDICT_CONFIG[report.verdict] : null
 
-  // ── Download conversation as .txt ──────────────────────────────────────────
   function downloadConversation() {
-    const today = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    const today = new Date().toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })
     const separator = '─────────────────────────────'
 
     const lines: string[] = [
@@ -174,7 +176,6 @@ export default function ResultsClient({
         (m) => !m.twinId || m.twinId === twin.id || m.twinName === twin.name
       )
       if (twinMessages.length === 0) {
-        // Fallback: include all messages for single-twin sessions
         messages.forEach((m) => {
           lines.push(m.role === 'assistant' ? `Twin: ${m.content}` : `AI: ${m.content}`)
         })
@@ -202,7 +203,7 @@ export default function ResultsClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-8 pt-14" style={{ maxWidth: 768 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
-        <BackButton href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`} label="Torna alle interviste" />
+        <BackButton href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`} label={t.results_back} />
 
         <div className="flex items-start justify-between mb-6">
           <div>
@@ -215,7 +216,7 @@ export default function ResultsClient({
                 color: 'var(--color-ink)',
               }}
             >
-              Risultati di validazione
+              {t.results_title}
             </h1>
             <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
           </div>
@@ -232,7 +233,7 @@ export default function ResultsClient({
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
             >
               <Download size={13} />
-              Scarica conversazione
+              {t.results_download}
             </button>
           )}
         </div>
@@ -242,7 +243,7 @@ export default function ResultsClient({
             <LoadingSkeleton />
             <div className="flex items-center gap-2 mt-4" style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
               <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
-              Analisi delle trascrizioni delle interviste…
+              {t.results_analyzing}
             </div>
           </div>
         )}
@@ -258,7 +259,7 @@ export default function ResultsClient({
               className="flex items-center gap-2"
               style={{ fontSize: 12, color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer' }}
             >
-              <RefreshCw size={12} /> Riprova
+              <RefreshCw size={12} /> {t.results_regenerate}
             </button>
           </div>
         )}
@@ -275,10 +276,10 @@ export default function ResultsClient({
               <rect x="60" y="35" width="10" height="45" rx="2" fill="var(--color-amber)" />
             </svg>
             <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 8 }}>
-              Pronto per generare i risultati
+              {t.results_ready_title}
             </h3>
             <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20, maxWidth: 320, margin: '0 auto 20px', lineHeight: '1.6' }}>
-              L'AI analizzerà le trascrizioni delle interviste e produrrà un verdetto di validazione, un punteggio di intensità del problema e uno di risonanza del valore.
+              {t.results_ready_desc}
             </p>
             <button
               onClick={generateReport}
@@ -299,7 +300,7 @@ export default function ResultsClient({
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              Genera risultati
+              {t.results_generate}
               <ChevronRight size={15} />
             </button>
           </div>
@@ -325,7 +326,7 @@ export default function ResultsClient({
                   onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
                 >
                   <RefreshCw size={11} />
-                  Rigenera
+                  {t.results_regenerate}
                 </button>
               </div>
               <h2
@@ -344,8 +345,8 @@ export default function ResultsClient({
 
             {/* Metric cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <MetricCard label="Intensità del problema" score={report.problemIntensity} description="Quanto intensamente i clienti target vivono il problema in base ai segnali delle interviste." />
-              <MetricCard label="Risonanza del valore" score={report.valueResonance} description="Quanto la soluzione proposta risuona con i bisogni espressi dai clienti e la loro disponibilità a pagare." />
+              <MetricCard label={t.results_problem_intensity} score={report.problemIntensity} description={t.results_problem_intensity_desc} />
+              <MetricCard label={t.results_value_resonance} score={report.valueResonance} description={t.results_value_resonance_desc} />
             </div>
 
             {/* Recurring themes */}
@@ -358,7 +359,7 @@ export default function ResultsClient({
                   className="mb-3"
                   style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
                 >
-                  Temi ricorrenti
+                  {t.results_recurring_themes}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {report.recurringThemes.map((theme, i) => (
@@ -390,7 +391,7 @@ export default function ResultsClient({
                   className="mb-3"
                   style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
                 >
-                  Obiezioni principali
+                  {t.results_main_objections}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {report.mainObjections.map((obj, i) => (
@@ -422,7 +423,7 @@ export default function ResultsClient({
                   className="mb-3"
                   style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
                 >
-                  Prossimi passi consigliati
+                  {t.results_next_steps}
                 </h3>
                 <ol className="space-y-2">
                   {report.nextSteps.map((step, i) => (
@@ -452,7 +453,7 @@ export default function ResultsClient({
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
             >
-              Vedi Value Proposition Canvas
+              {t.results_go_vpc}
               <ChevronRight size={15} />
             </Link>
           </div>
