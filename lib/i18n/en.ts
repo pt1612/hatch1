@@ -288,6 +288,43 @@ export const en = {
   bmc_generating: 'Generating…',
   bmc_complete_vpc_first: 'Complete the VPC Canvas first…',
   bmc_complete_previous: 'Complete the previous block first.',
+
+  // ── VPC Dashboard ─────────────────────────────────────────────────────────────
+  vpcd_title: 'VPC Dashboard',
+  vpcd_no_vpcs: 'No VPCs yet',
+  vpcd_no_vpcs_hint: 'Complete at least one twin interview and generate results to create a VPC.',
+  vpcd_section_a: 'VPC by opportunity',
+  vpcd_section_b: 'Aggregates',
+  vpcd_no_aggregates: 'No aggregates yet.',
+  vpcd_aggregate_btn: 'Aggregate selected',
+  vpcd_select_hint: 'Select 2 or more VPCs to aggregate them.',
+  vpcd_badge_ready: 'VPC ready',
+  vpcd_badge_missing_map: 'Value map missing',
+  vpcd_badge_aggregate: 'Aggregate',
+  vpcd_sources: 'Sources',
+  vpcd_open: 'Open',
+  vpcd_generating_agg: 'Generating aggregate…',
+
+  // ── VPC Detail ────────────────────────────────────────────────────────────────
+  vpcd_detail_back: '← Back to VPC Dashboard',
+  vpcd_detail_customer_profile: 'Customer Profile',
+  vpcd_detail_value_map: 'Value Map',
+  vpcd_detail_jobs: 'Jobs to be done',
+  vpcd_detail_pains: 'Pains',
+  vpcd_detail_gains: 'Gains',
+  vpcd_detail_products: 'Products & Services',
+  vpcd_detail_relievers: 'Pain Relievers',
+  vpcd_detail_creators: 'Gain Creators',
+  vpcd_detail_generate_map: 'Generate with AI',
+  vpcd_detail_generating: 'Generating…',
+  vpcd_detail_add: 'Add…',
+  vpcd_detail_add_btn: 'Add',
+  vpcd_detail_save: 'Save changes',
+  vpcd_detail_saved: 'Saved',
+  vpcd_detail_saving: 'Saving…',
+  vpcd_detail_empty_map: 'Value map not generated yet.',
+  vpcd_detail_aggregate_badge: 'Aggregate',
+  vpcd_detail_sources_label: 'Source VPCs',
 } as const
 
 export type Translations = { [K in keyof typeof en]: string }

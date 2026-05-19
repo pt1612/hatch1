@@ -256,6 +256,39 @@ export function getInitials(name: string): string {
     .slice(0, 2)
 }
 
+// ─── VPC (Value Proposition Canvas) standalone records ───────────────────────
+
+export type VPCCustomerProfile = {
+  jobs: string[]
+  pains: string[]
+  gains: string[]
+}
+
+export type VPCValueMap = {
+  productsAndServices: string[]
+  painRelievers: string[]
+  gainCreators: string[]
+}
+
+export type VPC = {
+  id: string
+  project_id: string
+  opportunity_id: string | null
+  twin_id: string | null
+  name: string
+  is_aggregate: boolean
+  customer_profile: VPCCustomerProfile
+  value_map: VPCValueMap | null
+  created_at: string
+  updated_at: string
+}
+
+export type VPCAggregate = {
+  id: string
+  aggregate_vpc_id: string
+  source_vpc_id: string
+}
+
 export function formatTime(date?: Date): string {
   const d = date || new Date()
   return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })

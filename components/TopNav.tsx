@@ -23,11 +23,19 @@ interface TopNavProps {
 }
 
 // Nav labels are ALWAYS in English (technical framework terms — not translated)
-function isItemLocked(label: string, entryPath: string | null | undefined): boolean {
-  if (label === 'VPC' || label === 'BMC') {
+function isItemLocked(label: string, entryPath: string | null | undefined, href?: string): boolean {
+  if (label === 'VPC') {
+    // VPC dashboard (/vpcs) is always accessible
+    if (href?.endsWith('/vpcs') || href?.includes('/vpcs/')) return false
+    // VPC canvas (→ evaluations): locked unless entry path is 'vpc'
     if (!entryPath || entryPath === 'full' || entryPath === 'idea') return true
-    if (entryPath === 'vpc') return label === 'BMC'
-    if (entryPath === 'bmc') return label === 'VPC'
+    if (entryPath === 'bmc') return true
+    return false
+  }
+  if (label === 'BMC') {
+    if (!entryPath || entryPath === 'full' || entryPath === 'idea') return true
+    if (entryPath === 'vpc') return true
+    return false
   }
   if (!entryPath || entryPath === 'full') return false
   if (entryPath === 'idea') return label === 'Skills'
@@ -137,6 +145,11 @@ export default function TopNav({
   const entryPath = entryPathProp ?? fetchedEntryPath
 
   // Nav labels are ALWAYS English (framework technical terms — not translated)
+  // For full/idea paths, VPC points to the new dashboard; for vpc/bmc paths, to the canvas
+  const vpcHref = (entryPath === 'vpc' || entryPath === 'bmc')
+    ? `/project/${projectId}/evaluations`
+    : `/project/${projectId}/vpcs`
+
   const defaultItems: NavItem[] = projectId
     ? [
         { label: 'Skills',        href: `/project/${projectId}/abilities`,    hasData: true },
@@ -144,7 +157,7 @@ export default function TopNav({
         { label: 'Evaluation',    href: `/project/${projectId}/evaluations`,   hasData: true },
         { label: 'Map',           href: `/project/${projectId}/map`,           hasData: true },
         { label: 'Strategy',      href: `/project/${projectId}/strategy`,      hasData: true },
-        { label: 'VPC',           href: `/project/${projectId}/evaluations`,   hasData: true },
+        { label: 'VPC',           href: vpcHref,                               hasData: true },
         { label: 'BMC',           href: `/project/${projectId}/evaluations`,   hasData: true },
       ]
     : []
@@ -244,7 +257,7 @@ export default function TopNav({
           >
             {items.map((item, i) => {
               const active = isActive(item.href)
-              const locked = isItemLocked(item.label, entryPath)
+              const locked = isItemLocked(item.label, entryPath, item.href)
 
               return (
                 <span key={item.label} style={{ display: 'flex', alignItems: 'center' }}>
