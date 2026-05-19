@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
-import { Loader2, AlertCircle, RefreshCw, Map, Save, Check, Minus, Plus } from 'lucide-react'
+import { Loader2, AlertCircle, RefreshCw, Map, Save, Check, Minus, Plus, ChevronDown } from 'lucide-react'
 import type { Opportunity, InterviewReport, DimensionScore } from '@/lib/types'
 import { numericToLabel } from '@/lib/types'
 import { POTENTIAL_BADGE, CHALLENGE_BADGE } from '@/lib/constants'
@@ -273,6 +273,9 @@ export default function ReportClient({
   // Save state
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  // Collapsible dimension groups
+  const [potentialExpanded, setPotentialExpanded] = useState(false)
+  const [challengeExpanded, setChallengeExpanded] = useState(false)
 
   useEffect(() => {
     if (!existingReport) generateReport()
@@ -604,115 +607,128 @@ export default function ReportClient({
             </div>
           )}
 
-          {/* Potential dimensions */}
-          <h2
-            className="mb-3"
-            style={{
-              fontSize: 10,
-              fontWeight: 500,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: 'var(--color-text-muted)',
-            }}
-          >
-            {t.report_potential_dims}
-          </h2>
-          <div className="space-y-3 mb-6">
-            {POTENTIAL_DIM_KEYS.map((key) => {
-              const aiDim = aiReport ? (aiReport as unknown as Record<string, DimensionScore>)[key] : null
-              return (
-                <DimensionCard
-                  key={key}
-                  dimKey={key}
-                  label={DIM_LABEL[key]}
-                  userScore={userScores[key] ?? 5}
-                  aiScore={aiDim?.score}
-                  analysis={aiDim?.analysis}
-                  onScoreChange={(v) => setDimScore(key, v)}
-                  onUseAI={() => useAIScore(key)}
-                />
-              )
-            })}
-          </div>
-
-          {/* Challenge dimensions */}
-          <h2
-            className="mb-3"
-            style={{
-              fontSize: 10,
-              fontWeight: 500,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: 'var(--color-text-muted)',
-            }}
-          >
-            {t.report_challenge_dims}
-          </h2>
-          <div className="space-y-3 mb-8">
-            {CHALLENGE_DIM_KEYS.map((key) => {
-              const aiDim = aiReport ? (aiReport as unknown as Record<string, DimensionScore>)[key] : null
-              return (
-                <DimensionCard
-                  key={key}
-                  dimKey={key}
-                  label={DIM_LABEL[key]}
-                  userScore={userScores[key] ?? 5}
-                  aiScore={aiDim?.score}
-                  analysis={aiDim?.analysis}
-                  onScoreChange={(v) => setDimScore(key, v)}
-                  onUseAI={() => useAIScore(key)}
-                />
-              )
-            })}
-          </div>
+          {/* ── Fix f: Aggregated dimension groups ─────────────────────────── */}
+          {[
+            { label: t.report_dim_potential, keys: POTENTIAL_DIM_KEYS, expanded: potentialExpanded, setExpanded: setPotentialExpanded, color: 'var(--color-amber)' },
+            { label: t.report_dim_challenge, keys: CHALLENGE_DIM_KEYS, expanded: challengeExpanded, setExpanded: setChallengeExpanded, color: 'var(--color-warm-gray)' },
+          ].map((group) => {
+            const scores = group.keys.map((k) => userScores[k]).filter((v) => v != null)
+            const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null
+            return (
+              <motion.div key={group.label} variants={itemVariants} className="rounded-2xl overflow-hidden mb-4"
+                style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
+                <button onClick={() => group.setExpanded((v) => !v)} className="w-full text-left p-5"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h2 style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-ink)', margin: 0 }}>{group.label}</h2>
+                      <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 2 }}>{t.report_aggregated_hint}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {avg != null && (
+                        <span style={{ fontSize: 18, fontWeight: 600, color: group.color }}>
+                          {avg.toFixed(1)}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--color-text-muted)' }}>/10</span>
+                        </span>
+                      )}
+                      <ChevronDown size={16} style={{
+                        color: 'var(--color-text-muted)',
+                        transform: group.expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease',
+                      }} />
+                    </div>
+                  </div>
+                  {avg != null && (
+                    <div style={{ height: 4, borderRadius: 2, backgroundColor: 'var(--color-linen)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${(avg / 10) * 100}%`, backgroundColor: group.color, borderRadius: 2, transition: 'width 0.4s ease' }} />
+                    </div>
+                  )}
+                  <p style={{ fontSize: 11, color: group.color, marginTop: 6 }}>
+                    {group.expanded ? t.report_hide_details : t.report_show_details}
+                  </p>
+                </button>
+                {group.expanded && (
+                  <div className="px-5 pb-5 space-y-3">
+                    {group.keys.map((key) => {
+                      const aiDim = aiReport ? (aiReport as unknown as Record<string, DimensionScore>)[key] : null
+                      return (
+                        <DimensionCard key={key} dimKey={key} label={DIM_LABEL[key]}
+                          userScore={userScores[key] ?? 5} aiScore={aiDim?.score} analysis={aiDim?.analysis}
+                          onScoreChange={(v) => setDimScore(key, v)} onUseAI={() => useAIScore(key)} />
+                      )
+                    })}
+                  </div>
+                )}
+              </motion.div>
+            )
+          })}
 
           {/* Footer actions */}
-          <div className="flex items-center justify-between">
-            <Link
-              href={`/project/${project.id}/opportunities`}
+          <div className="flex items-center justify-between pb-24">
+            <Link href={`/project/${project.id}/opportunities`}
               className="py-2.5 px-4 text-sm font-medium transition-colors"
-              style={{
-                border: '0.5px solid var(--color-border)',
-                color: 'var(--color-ink)',
-                borderRadius: 8,
-                textDecoration: 'none',
-              }}
+              style={{ border: '0.5px solid var(--color-border)', color: 'var(--color-ink)', borderRadius: 8, textDecoration: 'none' }}
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-amber)')}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-            >
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}>
               {t.report_back}
             </Link>
-            <Link
-              href={`/project/${project.id}/map`}
-              className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium transition-colors"
-              style={{
-                backgroundColor: 'var(--color-amber)',
-                color: '#FFFFFF',
-                borderRadius: 8,
-                textDecoration: 'none',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
-            >
-              <Map size={15} />
-              {t.report_view_map}
-            </Link>
+            <div className="flex items-center gap-3">
+              <button onClick={handleRegenerate} disabled={loadingAI || regenerating}
+                className="flex items-center gap-1.5 transition-colors disabled:opacity-40"
+                style={{ fontSize: 12, color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-faint)')}>
+                <RefreshCw size={12} />
+                {t.report_regen_ai}
+              </button>
+              <Link href={`/project/${project.id}/map`}
+                className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium transition-colors"
+                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8, textDecoration: 'none' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}>
+                <Map size={15} />
+                {t.report_view_map}
+              </Link>
+            </div>
           </div>
-
-          <button
-            onClick={handleRegenerate}
-            disabled={loadingAI || regenerating}
-            className="flex items-center gap-1.5 transition-colors mt-5 disabled:opacity-40"
-            style={{ fontSize: 12, color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-faint)')}
-          >
-            <RefreshCw size={12} />
-            {t.report_regen_ai}
-          </button>
 
         </motion.div>
       </motion.div>
+
+      {/* ── Fix g: Fixed prominent save bar ─────────────────────────────── */}
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
+        backgroundColor: 'rgba(250,247,242,0.95)', backdropFilter: 'blur(8px)',
+        borderTop: '0.5px solid var(--color-border)',
+        padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+      }}>
+        <div className="flex items-center gap-3">
+          {computedPotential && (
+            <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${POTENTIAL_BADGE[computedPotential]}`}>
+              {t.report_potential_label} {computedPotential.replace('_', ' ')}
+            </span>
+          )}
+          {computedChallenge && (
+            <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${CHALLENGE_BADGE[computedChallenge]}`}>
+              {t.report_challenge_label} {computedChallenge.replace('_', ' ')}
+            </span>
+          )}
+          {!hasScores && (
+            <span style={{ fontSize: 12, color: 'var(--color-text-faint)' }}>Set all 6 scores to save</span>
+          )}
+        </div>
+        <button onClick={handleSave} disabled={saving || !hasScores}
+          className="flex items-center gap-2 py-3 px-6 text-sm font-semibold disabled:opacity-50 transition-colors"
+          style={{
+            backgroundColor: saved ? 'var(--color-sage)' : 'var(--color-amber)', color: '#FFFFFF',
+            borderRadius: 10, border: 'none', cursor: saving || !hasScores ? 'default' : 'pointer',
+            boxShadow: '0 4px 14px rgba(199,123,58,0.35)', minWidth: 140, justifyContent: 'center',
+          }}
+          onMouseEnter={(e) => { if (!saving && hasScores) e.currentTarget.style.backgroundColor = saved ? '#2D7A57' : '#A8612A' }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = saved ? 'var(--color-sage)' : 'var(--color-amber)' }}>
+          {saving ? <Loader2 size={15} className="animate-spin" /> : saved ? <Check size={15} /> : <Save size={15} />}
+          {saving ? t.report_saving : saved ? t.report_saved : t.report_save}
+        </button>
+      </div>
     </div>
   )
 }

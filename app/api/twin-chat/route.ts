@@ -53,6 +53,47 @@ interface TwinMessage {
   timestamp?: string
 }
 
+/** VPC wizard: single twin generated from a segment description — no DB twin row. */
+function buildVpcSyntheticSystemPrompt(
+  twin: DigitalTwin,
+  segmentDescription: string,
+  projectTitle: string,
+  modeDescription: string
+): string {
+  const budgetDisplay =
+    twin.budget ??
+    (twin.budgetTier === 'low'
+      ? 'budget-conscious, under $40/month'
+      : twin.budgetTier === 'mid'
+        ? '$40–120/month'
+        : 'premium tier, $120+/month')
+
+  const techDisplay =
+    twin.techLevel === 'low' ? 'low' : twin.techLevel === 'medium' ? 'medium' : 'high'
+
+  return `You are ${twin.name}, a simulated customer for discovery interviews (Value Proposition Canvas).
+
+FOUNDER'S SEGMENT DESCRIPTION (ground truth for who you are):
+${segmentDescription}
+
+YOUR PROFILE (stay in character, do not contradict without good in-character reason):
+${twin.age ? `Age: ${twin.age}\n` : ''}Occupation: ${twin.occupation ?? twin.role}
+Segment label: ${twin.segment}
+Background: ${twin.background || twin.personality}
+Pain points you care about: ${twin.painPoints.join('; ')}
+Motivations: ${twin.motivations?.length ? twin.motivations.join('; ') : 'not specified'}
+Tech savviness: ${techDisplay}
+Budget posture: ${budgetDisplay}
+Personality: ${twin.personality}
+
+SESSION CONTEXT:
+The founder is exploring "${projectTitle}" and is not pitching a finished product yet. They want to understand your jobs, pains, and desired gains in this space through a short interview.
+
+Interview mode: ${modeDescription}
+${SKEPTICISM_INSTRUCTIONS}
+Respond in first person as ${twin.name}. Do NOT prefix with your name. Detect the language of the user's latest message and respond in that language.`
+}
+
 function buildSystemPrompt(
   twin: DigitalTwin,
   projectInfo: ProjectInfo,
@@ -95,13 +136,101 @@ Detect the language of the user's input and respond in that same language throug
 }
 
 export async function POST(request: NextRequest) {
-  const { projectInfo, twins, selectedTwinId, mode, messages, userMessage } =
-    await request.json()
+  const body = await request.json()
+  const {
+    projectInfo,
+    twins,
+    selectedTwinId,
+    mode,
+    messages,
+    userMessage,
+    vpcSyntheticInterview,
+  } = body as {
+    projectInfo?: ProjectInfo
+    twins?: DigitalTwin[]
+    selectedTwinId?: string
+    mode?: string
+    messages?: TwinMessage[]
+    userMessage?: string
+    vpcSyntheticInterview?: {
+      segmentDescription: string
+      projectTitle: string
+      twin: DigitalTwin
+    }
+  }
 
   const modeDescription =
     mode === 'problem'
       ? 'Problem Validation — focus on how intense the problem is, how often it occurs, current workarounds, and what has been tried before'
       : 'Value Proposition — focus on the appeal (or lack thereof) of the proposed solution, willingness to pay, adoption barriers, and trust'
+
+  // ── VPC wizard: synthetic twin (no database twin_id) ───────────────────────
+  if (vpcSyntheticInterview && selectedTwinId && selectedTwinId !== 'all') {
+    const twin = vpcSyntheticInterview.twin
+    if (!twin || twin.id !== selectedTwinId) {
+      return Response.json({ error: 'Synthetic twin id mismatch' }, { status: 400 })
+    }
+    const segmentDescription =
+      typeof vpcSyntheticInterview.segmentDescription === 'string'
+        ? vpcSyntheticInterview.segmentDescription
+        : ''
+    const projectTitle =
+      typeof vpcSyntheticInterview.projectTitle === 'string'
+        ? vpcSyntheticInterview.projectTitle
+        : 'Customer discovery'
+
+    const systemPrompt = buildVpcSyntheticSystemPrompt(
+      twin,
+      segmentDescription || twin.segment,
+      projectTitle,
+      modeDescription
+    )
+
+    const history = (messages ?? []).filter(
+      (m) => m.role === 'user' || (m.role === 'assistant' && m.twinId === twin.id)
+    )
+
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
+      async start(controller) {
+        const anthropicStream = anthropic.messages.stream({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1024,
+          system: systemPrompt,
+          messages: [
+            ...history.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+            { role: 'user' as const, content: String(userMessage ?? '') },
+          ],
+        })
+
+        for await (const event of anthropicStream) {
+          if (
+            event.type === 'content_block_delta' &&
+            event.delta.type === 'text_delta'
+          ) {
+            const text = (event.delta as { type: 'text_delta'; text: string }).text
+            if (text) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: text })}\n\n`))
+            }
+          }
+        }
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+        controller.close()
+      },
+    })
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
+    })
+  }
+
+  if (!projectInfo || !twins || !selectedTwinId) {
+    return Response.json({ error: 'Missing projectInfo or twins' }, { status: 400 })
+  }
 
   if (selectedTwinId === 'all') {
     // Group mode: parallel, non-streaming
@@ -117,7 +246,7 @@ export async function POST(request: NextRequest) {
           system: systemPrompt,
           messages: [
             ...twinHistory.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
-            { role: 'user', content: userMessage },
+            { role: 'user', content: String(userMessage ?? '') },
           ],
         })
         return {
@@ -147,7 +276,7 @@ export async function POST(request: NextRequest) {
           system: systemPrompt,
           messages: [
             ...twinHistory.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
-            { role: 'user', content: userMessage },
+            { role: 'user', content: String(userMessage ?? '') },
           ],
         })
 

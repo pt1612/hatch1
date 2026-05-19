@@ -108,6 +108,16 @@ export default async function VPCPage({
     .eq('opportunity_id', opp_id)
     .maybeSingle()
 
+  let vpcRecordId: string | null = null
+  if (twinSession?.id) {
+    const { data: vpcRecord } = await supabase
+      .from('vpcs')
+      .select('id')
+      .eq('legacy_twin_session_id', twinSession.id)
+      .maybeSingle()
+    vpcRecordId = vpcRecord?.id ?? null
+  }
+
   return (
     <VPCClient
       project={project}
@@ -117,6 +127,7 @@ export default async function VPCPage({
       hasInterviews={hasInterviews}
       abilities={abilities ?? []}
       sessionId={twinSession?.id ?? null}
+      vpcRecordId={vpcRecordId}
       existingFinalVPC={twinSession?.vpc_value_map ?? null}
     />
   )

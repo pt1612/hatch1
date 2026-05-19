@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
@@ -54,6 +55,12 @@ type TwinInterviewData = {
 }
 
 type BMCRow = BMCData & { id: string; agg_attribution?: AggAttribution }
+
+type VPCSummary = {
+  id: string
+  customer_profile_name: string
+  final_canvas: FinalVPC | null
+}
 
 // ─── Block static config ────────────────────────────────────────────────────────
 
@@ -175,6 +182,13 @@ function extractTexts(arr: (string | FinalVPCItem)[] | undefined): string[] {
   return (arr ?? []).map(toText).filter(Boolean)
 }
 
+function deriveCustomerSegmentsFromVPC(vpc: VPCSummary | null): string[] {
+  if (!vpc) return []
+  // Customer Segments = the VPC profile name (the segment this VPC represents).
+  // Do NOT include jobs/pains/gains — those are customer profile items, not segment labels.
+  return [vpc.customer_profile_name].filter(Boolean)
+}
+
 /** Derive value propositions exclusively from the aggregate VPC (left-side items) */
 function deriveValuePropositions(vpcValueMap: FinalVPC | null): string[] {
   if (!vpcValueMap) return []
@@ -185,6 +199,10 @@ function deriveValuePropositions(vpcValueMap: FinalVPC | null): string[] {
       ...extractTexts(vpcValueMap.gainCreators).slice(0, 1),
     ]),
   ]
+}
+
+function deriveValuePropositionsFromVPC(vpc: VPCSummary | null): string[] {
+  return deriveValuePropositions(vpc?.final_canvas ?? null)
 }
 
 /** Extract FinalVPCItem array from a FinalVPC section for AI attribution context */
@@ -198,10 +216,11 @@ function extractVPCSection(arr: (string | FinalVPCItem)[] | undefined): { text: 
 function initAggData(
   existingBMC: BMCRow | null,
   vpcValueMap: FinalVPC | null,
-  twinSegments: string[]
+  twinSegments: string[],
+  primaryVPC: VPCSummary | null = null
 ): BMCData {
-  const vp = deriveValuePropositions(vpcValueMap)
-  const cs = twinSegments
+  const vp = primaryVPC ? deriveValuePropositionsFromVPC(primaryVPC) : deriveValuePropositions(vpcValueMap)
+  const cs = primaryVPC ? deriveCustomerSegmentsFromVPC(primaryVPC) : twinSegments
   if (existingBMC) {
     return {
       value_propositions:     (existingBMC.value_propositions?.length ?? 0) > 0 ? existingBMC.value_propositions : vp,
@@ -277,6 +296,8 @@ function BMCBlock({
   borderClass = '',
   getTwinDots,
   forceGeneratable = false,
+  readOnly = false,
+  editInVpcHref,
 }: {
   blockKey: BlockKey
   items: string[]
@@ -290,6 +311,8 @@ function BMCBlock({
   borderClass?: string
   getTwinDots?: (text: string) => string[]
   forceGeneratable?: boolean
+  readOnly?: boolean
+  editInVpcHref?: string
 }) {
   const { t } = useI18n()
   const [adding, setAdding] = useState(false)
@@ -326,16 +349,22 @@ function BMCBlock({
       <div className="flex items-center gap-1.5 px-3 py-2.5 flex-shrink-0" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
         <span style={{ color: 'var(--color-amber)' }} className="flex-shrink-0">{config.icon}</span>
         <span className="text-[11px] font-semibold leading-tight flex-1" style={{ color: 'var(--color-ink)' }}>{config.title}</span>
-        <button
-          onClick={() => setAdding((v) => !v)}
-          className="w-5 h-5 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
-          style={{ backgroundColor: 'var(--color-linen)' }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
-          title="Add item"
-        >
-          <Plus size={9} style={{ color: 'var(--color-text-muted)' }} />
-        </button>
+        {readOnly && editInVpcHref ? (
+          <Link href={editInVpcHref} className="text-[9px] font-medium" style={{ color: 'var(--color-amber)', textDecoration: 'none' }}>
+            Edit in VPC
+          </Link>
+        ) : (
+          <button
+            onClick={() => setAdding((v) => !v)}
+            className="w-5 h-5 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
+            style={{ backgroundColor: 'var(--color-linen)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+            title="Add item"
+          >
+            <Plus size={9} style={{ color: 'var(--color-text-muted)' }} />
+          </button>
+        )}
       </div>
 
       <p className="text-[9px] italic px-3 pt-1.5 pb-1 leading-tight flex-shrink-0" style={{ color: 'var(--color-text-faint)' }}>
@@ -343,13 +372,19 @@ function BMCBlock({
       </p>
 
       <div className="flex-1 overflow-y-auto px-3 pb-2.5 min-h-0 scrollbar-thin">
-        {isPreFilled && !hasItems && (
+        {readOnly && (
+          <p className="text-[9px] italic mt-1" style={{ color: 'var(--color-text-faint)' }}>
+            Inherited from the primary VPC.
+          </p>
+        )}
+
+        {isPreFilled && !hasItems && !readOnly && (
           <p className="text-[9px] italic mt-1" style={{ color: 'var(--color-text-faint)' }}>
             {t.bmc_complete_vpc_first}
           </p>
         )}
 
-        {!isPreFilled && !hasItems && (
+        {!isPreFilled && !hasItems && !readOnly && (
           <div className="mt-1.5">
             {isGenerating ? (
               <div className="flex items-center gap-1.5 text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
@@ -424,22 +459,29 @@ function BMCBlock({
                       />
                     ))}
                     <span
-                      className="flex-1 min-w-0 cursor-text"
-                      onClick={() => { setEditingIdx(i); setEditVal(item) }}
+                      className={`flex-1 min-w-0 ${readOnly ? '' : 'cursor-text'}`}
+                      onClick={() => {
+                        if (!readOnly) {
+                          setEditingIdx(i)
+                          setEditVal(item)
+                        }
+                      }}
                     >
                       {item}
                     </span>
-                    <button
-                      onClick={() => onRemove(i)}
-                      className="opacity-40 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
-                    >
-                      <X size={8} />
-                    </button>
+                    {!readOnly && (
+                      <button
+                        onClick={() => onRemove(i)}
+                        className="opacity-40 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
+                      >
+                        <X size={8} />
+                      </button>
+                    )}
                   </motion.span>
                 )
               })}
             </div>
-            {!isPreFilled && (
+            {!isPreFilled && !readOnly && (
               <button
                 onClick={onGenerate}
                 disabled={isGenerating}
@@ -455,7 +497,7 @@ function BMCBlock({
           </>
         )}
 
-        {adding && (
+        {adding && !readOnly && (
           <div className="flex items-center gap-1 mt-2">
             <input
               autoFocus
@@ -509,6 +551,8 @@ function BMCGrid({
   onEdit,
   getTwinDots,
   twinTab = false,
+  readOnlyBlocks = new Set<BlockKey>(),
+  editInVpcHref,
 }: {
   data: BMCData
   isUnlocked: (block: BlockKey) => boolean
@@ -519,6 +563,8 @@ function BMCGrid({
   onEdit: (block: BlockKey, index: number, newText: string) => void
   getTwinDots?: (block: BlockKey, text: string) => string[]
   twinTab?: boolean
+  readOnlyBlocks?: Set<BlockKey>
+  editInVpcHref?: string
 }) {
   return (
     <>
@@ -548,6 +594,8 @@ function BMCGrid({
               borderClass={GRID_BORDERS[key]}
               getTwinDots={getTwinDots ? (text) => getTwinDots(key, text) : undefined}
               forceGeneratable={twinTab && key === 'value_propositions'}
+              readOnly={readOnlyBlocks.has(key)}
+              editInVpcHref={editInVpcHref}
             />
           ))}
         </div>
@@ -567,6 +615,8 @@ function BMCGrid({
               onEdit={(i, t) => onEdit(key, i, t)}
               getTwinDots={getTwinDots ? (text) => getTwinDots(key, text) : undefined}
               forceGeneratable={twinTab && key === 'value_propositions'}
+              readOnly={readOnlyBlocks.has(key)}
+              editInVpcHref={editInVpcHref}
             />
           </div>
         ))}
@@ -585,6 +635,10 @@ export default function BMCClient({
   vpcValueMap,
   twinSegments,
   existingBMC,
+  primaryVPC = null,
+  secondaryVPCs = [],
+  availableSecondaryVPCs = [],
+  bmcBackHref,
 }: {
   project: { id: string; title: string }
   opportunity: Pick<Opportunity, 'id' | 'name' | 'description' | 'customer_segment'>
@@ -593,10 +647,18 @@ export default function BMCClient({
   vpcValueMap: unknown
   twinSegments: string[]
   existingBMC: BMCRow | null
+  primaryVPC?: VPCSummary | null
+  secondaryVPCs?: VPCSummary[]
+  availableSecondaryVPCs?: VPCSummary[]
+  bmcBackHref?: string
 }) {
   const supabase = createClient()
   const { t } = useI18n()
   const finalVPC = (vpcValueMap as FinalVPC | null) ?? null
+  const derivedVPC = primaryVPC?.final_canvas ?? finalVPC
+  const readOnlyInheritedBlocks = primaryVPC
+    ? new Set<BlockKey>(['value_propositions', 'customer_segments'])
+    : new Set<BlockKey>()
 
   // tabIndex: 0..n-1 = per-twin, n = aggregated
   const [activeTab, setActiveTab] = useState<number>(twinInterviews.length) // default: Aggregated
@@ -611,9 +673,11 @@ export default function BMCClient({
 
   // ── Aggregated BMC state ───────────────────────────────────────────────────
   const [aggData, setAggData] = useState<BMCData>(() =>
-    initAggData(existingBMC, finalVPC, twinSegments)
+    initAggData(existingBMC, finalVPC, twinSegments, primaryVPC)
   )
   const [bmcId, setBmcId] = useState<string | null>(existingBMC?.id ?? null)
+  const [secondaryVpcs, setSecondaryVpcs] = useState<VPCSummary[]>(secondaryVPCs)
+  const [selectedSecondaryVPCId, setSelectedSecondaryVPCId] = useState('')
   const [aggGenerating, setAggGenerating] = useState<Partial<Record<BlockKey, boolean>>>({})
   const [aggAttribution, setAggAttribution] = useState<AggAttribution>(() =>
     (existingBMC?.agg_attribution as AggAttribution | null | undefined) ?? {}
@@ -632,9 +696,9 @@ export default function BMCClient({
     // value_propositions: look up the source twinIdx in the FinalVPC left side
     if (block === 'value_propositions') {
       const allVPCItems = [
-        ...(finalVPC?.productsAndServices ?? []),
-        ...(finalVPC?.painRelievers ?? []),
-        ...(finalVPC?.gainCreators ?? []),
+        ...(derivedVPC?.productsAndServices ?? []),
+        ...(derivedVPC?.painRelievers ?? []),
+        ...(derivedVPC?.gainCreators ?? []),
       ]
       const match = allVPCItems.find((i) => toText(i) === text)
       if (match && typeof match !== 'string') {
@@ -668,12 +732,38 @@ export default function BMCClient({
       } else {
         const { data: row } = await supabase
           .from('business_model_canvases')
-          .insert({ opportunity_id: opportunity.id, ...newData, ...extra })
+          .insert({ project_id: project.id, opportunity_id: opportunity.id, ...newData, ...extra })
           .select('id')
           .single()
         if (row?.id) setBmcId(row.id)
       }
     } catch { /* silent */ }
+  }
+
+  async function addSecondaryVPC() {
+    if (!bmcId || !selectedSecondaryVPCId) return
+    const vpc = availableSecondaryVPCs.find((item) => item.id === selectedSecondaryVPCId)
+    if (!vpc || secondaryVpcs.some((item) => item.id === vpc.id)) return
+
+    setSecondaryVpcs((prev) => [...prev, vpc])
+    setSelectedSecondaryVPCId('')
+    const { error } = await supabase
+      .from('bmc_vpcs')
+      .upsert({ bmc_id: bmcId, vpc_id: vpc.id, role: 'secondary' }, { onConflict: 'bmc_id,vpc_id' })
+    if (error) setSecondaryVpcs((prev) => prev.filter((item) => item.id !== vpc.id))
+  }
+
+  async function removeSecondaryVPC(vpcId: string) {
+    if (!bmcId) return
+    const previous = secondaryVpcs
+    setSecondaryVpcs((prev) => prev.filter((item) => item.id !== vpcId))
+    const { error } = await supabase
+      .from('bmc_vpcs')
+      .delete()
+      .eq('bmc_id', bmcId)
+      .eq('vpc_id', vpcId)
+      .eq('role', 'secondary')
+    if (error) setSecondaryVpcs(previous)
   }
 
   // ── DB save: per-twin ────────────────────────────────────────────────────────
@@ -763,14 +853,14 @@ export default function BMCClient({
 
     try {
       // Build VPC attribution context for aggregate generation
-      const vpcWithAttribution = isAgg && finalVPC
+      const vpcWithAttribution = isAgg && derivedVPC
         ? {
-            productsAndServices: extractVPCSection(finalVPC.productsAndServices),
-            painRelievers:       extractVPCSection(finalVPC.painRelievers),
-            gainCreators:        extractVPCSection(finalVPC.gainCreators),
-            jobs:                extractVPCSection(finalVPC.jobs),
-            pains:               extractVPCSection(finalVPC.pains),
-            gains:               extractVPCSection(finalVPC.gains),
+            productsAndServices: extractVPCSection(derivedVPC.productsAndServices),
+            painRelievers:       extractVPCSection(derivedVPC.painRelievers),
+            gainCreators:        extractVPCSection(derivedVPC.gainCreators),
+            jobs:                extractVPCSection(derivedVPC.jobs),
+            pains:               extractVPCSection(derivedVPC.pains),
+            gains:               extractVPCSection(derivedVPC.gains),
           }
         : undefined
 
@@ -940,7 +1030,7 @@ export default function BMCClient({
 
       <motion.div className="flex-1 overflow-auto p-6 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <BackButton
-          href={`/project/${project.id}/opportunity/${opportunity.id}/vpc`}
+          href={bmcBackHref ?? `/project/${project.id}/opportunity/${opportunity.id}/vpc`}
           label={t.bmc_back}
         />
 
@@ -959,6 +1049,11 @@ export default function BMCClient({
               Business Model Canvas
             </h1>
             <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
+            {primaryVPC && (
+              <p style={{ fontSize: 12, color: 'var(--color-text-faint)', marginTop: 4 }}>
+                Primary VPC: <Link href={`/project/${project.id}/vpcs/${primaryVPC.id}`} style={{ color: 'var(--color-amber)', textDecoration: 'none' }}>{primaryVPC.customer_profile_name}</Link>
+              </p>
+            )}
           </div>
           <button
             onClick={downloadPDF}
@@ -1027,6 +1122,72 @@ export default function BMCClient({
           </div>
         )}
 
+        {primaryVPC && (
+          <div className="rounded-2xl p-4 mb-4" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-text-muted)' }}>
+                  Secondary segments
+                </p>
+                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                  The primary VPC remains the core. Add secondary VPCs only when the model expands to adjacent segments.
+                </p>
+              </div>
+              {availableSecondaryVPCs.filter((vpc) => !secondaryVpcs.some((item) => item.id === vpc.id) && vpc.id !== primaryVPC.id).length > 0 && (
+                <div className="flex gap-2 min-w-[320px]">
+                  <select
+                    value={selectedSecondaryVPCId}
+                    onChange={(event) => setSelectedSecondaryVPCId(event.target.value)}
+                    className="flex-1 px-3 py-2 text-xs outline-none"
+                    style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-ink)' }}
+                  >
+                    <option value="">Add secondary VPC...</option>
+                    {availableSecondaryVPCs
+                      .filter((vpc) => !secondaryVpcs.some((item) => item.id === vpc.id) && vpc.id !== primaryVPC.id)
+                      .map((vpc) => (
+                        <option key={vpc.id} value={vpc.id}>{vpc.customer_profile_name}</option>
+                      ))}
+                  </select>
+                  <button
+                    onClick={addSecondaryVPC}
+                    disabled={!selectedSecondaryVPCId}
+                    className="px-3 py-2 text-xs font-medium disabled:opacity-50"
+                    style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8 }}
+                  >
+                    Add
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {secondaryVpcs.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                {secondaryVpcs.map((vpc) => (
+                  <div key={vpc.id} className="rounded-xl p-3" style={{ backgroundColor: 'var(--color-linen)', border: '0.5px solid var(--color-border)' }}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <Link href={`/project/${project.id}/vpcs/${vpc.id}`} className="text-sm font-medium" style={{ color: 'var(--color-ink)', textDecoration: 'none' }}>
+                          {vpc.customer_profile_name}
+                        </Link>
+                        <p className="text-[10px] mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                          Segments: {deriveCustomerSegmentsFromVPC(vpc).join(', ') || 'None'} · VP: {deriveValuePropositionsFromVPC(vpc).join(', ') || 'None'}
+                        </p>
+                      </div>
+                      <button onClick={() => removeSecondaryVPC(vpc.id)} className="opacity-50 hover:opacity-100" title="Remove secondary VPC">
+                        <X size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs italic mt-4" style={{ color: 'var(--color-text-faint)' }}>
+                No secondary VPCs yet.
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Canvas */}
         {isAggTab ? (
           <BMCGrid
@@ -1038,6 +1199,8 @@ export default function BMCClient({
             onRemove={(block, i) => removeAggItem(block, i)}
             onEdit={(block, i, text) => editAggItem(block, i, text)}
             getTwinDots={twinInterviews.length > 0 ? getTwinDotsForItem : undefined}
+            readOnlyBlocks={readOnlyInheritedBlocks}
+            editInVpcHref={primaryVPC ? `/project/${project.id}/vpcs/${primaryVPC.id}` : undefined}
           />
         ) : (
           <BMCGrid

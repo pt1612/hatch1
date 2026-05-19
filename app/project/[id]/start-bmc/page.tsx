@@ -136,7 +136,7 @@ export default function StartBMCPage({ params }: { params: Promise<{ id: string 
           </div>
 
           <button
-            onClick={() => router.push(`/project/${projectId}/import-bmc`)}
+            onClick={() => router.push(`/project/${projectId}/bmcs/new`)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',

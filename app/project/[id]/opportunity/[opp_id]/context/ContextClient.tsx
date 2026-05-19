@@ -4,22 +4,37 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
-import { ChevronRight, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { ChevronRight, Loader2, Plus, X } from 'lucide-react'
 import type { Opportunity } from '@/lib/types'
 import { motion } from 'framer-motion'
 import { useI18n } from '@/lib/i18n/context'
+import { createClient } from '@/lib/supabase/client'
+
+type LinkedVPC = {
+  id: string
+  customer_profile_name: string
+  source_type: string
+}
 
 export default function ContextClient({
   project,
   opportunity,
+  linkedVpcs,
+  allVpcs,
 }: {
   project: { id: string; title: string }
   opportunity: Opportunity
+  linkedVpcs: LinkedVPC[]
+  allVpcs: LinkedVPC[]
 }) {
   const router = useRouter()
   const { t } = useI18n()
+  const supabase = createClient()
   const [context, setContext] = useState('')
   const [loading, setLoading] = useState(false)
+  const [currentLinkedVpcs, setCurrentLinkedVpcs] = useState<LinkedVPC[]>(linkedVpcs)
+  const [selectedVPCId, setSelectedVPCId] = useState('')
 
   const DIMENSIONS = [
     { label: t.dim_reason_to_buy,              desc: t.ctx_dim_reason_to_buy },
@@ -37,6 +52,34 @@ export default function ContextClient({
     }
     router.push(`/project/${project.id}/opportunity/${opportunity.id}/report`)
   }
+
+  async function linkVPC() {
+    if (!selectedVPCId || currentLinkedVpcs.some((vpc) => vpc.id === selectedVPCId)) return
+    const nextVPC = allVpcs.find((vpc) => vpc.id === selectedVPCId)
+    if (!nextVPC) return
+
+    setCurrentLinkedVpcs((prev) => [...prev, nextVPC])
+    setSelectedVPCId('')
+    const { error } = await supabase
+      .from('vpc_opportunities')
+      .upsert({ vpc_id: nextVPC.id, opportunity_id: opportunity.id }, { onConflict: 'vpc_id,opportunity_id' })
+    if (error) {
+      setCurrentLinkedVpcs((prev) => prev.filter((vpc) => vpc.id !== nextVPC.id))
+    }
+  }
+
+  async function unlinkVPC(vpcId: string) {
+    const previous = currentLinkedVpcs
+    setCurrentLinkedVpcs((prev) => prev.filter((vpc) => vpc.id !== vpcId))
+    const { error } = await supabase
+      .from('vpc_opportunities')
+      .delete()
+      .eq('vpc_id', vpcId)
+      .eq('opportunity_id', opportunity.id)
+    if (error) setCurrentLinkedVpcs(previous)
+  }
+
+  const availableVpcs = allVpcs.filter((vpc) => !currentLinkedVpcs.some((linked) => linked.id === vpc.id))
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
@@ -61,6 +104,87 @@ export default function ContextClient({
           <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 24 }}>
             {opportunity.customer_segment} · {opportunity.application}
           </p>
+
+          <div
+            className="rounded-2xl p-6 mb-6"
+            style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
+          >
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <h2
+                  style={{
+                    fontFamily: "'Lora', Georgia, serif",
+                    fontWeight: 400,
+                    fontSize: 16,
+                    color: 'var(--color-ink)',
+                    marginBottom: 4,
+                  }}
+                >
+                  Linked VPCs
+                </h2>
+                <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                  Connect this opportunity to one or more independent customer profiles.
+                </p>
+              </div>
+              <Link
+                href={`/project/${project.id}/vpcs/new?opportunityId=${opportunity.id}`}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium"
+                style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-ink)', borderRadius: 8, textDecoration: 'none' }}
+              >
+                <Plus size={13} />
+                New VPC
+              </Link>
+            </div>
+
+            {currentLinkedVpcs.length > 0 ? (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {currentLinkedVpcs.map((vpc) => (
+                  <span
+                    key={vpc.id}
+                    className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs"
+                    style={{ backgroundColor: 'rgba(76,175,125,0.10)', color: '#2D7A57' }}
+                  >
+                    <Link href={`/project/${project.id}/vpcs/${vpc.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                      {vpc.customer_profile_name}
+                    </Link>
+                    <button onClick={() => unlinkVPC(vpc.id)} title="Unlink VPC" className="opacity-60 hover:opacity-100">
+                      <X size={11} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs italic mb-4" style={{ color: 'var(--color-text-faint)' }}>
+                No VPC linked to this opportunity yet.
+              </p>
+            )}
+
+            {availableVpcs.length > 0 && (
+              <div className="flex gap-2">
+                <select
+                  value={selectedVPCId}
+                  onChange={(event) => setSelectedVPCId(event.target.value)}
+                  className="flex-1 px-3 py-2 text-sm outline-none"
+                  style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-ink)' }}
+                >
+                  <option value="">Add an existing VPC...</option>
+                  {availableVpcs.map((vpc) => (
+                    <option key={vpc.id} value={vpc.id}>
+                      {vpc.customer_profile_name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={linkVPC}
+                  disabled={!selectedVPCId}
+                  className="px-3 py-2 text-xs font-medium disabled:opacity-50"
+                  style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8 }}
+                >
+                  Link
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Context textarea */}
           <div

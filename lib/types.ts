@@ -112,7 +112,36 @@ export type TwinSession = {
   id: string
   opportunity_id: string
   suggested_segments: string[]
+  vpc_value_map?: Record<string, unknown> | null
   report: TwinReport | null
+  created_at: string
+}
+
+export type VPC = {
+  id: string
+  project_id: string
+  customer_profile_name: string
+  source_type: 'manual' | 'real_interview' | 'virtual_interview' | 'legacy_twin_session' | string
+  customer_profile: Record<string, unknown>
+  value_map: Record<string, unknown>
+  final_canvas: Record<string, unknown>
+  interview_attachment: Record<string, unknown> | null
+  twin_transcript: Record<string, unknown> | null
+  legacy_twin_session_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type VPCOpportunity = {
+  vpc_id: string
+  opportunity_id: string
+  created_at: string
+}
+
+export type BMCVPC = {
+  bmc_id: string
+  vpc_id: string
+  role: 'primary' | 'secondary'
   created_at: string
 }
 

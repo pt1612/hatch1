@@ -6,21 +6,35 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
-import { ChevronRight, Check, Loader2, Plus, X } from 'lucide-react'
+import { ChevronRight, ChevronDown, Check, Loader2, Plus, X } from 'lucide-react'
 import { computeCategory } from '@/lib/types'
 import type { Opportunity, Strategy, Classification } from '@/lib/types'
 import { motion } from 'framer-motion'
 import { useToast } from '@/components/ui/toast'
 import { useI18n } from '@/lib/i18n/context'
+import WhereToPlayCompletion from './WhereToPlayCompletion'
+import type { WtpCompletionVpc, WtpCompletionBmc } from './WhereToPlayCompletion'
+
+type WtpCompletion = {
+  abilitiesCount: number
+  opportunitiesCount: number
+  evaluatedCount: number
+  spotlightOpportunity: { id: string; name: string } | null
+  spotlightScoreLabel: string | null
+  vpcs: WtpCompletionVpc[]
+  bmcs: WtpCompletionBmc[]
+}
 
 export default function StrategyClient({
   project,
   opportunities,
   existingStrategy,
+  wtpCompletion = null,
 }: {
   project: { id: string; title: string }
   opportunities: Opportunity[]
   existingStrategy: Strategy | null
+  wtpCompletion?: WtpCompletion | null
 }) {
   const router = useRouter()
   const supabase = createClient()
@@ -35,6 +49,7 @@ export default function StrategyClient({
   )
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [keepOptionsOpen, setKeepOptionsOpen] = useState(false)
 
   const evaluatedOpps = opportunities.filter((o) => !!o.potential_score)
   const pursueNowOpps = opportunities.filter((o) => pursueNowIds.includes(o.id))
@@ -290,22 +305,43 @@ export default function StrategyClient({
               )}
             </div>
 
-            {/* Column 2: Keep Options Open */}
+            {/* Column 2: Keep Options Open — collapsible, closed by default */}
             <div>
-              <h2
-                className="mb-3"
-                style={{
-                  fontFamily: 'inherit',
-                  fontSize: 10,
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: 'var(--color-text-muted)',
-                }}
+              <button
+                onClick={() => setKeepOptionsOpen((v) => !v)}
+                className="flex items-center gap-2 mb-3 w-full text-left"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               >
-                {t.strategy_keep_options}
-              </h2>
-              {otherOpps.length === 0 ? (
+                <h2
+                  style={{
+                    fontFamily: 'inherit',
+                    fontSize: 10,
+                    fontWeight: 500,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: 'var(--color-text-muted)',
+                    margin: 0,
+                  }}
+                >
+                  {t.strategy_keep_options}
+                </h2>
+                {otherOpps.length > 0 && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium"
+                    style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-text-muted)' }}>
+                    {otherOpps.length}
+                  </span>
+                )}
+                <ChevronDown
+                  size={14}
+                  style={{
+                    color: 'var(--color-text-muted)',
+                    marginLeft: 'auto',
+                    transform: keepOptionsOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease',
+                  }}
+                />
+              </button>
+              {!keepOptionsOpen ? null : otherOpps.length === 0 ? (
                 <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>{t.strategy_none_other}</p>
               ) : (
                 <div className="space-y-3">
@@ -441,6 +477,19 @@ export default function StrategyClient({
             </div>
 
           </div>
+        )}
+
+        {wtpCompletion && (
+          <WhereToPlayCompletion
+            projectId={project.id}
+            abilitiesCount={wtpCompletion.abilitiesCount}
+            opportunitiesCount={wtpCompletion.opportunitiesCount}
+            evaluatedCount={wtpCompletion.evaluatedCount}
+            spotlightOpportunity={wtpCompletion.spotlightOpportunity}
+            spotlightScoreLabel={wtpCompletion.spotlightScoreLabel}
+            vpcs={wtpCompletion.vpcs}
+            bmcs={wtpCompletion.bmcs}
+          />
         )}
       </motion.div>
     </div>

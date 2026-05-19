@@ -44,22 +44,6 @@ function isItemLocked(label: string, entryPath: string | null | undefined, href?
   return false
 }
 
-function LockIcon() {
-  return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 3, flexShrink: 0 }}
-    >
-      <rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor" />
-      <path d="M8 11V7a4 4 0 018 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 function LangToggle() {
   const { lang, setLang } = useI18n()
   return (
@@ -173,8 +157,6 @@ export default function TopNav({
     router.push('/login')
   }
 
-  const isDashboard = pathname === '/dashboard'
-
   return (
     <>
       <div
@@ -193,7 +175,7 @@ export default function TopNav({
           borderBottom: '0.5px solid var(--color-border)',
         }}
       >
-        {/* Left: logo + Dashboard link */}
+        {/* Left: logo only (clicking logo goes to dashboard) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
           <Link
             href="/dashboard"
@@ -218,33 +200,9 @@ export default function TopNav({
               Hatch
             </span>
           </Link>
-
-          <Link
-            href="/dashboard"
-            style={{
-              marginLeft: 18,
-              fontSize: 12,
-              color: isDashboard ? 'var(--color-amber)' : 'var(--color-text-muted)',
-              textDecoration: 'none',
-              paddingBottom: 1,
-              borderBottom: isDashboard
-                ? '1.5px solid var(--color-amber)'
-                : '1.5px solid transparent',
-              transition: 'color 0.1s ease',
-            }}
-            onMouseEnter={(e) => {
-              if (!isDashboard) (e.currentTarget as HTMLElement).style.color = 'var(--color-ink)'
-            }}
-            onMouseLeave={(e) => {
-              if (!isDashboard)
-                (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)'
-            }}
-          >
-            {t.nav_dashboard}
-          </Link>
         </div>
 
-        {/* Center: nav items */}
+        {/* Center: nav items — only show unlocked ones */}
         {items.length > 0 && (
           <nav
             style={{
@@ -255,43 +213,17 @@ export default function TopNav({
               gap: 0,
             }}
           >
-            {items.map((item, i) => {
-              const active = isActive(item.href)
-              const locked = isItemLocked(item.label, entryPath, item.href)
-
-              return (
-                <span key={item.label} style={{ display: 'flex', alignItems: 'center' }}>
-                  {i > 0 && (
-                    <span
-                      style={{
-                        color: 'var(--color-border)',
-                        fontSize: 14,
-                        marginLeft: 4,
-                        marginRight: 4,
-                        userSelect: 'none',
-                      }}
-                    >
-                      ·
-                    </span>
-                  )}
-                  {locked ? (
-                    <span
-                      style={{
-                        fontSize: 13,
-                        color: 'var(--color-text-faint)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        paddingBottom: 2,
-                        pointerEvents: 'none',
-                        opacity: 0.4,
-                        whiteSpace: 'nowrap',
-                        cursor: 'default',
-                      }}
-                    >
-                      {item.label}
-                      <LockIcon />
-                    </span>
-                  ) : (
+            {items
+              .filter((item) => !isItemLocked(item.label, entryPath, item.href))
+              .map((item, i) => {
+                const active = isActive(item.href)
+                return (
+                  <span key={item.label} style={{ display: 'flex', alignItems: 'center' }}>
+                    {i > 0 && (
+                      <span style={{ color: 'var(--color-border)', fontSize: 14, marginLeft: 4, marginRight: 4, userSelect: 'none' }}>
+                        ·
+                      </span>
+                    )}
                     <Link
                       href={item.href}
                       style={{
@@ -299,28 +231,19 @@ export default function TopNav({
                         color: active ? 'var(--color-amber)' : 'var(--color-text-muted)',
                         textDecoration: 'none',
                         paddingBottom: 2,
-                        borderBottom: active
-                          ? '1.5px solid var(--color-amber)'
-                          : '1.5px solid transparent',
+                        borderBottom: active ? '1.5px solid var(--color-amber)' : '1.5px solid transparent',
                         transition: 'color 0.1s ease, border-color 0.1s ease',
                         whiteSpace: 'nowrap',
                         textShadow: active ? '0 0 20px rgba(199,123,58,0.3)' : 'none',
                       }}
-                      onMouseEnter={(e) => {
-                        if (!active)
-                          (e.currentTarget as HTMLElement).style.color = 'var(--color-ink)'
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!active)
-                          (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)'
-                      }}
+                      onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = 'var(--color-ink)' }}
+                      onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)' }}
                     >
                       {item.label}
                     </Link>
-                  )}
-                </span>
-              )
-            })}
+                  </span>
+                )
+              })}
           </nav>
         )}
 

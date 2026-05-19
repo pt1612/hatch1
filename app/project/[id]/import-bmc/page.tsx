@@ -279,12 +279,50 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
 
       const bmcData = Object.fromEntries(BMC_BLOCKS.map((b) => [b.key, blocks[b.key]]))
 
-      await supabase.from('business_model_canvases').upsert(
-        { opportunity_id: opp.id, ...bmcData },
-        { onConflict: 'opportunity_id' }
-      )
+      const vpcCanvas = {
+        productsAndServices: blocks.value_propositions.map((text) => ({ text, twinIdx: -1 })),
+        painRelievers: [],
+        gainCreators: [],
+        jobs: [],
+        pains: [],
+        gains: blocks.customer_segments.map((text) => ({ text, twinIdx: -1 })),
+      }
 
-      router.push(`/project/${projectId}/opportunity/${opp.id}/bmc`)
+      const { data: vpc } = await supabase
+        .from('vpcs')
+        .insert({
+          project_id: projectId,
+          customer_profile_name: blocks.customer_segments[0] || opportunityName.trim() || 'Primary segment',
+          source_type: 'legacy_bmc',
+          customer_profile: { jobs: [], pains: [], gains: vpcCanvas.gains },
+          value_map: {
+            productsAndServices: vpcCanvas.productsAndServices,
+            painRelievers: [],
+            gainCreators: [],
+          },
+          final_canvas: vpcCanvas,
+        })
+        .select('id')
+        .single()
+
+      if (vpc?.id) {
+        await supabase
+          .from('vpc_opportunities')
+          .upsert({ vpc_id: vpc.id, opportunity_id: opp.id }, { onConflict: 'vpc_id,opportunity_id' })
+      }
+
+      const { data: bmc } = await supabase.from('business_model_canvases').upsert(
+        { project_id: projectId, opportunity_id: opp.id, title: opportunityName.trim() || 'BMC importato', ...bmcData },
+        { onConflict: 'opportunity_id' }
+      ).select('id').single()
+
+      if (bmc?.id && vpc?.id) {
+        await supabase
+          .from('bmc_vpcs')
+          .upsert({ bmc_id: bmc.id, vpc_id: vpc.id, role: 'primary' }, { onConflict: 'bmc_id,vpc_id' })
+      }
+
+      router.push(bmc?.id ? `/project/${projectId}/bmcs/${bmc.id}` : `/project/${projectId}/opportunity/${opp.id}/bmc`)
     } catch (err) {
       console.error('[ImportBMC] save error:', err)
       setSaving(false)

@@ -371,6 +371,7 @@ export default function VPCClient({
   abilities,
   sessionId,
   existingFinalVPC,
+  vpcRecordId: _vpcRecordId,
 }: {
   project: { id: string; title: string }
   opportunity: Opportunity
@@ -380,6 +381,7 @@ export default function VPCClient({
   abilities: Ability[]
   sessionId: string | null
   existingFinalVPC: unknown
+  vpcRecordId?: string | null
 }) {
   const supabase = createClient()
   const { t, lang } = useI18n()
