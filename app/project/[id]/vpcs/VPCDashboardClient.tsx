@@ -328,7 +328,7 @@ export default function VPCDashboardClient({
                           fontStyle: 'italic',
                         }}
                       >
-                        {t.vpcd_unassigned ?? 'Unassigned'}
+                        Unassigned
                       </p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {noOppVpcs.map((vpc) => (
