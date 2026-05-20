@@ -106,7 +106,7 @@ Return ONLY valid JSON, no other text.`
   console.log('[generate-twin-report] top-level pains:', JSON.stringify(parsed.pains ?? null))
   console.log('[generate-twin-report] top-level jobsToBeDone:', JSON.stringify(parsed.jobsToBeDone ?? null))
 
-  // Persist per-twin gains/pains/jobs to twin_interviews
+  // Persist per-twin gains/pains/jobs to twin_interviews + create per-twin VPC
   if (parsed.whereToPlay && Array.isArray(parsed.whereToPlay)) {
     try {
       const supabase = await createClient()
@@ -114,6 +114,15 @@ Return ONLY valid JSON, no other text.`
       // Build a direct map from sequential twinId → real DB UUID using the dbId
       // field sent by the client — no order-based lookup needed
       console.log('[generate-twin-report] twins dbIds:', JSON.stringify(twins.map(t => ({ id: t.id, dbId: t.dbId }))))
+
+      // Look up project_id from the opportunity — VPC rows need it
+      const { data: opp } = await supabase
+        .from('opportunities')
+        .select('project_id')
+        .eq('id', opportunityId)
+        .single()
+      const projectId = opp?.project_id ?? null
+      console.log('[generate-twin-report] resolved project_id for opportunity:', opportunityId, '→', projectId)
 
       for (const [index, entry] of parsed.whereToPlay.entries()) {
         const dbId = twins[index]?.dbId
@@ -148,6 +157,82 @@ Return ONLY valid JSON, no other text.`
           .select('id, gains, pains, jobs_to_be_done')
 
         console.log(`[generate-twin-report] supabase response for ${entry.twinId}:`, JSON.stringify(updated), 'error:', JSON.stringify(updateErr))
+
+        // ── Per-twin VPC creation (idempotent: skip if one already exists) ──
+        if (!projectId) {
+          console.log(`[generate-twin-report] no projectId — skipping VPC creation for ${entry.twinId}`)
+          continue
+        }
+
+        const twin = twins[index]
+        const twinName = twin?.name ?? entry.twinName ?? 'Unknown'
+
+        // Idempotency key: interview_attachment.twin_id in jsonb
+        const { data: existingVpcs, error: existingErr } = await supabase
+          .from('vpcs')
+          .select('id')
+          .eq('source_type', 'virtual_interview')
+          .filter('interview_attachment->>twin_id', 'eq', dbId)
+          .limit(1)
+
+        console.log(`[generate-twin-report] existing VPC lookup for twin ${dbId}:`, JSON.stringify(existingVpcs), 'error:', JSON.stringify(existingErr))
+
+        if (existingVpcs && existingVpcs.length > 0) {
+          console.log(`[generate-twin-report] VPC already exists for twin ${dbId} (id=${existingVpcs[0].id}) — skipping creation`)
+          continue
+        }
+
+        const customerProfile = { jobs: entryJobs, pains: entryPains, gains: entryGains }
+        const valueMap = { productsAndServices: [], painRelievers: [], gainCreators: [] }
+        const finalCanvas = {
+          productsAndServices: [],
+          painRelievers: [],
+          gainCreators: [],
+          jobs: entryJobs,
+          pains: entryPains,
+          gains: entryGains,
+        }
+        const twinTranscript = messages
+          .filter((m) => m.role === 'user' || m.twinId === entry.twinId || m.twinName === entry.twinName)
+          .map((m) => ({
+            role: m.role,
+            content: m.content,
+            twinId: m.twinId ?? null,
+            twinName: m.twinName ?? null,
+          }))
+        const interviewAttachment = {
+          version: 1,
+          twin_id: dbId,
+          twin_name: twinName,
+          twin_segment: twin?.segment ?? null,
+          opportunity_id: opportunityId,
+        }
+
+        console.log(`[generate-twin-report] inserting VPC for twin ${dbId} (${twinName})`)
+
+        const { data: insertedVpc, error: insertErr } = await supabase
+          .from('vpcs')
+          .insert({
+            project_id: projectId,
+            customer_profile_name: twinName,
+            source_type: 'virtual_interview',
+            customer_profile: customerProfile,
+            value_map: valueMap,
+            final_canvas: finalCanvas,
+            interview_attachment: interviewAttachment,
+            twin_transcript: twinTranscript,
+          })
+          .select('id')
+          .single()
+
+        console.log(`[generate-twin-report] VPC insert response for ${entry.twinId}:`, JSON.stringify(insertedVpc), 'error:', JSON.stringify(insertErr))
+
+        if (insertedVpc?.id) {
+          const { error: linkErr } = await supabase
+            .from('vpc_opportunities')
+            .insert({ vpc_id: insertedVpc.id, opportunity_id: opportunityId })
+          console.log(`[generate-twin-report] vpc_opportunities link for vpc ${insertedVpc.id}:`, 'error:', JSON.stringify(linkErr))
+        }
       }
     } catch (err) {
       console.error('[generate-twin-report] DB write error:', err)
