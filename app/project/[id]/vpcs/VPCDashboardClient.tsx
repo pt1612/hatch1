@@ -5,21 +5,42 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import TopNav from '@/components/TopNav'
 import { Loader2, ChevronRight, CheckSquare, Square, Layers } from 'lucide-react'
-import type { VPC, VPCAggregate } from '@/lib/types'
 import { motion } from 'framer-motion'
 import { useToast } from '@/components/ui/toast'
 import { useI18n } from '@/lib/i18n/context'
+
+interface VPC {
+  id: string
+  customer_profile_name: string
+  source_type: string
+  customer_profile: { jobs?: string[]; pains?: string[]; gains?: string[] } | null
+  value_map: { productsAndServices?: string[]; painRelievers?: string[]; gainCreators?: string[] } | null
+  is_aggregate: boolean | null
+  created_at: string
+  interview_attachment?: { twin_name?: string | null; twin_segment?: string | null } | null
+}
 
 interface Opportunity {
   id: string
   name: string
 }
 
+interface VPCOpportunityLink {
+  vpc_id: string
+  opportunity_id: string
+}
+
+interface AggregateLink {
+  aggregate_vpc_id: string
+  source_vpc_id: string
+}
+
 interface VPCDashboardClientProps {
   project: { id: string; title: string }
   opportunities: Opportunity[]
   vpcs: VPC[]
-  aggregateLinks: VPCAggregate[]
+  vpcOpportunities: VPCOpportunityLink[]
+  aggregateLinks: AggregateLink[]
 }
 
 function Badge({ label, variant }: { label: string; variant: 'ready' | 'missing' | 'aggregate' }) {
@@ -58,10 +79,21 @@ function Badge({ label, variant }: { label: string; variant: 'ready' | 'missing'
   )
 }
 
+function vpcHasValueMap(vpc: VPC): boolean {
+  const vm = vpc.value_map
+  if (!vm) return false
+  return (
+    (Array.isArray(vm.productsAndServices) && vm.productsAndServices.length > 0) ||
+    (Array.isArray(vm.painRelievers) && vm.painRelievers.length > 0) ||
+    (Array.isArray(vm.gainCreators) && vm.gainCreators.length > 0)
+  )
+}
+
 export default function VPCDashboardClient({
   project,
   opportunities,
   vpcs,
+  vpcOpportunities,
   aggregateLinks,
 }: VPCDashboardClientProps) {
   const router = useRouter()
@@ -71,38 +103,53 @@ export default function VPCDashboardClient({
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [aggregating, setAggregating] = useState(false)
 
-  const leafVpcs = vpcs.filter(v => !v.is_aggregate)
-  const aggregateVpcs = vpcs.filter(v => v.is_aggregate)
+  const leafVpcs = vpcs.filter((v) => !v.is_aggregate)
+  const aggregateVpcs = vpcs.filter((v) => v.is_aggregate)
 
-  // Group leaf VPCs by opportunity
-  const oppMap = new Map(opportunities.map(o => [o.id, o]))
+  const oppMap = new Map(opportunities.map((o) => [o.id, o]))
+
+  // Build vpc_id → opportunity names map from the junction table
+  const vpcOppNames = new Map<string, string[]>()
+  for (const link of vpcOpportunities) {
+    const oppName = oppMap.get(link.opportunity_id)?.name
+    if (!oppName) continue
+    const arr = vpcOppNames.get(link.vpc_id) ?? []
+    arr.push(oppName)
+    vpcOppNames.set(link.vpc_id, arr)
+  }
+
+  // Build vpc_id → first opportunity id (for grouping)
+  const vpcFirstOpp = new Map<string, string>()
+  for (const link of vpcOpportunities) {
+    if (!vpcFirstOpp.has(link.vpc_id)) {
+      vpcFirstOpp.set(link.vpc_id, link.opportunity_id)
+    }
+  }
+
+  // Group leaf VPCs by their first linked opportunity
   const vpcsByOpp = new Map<string, VPC[]>()
   const noOppVpcs: VPC[] = []
-
   for (const vpc of leafVpcs) {
-    if (vpc.opportunity_id && oppMap.has(vpc.opportunity_id)) {
-      const arr = vpcsByOpp.get(vpc.opportunity_id) ?? []
+    const oppId = vpcFirstOpp.get(vpc.id)
+    if (oppId && oppMap.has(oppId)) {
+      const arr = vpcsByOpp.get(oppId) ?? []
       arr.push(vpc)
-      vpcsByOpp.set(vpc.opportunity_id, arr)
+      vpcsByOpp.set(oppId, arr)
     } else {
       noOppVpcs.push(vpc)
     }
   }
 
-  // Build source VPC name map for aggregates
-  const vpcNameMap = new Map(vpcs.map(v => [v.id, v.name]))
+  // Map vpc id → display name for aggregate source listings
+  const vpcNameMap = new Map(vpcs.map((v) => [v.id, v.customer_profile_name]))
 
   function toggleSelect(vpcId: string) {
-    setSelected(prev => {
+    setSelected((prev) => {
       const next = new Set(prev)
       if (next.has(vpcId)) next.delete(vpcId)
       else next.add(vpcId)
       return next
     })
-  }
-
-  function isReady(vpc: VPC) {
-    return vpc.value_map !== null
   }
 
   async function handleAggregate() {
@@ -117,12 +164,18 @@ export default function VPCDashboardClient({
           source_vpc_ids: Array.from(selected),
         }),
       })
-      if (!res.ok) throw new Error('Aggregation failed')
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        const detail = data?.error ?? `HTTP ${res.status}`
+        console.error('[VPCDashboard] aggregate-vpcs failed:', detail, data)
+        toast(`Aggregation failed: ${detail}`, 'error')
+        return
+      }
       setSelected(new Set())
       router.refresh()
       toast('Aggregate VPC created', 'success')
     } catch (err) {
-      console.error(err)
+      console.error('[VPCDashboard] aggregate error:', err)
       toast('Aggregation failed', 'error')
     } finally {
       setAggregating(false)
@@ -136,7 +189,6 @@ export default function VPCDashboardClient({
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '88px 24px 60px' }}>
-        {/* Header */}
         <div style={{ marginBottom: 32, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
           <div>
             <h1
@@ -153,7 +205,6 @@ export default function VPCDashboardClient({
             </h1>
           </div>
 
-          {/* Aggregate button */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
             <button
               onClick={handleAggregate}
@@ -216,8 +267,7 @@ export default function VPCDashboardClient({
           </motion.div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
-            {/* Section A — VPC per opportunità */}
-            {(leafVpcs.length > 0) && (
+            {leafVpcs.length > 0 && (
               <section>
                 <h2
                   style={{
@@ -234,7 +284,6 @@ export default function VPCDashboardClient({
                 </h2>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  {/* Grouped by opportunity */}
                   {Array.from(vpcsByOpp.entries()).map(([oppId, oppVpcs]) => (
                     <div key={oppId}>
                       <p
@@ -250,14 +299,15 @@ export default function VPCDashboardClient({
                         {oppMap.get(oppId)?.name ?? oppId}
                       </p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {oppVpcs.map(vpc => (
+                        {oppVpcs.map((vpc) => (
                           <VPCLeafRow
                             key={vpc.id}
                             vpc={vpc}
                             projectId={project.id}
+                            opportunityNames={vpcOppNames.get(vpc.id) ?? []}
                             isSelected={selected.has(vpc.id)}
                             onToggle={() => toggleSelect(vpc.id)}
-                            isReady={isReady(vpc)}
+                            isReady={vpcHasValueMap(vpc)}
                             t={t}
                           />
                         ))}
@@ -265,27 +315,41 @@ export default function VPCDashboardClient({
                     </div>
                   ))}
 
-                  {/* VPCs without opportunity */}
                   {noOppVpcs.length > 0 && (
                     <div>
-                      {noOppVpcs.map(vpc => (
-                        <VPCLeafRow
-                          key={vpc.id}
-                          vpc={vpc}
-                          projectId={project.id}
-                          isSelected={selected.has(vpc.id)}
-                          onToggle={() => toggleSelect(vpc.id)}
-                          isReady={isReady(vpc)}
-                          t={t}
-                        />
-                      ))}
+                      <p
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 500,
+                          color: 'var(--color-text-muted)',
+                          marginBottom: 8,
+                          paddingBottom: 8,
+                          borderBottom: '0.5px solid var(--color-border)',
+                          fontStyle: 'italic',
+                        }}
+                      >
+                        {t.vpcd_unassigned ?? 'Unassigned'}
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {noOppVpcs.map((vpc) => (
+                          <VPCLeafRow
+                            key={vpc.id}
+                            vpc={vpc}
+                            projectId={project.id}
+                            opportunityNames={[]}
+                            isSelected={selected.has(vpc.id)}
+                            onToggle={() => toggleSelect(vpc.id)}
+                            isReady={vpcHasValueMap(vpc)}
+                            t={t}
+                          />
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
               </section>
             )}
 
-            {/* Section B — Aggregati */}
             <section>
               <h2
                 style={{
@@ -306,10 +370,10 @@ export default function VPCDashboardClient({
                 </p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {aggregateVpcs.map(vpc => {
+                  {aggregateVpcs.map((vpc) => {
                     const sources = aggregateLinks
-                      .filter(al => al.aggregate_vpc_id === vpc.id)
-                      .map(al => vpcNameMap.get(al.source_vpc_id) ?? al.source_vpc_id)
+                      .filter((al) => al.aggregate_vpc_id === vpc.id)
+                      .map((al) => vpcNameMap.get(al.source_vpc_id) ?? al.source_vpc_id)
                     return (
                       <VPCAggregateRow
                         key={vpc.id}
@@ -318,7 +382,7 @@ export default function VPCDashboardClient({
                         sources={sources}
                         isSelected={selected.has(vpc.id)}
                         onToggle={() => toggleSelect(vpc.id)}
-                        isReady={isReady(vpc)}
+                        isReady={vpcHasValueMap(vpc)}
                         t={t}
                       />
                     )
@@ -336,6 +400,7 @@ export default function VPCDashboardClient({
 function VPCLeafRow({
   vpc,
   projectId,
+  opportunityNames,
   isSelected,
   onToggle,
   isReady,
@@ -343,11 +408,21 @@ function VPCLeafRow({
 }: {
   vpc: VPC
   projectId: string
+  opportunityNames: string[]
   isSelected: boolean
   onToggle: () => void
   isReady: boolean
   t: ReturnType<typeof useI18n>['t']
 }) {
+  const twinName = vpc.interview_attachment?.twin_name ?? vpc.customer_profile_name
+  const segment = vpc.interview_attachment?.twin_segment ?? null
+  const subtitle = [
+    segment,
+    opportunityNames.length > 0 ? opportunityNames.join(' · ') : null,
+  ]
+    .filter(Boolean)
+    .join(' — ')
+
   return (
     <motion.div
       layout
@@ -363,7 +438,6 @@ function VPCLeafRow({
         border: '0.5px solid var(--color-border)',
       }}
     >
-      {/* Checkbox */}
       <button
         onClick={onToggle}
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, color: isSelected ? 'var(--color-amber)' : 'var(--color-border)', display: 'flex' }}
@@ -372,23 +446,45 @@ function VPCLeafRow({
         {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
       </button>
 
-      {/* Name */}
-      <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }}>
-        {vpc.name}
-      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--color-ink)',
+            margin: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {twinName}
+        </p>
+        {subtitle && (
+          <p
+            style={{
+              fontSize: 11,
+              color: 'var(--color-text-muted)',
+              margin: '2px 0 0 0',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {subtitle}
+          </p>
+        )}
+      </div>
 
-      {/* Badge */}
       <Badge
         label={isReady ? t.vpcd_badge_ready : t.vpcd_badge_missing_map}
         variant={isReady ? 'ready' : 'missing'}
       />
 
-      {/* Date */}
       <span style={{ fontSize: 11, color: 'var(--color-text-faint)', whiteSpace: 'nowrap' }}>
         {new Date(vpc.created_at).toLocaleDateString()}
       </span>
 
-      {/* Open link */}
       <Link
         href={`/project/${projectId}/vpcs/${vpc.id}`}
         style={{
@@ -440,7 +536,6 @@ function VPCAggregateRow({
         border: '1.5px solid rgba(199,123,58,0.30)',
       }}
     >
-      {/* Checkbox */}
       <button
         onClick={onToggle}
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, color: isSelected ? 'var(--color-amber)' : 'var(--color-border)', display: 'flex' }}
@@ -449,10 +544,9 @@ function VPCAggregateRow({
         {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
       </button>
 
-      {/* Name + sources */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)', margin: '0 0 2px' }}>
-          {vpc.name}
+        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-ink)', margin: '0 0 2px' }}>
+          {vpc.customer_profile_name}
         </p>
         {sources.length > 0 && (
           <p style={{ fontSize: 11, color: 'var(--color-text-faint)', margin: 0 }}>
@@ -461,19 +555,16 @@ function VPCAggregateRow({
         )}
       </div>
 
-      {/* Badges */}
       <Badge label={t.vpcd_badge_aggregate} variant="aggregate" />
       <Badge
         label={isReady ? t.vpcd_badge_ready : t.vpcd_badge_missing_map}
         variant={isReady ? 'ready' : 'missing'}
       />
 
-      {/* Date */}
       <span style={{ fontSize: 11, color: 'var(--color-text-faint)', whiteSpace: 'nowrap' }}>
         {new Date(vpc.created_at).toLocaleDateString()}
       </span>
 
-      {/* Open link */}
       <Link
         href={`/project/${projectId}/vpcs/${vpc.id}`}
         style={{
