@@ -139,6 +139,24 @@ export default function ResultsClient({
               ability_to_serve: entry.abilityToServe,
               gains: entryGains, pains: entryPains, jobs_to_be_done: entryJobs,
             }).eq('twin_id', twinRow.id).select('id, gains, pains, jobs_to_be_done')
+
+            // Create a per-twin VPC if one doesn't exist yet
+            const { data: existingVpc } = await supabase
+              .from('vpcs')
+              .select('id')
+              .eq('twin_id', twinRow.id)
+              .maybeSingle()
+            if (!existingVpc) {
+              await supabase.from('vpcs').insert({
+                project_id: project.id,
+                opportunity_id: opportunity.id,
+                twin_id: twinRow.id,
+                name: twins[twinIdx]?.name ?? (entry.twinName as string) ?? 'Unknown',
+                is_aggregate: false,
+                customer_profile: { jobs: entryJobs, pains: entryPains, gains: entryGains },
+                value_map: null,
+              })
+            }
           }
         }
       }
@@ -442,7 +460,7 @@ export default function ResultsClient({
             )}
 
             <Link
-              href={`/project/${project.id}/opportunity/${opportunity.id}/vpc`}
+              href={`/project/${project.id}/vpcs`}
               className="flex items-center justify-center gap-2 w-full py-3 px-6 text-sm font-medium transition-colors"
               style={{
                 backgroundColor: 'var(--color-amber)',
