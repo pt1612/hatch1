@@ -482,7 +482,7 @@ function VPCLeafRow({
       />
 
       <span style={{ fontSize: 11, color: 'var(--color-text-faint)', whiteSpace: 'nowrap' }}>
-        {new Date(vpc.created_at).toLocaleDateString()}
+        {new Date(vpc.created_at).toLocaleDateString('it-IT')}
       </span>
 
       <Link
@@ -562,7 +562,7 @@ function VPCAggregateRow({
       />
 
       <span style={{ fontSize: 11, color: 'var(--color-text-faint)', whiteSpace: 'nowrap' }}>
-        {new Date(vpc.created_at).toLocaleDateString()}
+        {new Date(vpc.created_at).toLocaleDateString('it-IT')}
       </span>
 
       <Link
