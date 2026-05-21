@@ -285,7 +285,7 @@ export function getInitials(name: string): string {
     .slice(0, 2)
 }
 
-// ─── VPC (Value Proposition Canvas) standalone records ───────────────────────
+// ─── Twin-based VPC (dashboard / aggregate system) ───────────────────────────
 
 export type VPCCustomerProfile = {
   jobs: string[]
@@ -299,7 +299,7 @@ export type VPCValueMap = {
   gainCreators: string[]
 }
 
-export type VPC = {
+export type TwinVPC = {
   id: string
   project_id: string
   opportunity_id: string | null
