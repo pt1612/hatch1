@@ -64,7 +64,7 @@ export default function DashboardClient({
       if (oppIds.length > 0) {
         await supabase.from('evaluations').delete().in('opportunity_id', oppIds)
         const { data: twins } = await supabase.from('twins').select('id').in('opportunity_id', oppIds)
-        const twinIds = twins?.map((t) => t.id) ?? []
+        const twinIds = twins?.map((t: { id: string }) => t.id) ?? []
         if (twinIds.length > 0) {
           await supabase.from('twin_interviews').delete().in('twin_id', twinIds)
           await supabase.from('twins').delete().in('id', twinIds)
