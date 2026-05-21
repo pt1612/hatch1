@@ -101,7 +101,7 @@ export default function TopNav({
   )
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(({ data }: { data: { user: { user_metadata?: { full_name?: string }; email?: string | null } | null } }) => {
       const name = data.user?.user_metadata?.full_name ?? data.user?.email ?? ''
       setUserInitials(getInitials(name) || name.slice(0, 2).toUpperCase())
     })
@@ -121,7 +121,7 @@ export default function TopNav({
       .select('entry_path')
       .eq('id', projectId)
       .single()
-      .then(({ data }) => {
+      .then(({ data }: { data: { entry_path: string | null } | null }) => {
         setFetchedEntryPath((data?.entry_path as 'full' | 'idea' | 'vpc' | 'bmc' | null) ?? null)
       })
   }, [projectId, entryPathProp]) // eslint-disable-line react-hooks/exhaustive-deps

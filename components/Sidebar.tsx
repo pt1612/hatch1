@@ -31,7 +31,7 @@ export default function Sidebar({ projectId, projectTitle, userEmail }: SidebarP
 
   useEffect(() => {
     if (!userEmail) {
-      supabase.auth.getUser().then(({ data }) => {
+      supabase.auth.getUser().then(({ data }: { data: { user: { email?: string | null } | null } }) => {
         if (data.user?.email) setEmail(data.user.email)
       })
     }
@@ -48,13 +48,13 @@ export default function Sidebar({ projectId, projectTitle, userEmail }: SidebarP
         setEvalCount({ evaluated: 0, total: 0 })
         return
       }
-      const oppIds = opps.map((o) => o.id)
+      const oppIds = opps.map((o: { id: string }) => o.id)
       const { data: evals } = await supabase
         .from('evaluations')
         .select('opportunity_id')
         .in('opportunity_id', oppIds)
         .not('report', 'is', null)
-      const uniqueEvaluated = new Set(evals?.map((e) => e.opportunity_id) ?? [])
+      const uniqueEvaluated = new Set(evals?.map((e: { opportunity_id: string }) => e.opportunity_id) ?? [])
       setEvalCount({ evaluated: uniqueEvaluated.size, total: opps.length })
     }
     fetchEvalCount()

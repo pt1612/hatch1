@@ -158,16 +158,19 @@ export default function VPCDetailClient({
   const { toast } = useToast()
   const { t } = useI18n()
 
+  const initialCp = (vpc.customer_profile ?? {}) as { jobs?: string[]; pains?: string[]; gains?: string[] }
+  const initialVm = (vpc.value_map ?? {}) as { productsAndServices?: string[]; painRelievers?: string[]; gainCreators?: string[] }
+
   const [customerProfile, setCustomerProfile] = useState<VPCCustomerProfile>({
-    jobs: vpc.customer_profile?.jobs ?? [],
-    pains: vpc.customer_profile?.pains ?? [],
-    gains: vpc.customer_profile?.gains ?? [],
+    jobs: initialCp.jobs ?? [],
+    pains: initialCp.pains ?? [],
+    gains: initialCp.gains ?? [],
   })
 
   const [valueMap, setValueMap] = useState<VPCValueMap>({
-    productsAndServices: vpc.value_map?.productsAndServices ?? [],
-    painRelievers: vpc.value_map?.painRelievers ?? [],
-    gainCreators: vpc.value_map?.gainCreators ?? [],
+    productsAndServices: initialVm.productsAndServices ?? [],
+    painRelievers: initialVm.painRelievers ?? [],
+    gainCreators: initialVm.gainCreators ?? [],
   })
 
   const [saving, setSaving] = useState(false)
@@ -207,13 +210,15 @@ export default function VPCDetailClient({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          opportunityName: opportunity?.name ?? vpc.name,
+          opportunityName: opportunity?.name ?? vpc.customer_profile_name,
           opportunityDescription: opportunity?.description ?? '',
           abilities: abilities.map(a => ({ name: a.name, description: a.description })),
           aggregatedPains: customerProfile.pains,
           aggregatedGains: customerProfile.gains,
           aggregatedJobs: customerProfile.jobs,
-          twinProfile: vpc.twin_id ? { name: vpc.name, role: '', segment: '' } : undefined,
+          twinProfile: (vpc.interview_attachment as { twin_id?: string } | null)?.twin_id
+            ? { name: vpc.customer_profile_name, role: '', segment: '' }
+            : undefined,
         }),
       })
       const { valueMap: generated } = await res.json()
@@ -286,9 +291,9 @@ export default function VPCDetailClient({
                   margin: 0,
                 }}
               >
-                {vpc.name}
+                {vpc.customer_profile_name}
               </h1>
-              {vpc.is_aggregate && (
+              {(vpc as unknown as { is_aggregate?: boolean }).is_aggregate && (
                 <span
                   style={{
                     fontSize: 10,
