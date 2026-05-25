@@ -71,8 +71,9 @@ external_risks (1–10):
 IMPORTANT:
 - Be specific and data-driven. Avoid vague or overly optimistic assessments.
 - Use the full scale — avoid defaulting to mid-range scores.
-- Each detailed_analysis must be at most 2 sentences of specific reasoning.
+- STRICT LENGTH LIMIT: each dimension's detailed_analysis MUST be at most 2 sentences (hard cap — do not exceed under any circumstances; shorten rather than truncate the JSON).
 - The summary must be 2–3 sentences maximum.
+- Return complete, valid JSON. Never truncate. If you are approaching the token budget, shorten field values, do not cut off the JSON structure.
 
 Return ONLY valid JSON in this exact format:
 {
@@ -115,17 +116,35 @@ Return ONLY valid JSON in this exact format:
 
   const msg = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 1024,
+    max_tokens: 2000,
     messages: [{ role: 'user', content: systemPrompt }],
   })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
   console.log('[generate-report] raw LLM response:', raw)
   const match = raw.match(/\{[\s\S]*\}/)
-  const parsed = match ? JSON.parse(match[0]) : {}
+
+  let parsed: Record<string, unknown> = {}
+  if (match) {
+    try {
+      parsed = JSON.parse(match[0])
+    } catch (parseErr) {
+      console.error('[generate-report] JSON.parse failed:', parseErr)
+      console.error('[generate-report] full raw response that failed to parse:', raw)
+      console.error('[generate-report] matched substring length:', match[0].length)
+      console.error('[generate-report] last 200 chars of matched substring:', match[0].slice(-200))
+      return Response.json(
+        { report: null, error: 'LLM response was not valid JSON (likely truncated). See server logs for the full raw response.' },
+        { status: 500 }
+      )
+    }
+  } else {
+    console.error('[generate-report] no JSON object found in raw response:', raw)
+  }
   console.log('[generate-report] parsed JSON:', JSON.stringify(parsed, null, 2))
 
-  const dims = parsed.dimensions
+  type Dim = { numeric_score: number; score: string; detailed_analysis: string }
+  const dims = parsed.dimensions as Record<string, Dim> | undefined
   if (!dims) {
     return Response.json({ report: null }, { status: 500 })
   }
