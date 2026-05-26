@@ -68,10 +68,9 @@ function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: strin
             <div
               className="w-6 h-6 rounded-full flex items-center justify-center transition-colors"
               style={{
-                backgroundColor: isDone ? 'var(--color-amber)' : '#FFFFFF',
-                border: `2px solid ${isDone ? 'var(--color-amber)' : isActive ? 'var(--color-amber)' : 'var(--color-linen)'}`,
-                color: isDone ? '#FFFFFF' : isActive ? 'var(--color-amber)' : 'var(--color-text-faint)',
-              }}
+                backgroundColor: isDone ? 'var(--color-primary)' : '#FFFFFF',
+                border: `2px solid ${isDone ? 'var(--color-primary)' : isActive ? 'var(--color-primary)' : 'var(--color-muted)'}`,
+                color: isDone ? '#FFFFFF' : isActive ? 'var(--color-primary)' : 'var(--color-foreground-faint)' }}
             >
               {isDone ? (
                 <CheckCircle2 size={12} className="fill-current" />
@@ -84,8 +83,7 @@ function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: strin
                 fontSize: 9,
                 fontWeight: 500,
                 whiteSpace: 'nowrap',
-                color: isDone ? 'var(--color-amber)' : isActive ? 'var(--color-ink)' : 'var(--color-text-faint)',
-              }}
+                color: isDone ? 'var(--color-primary)' : isActive ? 'var(--color-foreground)' : 'var(--color-foreground-faint)' }}
             >
               {stepShorts[i]}
             </span>
@@ -106,9 +104,8 @@ function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: strin
                 className="h-0.5 w-5 mb-3 flex-shrink-0"
                 style={{
                   backgroundColor: done[i] && (done[i + 1] || i + 1 === activeIdx)
-                    ? 'var(--color-amber)'
-                    : 'var(--color-linen)',
-                }}
+                    ? 'var(--color-primary)'
+                    : 'var(--color-muted)' }}
               />
             )}
           </div>
@@ -120,8 +117,7 @@ function StepPipeline({ opp, projectId }: { opp: OppWithStatus; projectId: strin
 
 export default function EvaluationsClient({
   project,
-  opportunities,
-}: {
+  opportunities }: {
   project: { id: string; title: string }
   opportunities: OppWithStatus[]
 }) {
@@ -153,7 +149,7 @@ export default function EvaluationsClient({
   }
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} progressPct={progressPct} />
 
       <motion.div
@@ -167,31 +163,29 @@ export default function EvaluationsClient({
           <div className="flex items-center justify-between mb-2">
             <h1
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
                 fontSize: 34,
                 letterSpacing: '-0.03em',
-                color: 'var(--color-ink)',
-              }}
+                color: 'var(--color-foreground)' }}
             >
               {t.eval_title}
             </h1>
-            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-amber)' }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-primary)' }}>
               {progressPct}{t.eval_completed}
             </span>
           </div>
-          <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20 }}>
+          <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', marginBottom: 20 }}>
             {t.eval_subtitle}
           </p>
 
           {/* Overall progress */}
           <div
             className="rounded-full overflow-hidden mb-7"
-            style={{ height: 4, backgroundColor: 'var(--color-linen)' }}
+            style={{ height: 4, backgroundColor: 'var(--color-muted)' }}
           >
             <div
               className="h-full rounded-full transition-all"
-              style={{ width: `${progressPct}%`, backgroundColor: 'var(--color-amber)', boxShadow: '0 0 8px rgba(199,123,58,0.4)' }}
+              style={{ width: `${progressPct}%`, backgroundColor: 'var(--color-primary)', boxShadow: '0 0 8px rgba(19,163,137,0.4)' }}
             />
           </div>
 
@@ -199,15 +193,15 @@ export default function EvaluationsClient({
           {opportunities.length === 0 ? (
             <div className="text-center py-16">
               <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
-                <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="var(--color-amber-bg)" />
-                <circle cx="50" cy="50" r="14" fill="var(--color-linen)" />
+                <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="color-mix(in srgb, var(--color-primary) 10%, transparent)" />
+                <circle cx="50" cy="50" r="14" fill="var(--color-muted)" />
               </svg>
-              <p style={{ fontSize: 13, fontFamily: "'Lora', Georgia, serif", fontStyle: 'italic', color: 'var(--color-text-muted)' }}>
+              <p style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--color-foreground-muted)' }}>
                 {t.eval_no_opps}
               </p>
               <Link
                 href={`/project/${project.id}/abilities`}
-                style={{ fontSize: 12, color: 'var(--color-amber)', marginTop: 4, display: 'block' }}
+                style={{ fontSize: 12, color: 'var(--color-primary)', marginTop: 4, display: 'block' }}
               >
                 {t.eval_go_abilities}
               </Link>
@@ -227,12 +221,12 @@ export default function EvaluationsClient({
                     <button
                       onClick={() => toggleApp(app)}
                       className="w-full flex items-center justify-between px-5 py-3.5 text-left transition-colors"
-                      style={{ backgroundColor: 'var(--color-cream)' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-cream)')}
+                      style={{ backgroundColor: 'var(--color-background)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-background)')}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }} className="truncate">
+                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-foreground)' }} className="truncate">
                           {app}
                         </span>
                         <span
@@ -241,9 +235,8 @@ export default function EvaluationsClient({
                             fontSize: 10,
                             fontWeight: 500,
                             backgroundColor: '#FFFFFF',
-                            color: 'var(--color-text-muted)',
-                            border: '0.5px solid var(--color-border)',
-                          }}
+                            color: 'var(--color-foreground-muted)',
+                            border: '0.5px solid var(--color-border)' }}
                         >
                           {groupDoneSteps}/{groupTotalSteps} {t.eval_steps}
                         </span>
@@ -251,12 +244,11 @@ export default function EvaluationsClient({
                       <ChevronDown
                         size={14}
                         style={{
-                          color: 'var(--color-text-faint)',
+                          color: 'var(--color-foreground-faint)',
                           flexShrink: 0,
                           marginLeft: 8,
                           transform: isCollapsed ? 'rotate(-90deg)' : 'none',
-                          transition: 'transform 0.15s',
-                        }}
+                          transition: 'transform 0.15s' }}
                       />
                     </button>
 
@@ -271,8 +263,7 @@ export default function EvaluationsClient({
                               className="px-5 py-4"
                               style={{
                                 backgroundColor: '#FFFFFF',
-                                borderTop: idx > 0 ? '0.5px solid var(--color-border)' : undefined,
-                              }}
+                                borderTop: idx > 0 ? '0.5px solid var(--color-border)' : undefined }}
                             >
                               <div className="flex items-start justify-between gap-3 mb-3">
                                 <div className="min-w-0">
@@ -283,12 +274,11 @@ export default function EvaluationsClient({
                                       fontWeight: 500,
                                       textTransform: 'uppercase',
                                       letterSpacing: '0.06em',
-                                      color: 'var(--color-text-faint)',
-                                    }}
+                                      color: 'var(--color-foreground-faint)' }}
                                   >
                                     {opp.customer_segment}
                                   </p>
-                                  <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }}>
+                                  <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-foreground)' }}>
                                     {opp.name}
                                   </p>
                                 </div>
@@ -298,10 +288,9 @@ export default function EvaluationsClient({
                                     style={{
                                       fontSize: 10,
                                       fontWeight: 600,
-                                      backgroundColor: 'var(--color-sage-bg)',
-                                      color: '#2D7A57',
-                                      marginTop: 2,
-                                    }}
+                                      backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+                                      color: 'var(--color-primary)',
+                                      marginTop: 2 }}
                                   >
                                     {t.eval_done}
                                   </span>
@@ -310,18 +299,17 @@ export default function EvaluationsClient({
                                     href={href}
                                     className="flex-shrink-0 flex items-center gap-1 py-1.5 px-3 rounded-lg text-xs font-medium"
                                     style={{
-                                      backgroundColor: 'var(--color-amber)',
-                                      color: '#FFFFFF',
+                                      backgroundColor: 'var(--color-primary)',
+                                      color: 'var(--color-primary-foreground)',
                                       marginTop: 2,
                                       textDecoration: 'none',
-                                      transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-                                    }}
+                                      transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease' }}
                                     onMouseEnter={(e) => {
-                                      e.currentTarget.style.backgroundColor = '#A8612A'
-                                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                                      e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
+                                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
                                     }}
                                     onMouseLeave={(e) => {
-                                      e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                                      e.currentTarget.style.backgroundColor = 'var(--color-primary)'
                                       e.currentTarget.style.boxShadow = 'none'
                                     }}
                                   >
@@ -348,13 +336,12 @@ export default function EvaluationsClient({
                 href={`/project/${project.id}/map`}
                 className="flex items-center justify-center gap-2 w-full py-3 px-4 text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor: 'var(--color-amber)',
-                  color: '#FFFFFF',
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'var(--color-primary-foreground)',
                   borderRadius: 10,
-                  textDecoration: 'none',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                  textDecoration: 'none' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
               >
                 {t.eval_go_map}
                 <ChevronRight size={16} />

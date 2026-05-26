@@ -43,14 +43,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               exit={{ opacity: 0, y: 8, scale: 0.95 }}
               transition={{ duration: 0.18, ease: 'easeOut' }}
               className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg pointer-events-auto',
+                'flex items-center gap-3 px-4 py-3 rounded-[var(--radius-card)] shadow-lg pointer-events-auto',
                 'border text-sm font-medium',
-                t.type === 'success' && 'bg-white border-[var(--color-border)] text-[var(--color-ink)]',
+                t.type === 'success' && 'bg-[var(--color-surface-card)] border-[var(--color-border)] text-[var(--color-foreground)]',
                 t.type === 'error' && 'bg-red-50 border-red-200 text-red-700',
-                t.type === 'info' && 'bg-white border-[var(--color-border)] text-[var(--color-ink)]',
+                t.type === 'info' && 'bg-[var(--color-surface-card)] border-[var(--color-border)] text-[var(--color-foreground)]',
               )}
             >
-              {t.type === 'success' && <CheckCircle2 size={15} style={{ color: 'var(--color-sage)', flexShrink: 0 }} />}
+              {t.type === 'success' && <CheckCircle2 size={15} className="flex-shrink-0 text-[var(--color-primary)]" />}
               {t.type === 'error' && <AlertCircle size={15} className="text-red-500 flex-shrink-0" />}
               <span>{t.message}</span>
               <button

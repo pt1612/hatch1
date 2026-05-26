@@ -1,96 +1,218 @@
 @import "tailwindcss";
 
+/* ============================================================
+   OTTOZEROUNO design tokens — applied to Hatch
+   See BRAND.md for canonical palette and usage rules.
+   ============================================================ */
+
 @theme {
-  --color-primary: #C77B3A;
-  --color-primary-hover: #A8612A;
-  --color-background: #FAFAF8;
+  /* Brand palette */
+  --color-deep-teal: #183C40;
+  --color-wispy-clouds: #F2F2F2;
+  --color-sea-green: #13A389;
+  --color-sea-green-hover: #0F8C75;
+  --color-bluejay: #138BA3;
+  --color-aruba-blue: #6FE2D6;
+  --color-fair-aqua: #B3E9DD;
+  --color-jojoba: #DCBF85;
+  --color-celandine: #F5E663;
+
+  /* Semantic mapping (components should always use these, not brand names) */
+  --color-background: #F2F2F2;        /* Wispy Clouds */
+  --color-foreground: #183C40;        /* Deep Teal */
+  --color-primary: #13A389;           /* Sea Green */
+  --color-primary-hover: #0F8C75;
+  /* Foreground tokens on brand surfaces use Deep Teal, not Wispy Clouds:
+     Wispy Clouds on Sea Green = 2.67:1 (fails AA + SC 1.4.11).
+     Deep Teal on Sea Green   = 3.87:1 (passes AA Large / SC 1.4.11).
+     This deviates from BRAND.md §5 ("Wispy Clouds text") to satisfy WCAG. */
+  --color-primary-foreground: #183C40;
+  --color-secondary: #138BA3;         /* Bluejay */
+  --color-secondary-foreground: #183C40;
+  --color-accent: #6FE2D6;            /* Aruba Blue */
+  --color-accent-foreground: #183C40;
+  --color-muted: #B3E9DD;             /* Fair Aqua */
+  --color-muted-foreground: #183C40;
+  --color-surface-dark: #183C40;      /* Deep Teal */
+  --color-surface-card: #FFFFFF;
+  --color-warning: #F5E663;           /* Celandine */
+  --color-warning-foreground: #183C40;
+  --color-warm: #DCBF85;              /* Jojoba */
+  --color-warm-foreground: #183C40;
+
+  /* Border / divider on light surfaces (Deep Teal @ 10%) */
+  --color-border: rgba(24, 60, 64, 0.12);
+  --color-border-strong: rgba(24, 60, 64, 0.24);
+  --color-border-focus: #13A389;
+
+  /* Foreground variants for muted/faint text — opacity-driven, not gray */
+  --color-foreground-muted: rgba(24, 60, 64, 0.7);
+  --color-foreground-faint: rgba(24, 60, 64, 0.45);
+
+  /* Radii — brand rounding patterns */
+  --radius-input: 12px;
+  --radius-card: 16px;
+  --radius-card-lg: 24px;
+  --radius-pill: 9999px;
+  --radius-corner-one: 0 80px 0 0;        /* single-corner rounded */
+  --radius-corner-one-lg: 0 120px 0 0;
 }
 
 :root {
-  --color-cream: #FAFAF8;
-  --color-ink: #1A1A18;
-  --color-amber: #C77B3A;
-  --color-amber-light: #E8A96A;
-  --color-amber-bg: rgba(199, 123, 58, 0.10);
-  --color-sage: #4CAF7D;
-  --color-sage-bg: rgba(76, 175, 125, 0.10);
-  --color-warm-gray: #B4A888;
-  --color-linen: #E8E5DC;
-  --color-border: #E5E3DC;
-  --color-text-main: #1A1A18;
-  --color-text-muted: #888880;
-  --color-text-faint: #B4B2A8;
-  --background: #FAFAF8;
-  --foreground: #1A1A18;
+  /* Re-expose the same tokens to :root for use in plain CSS / inline rgba() shadows */
+  --color-deep-teal: #183C40;
+  --color-wispy-clouds: #F2F2F2;
+  --color-sea-green: #13A389;
+  --color-sea-green-hover: #0F8C75;
+  --color-bluejay: #138BA3;
+  --color-aruba-blue: #6FE2D6;
+  --color-fair-aqua: #B3E9DD;
+  --color-jojoba: #DCBF85;
+  --color-celandine: #F5E663;
+
+  --color-background: #F2F2F2;
+  --color-foreground: #183C40;
+  --color-primary: #13A389;
+  --color-primary-hover: #0F8C75;
+  --color-primary-foreground: #183C40;
+  --color-secondary: #138BA3;
+  --color-accent: #6FE2D6;
+  --color-muted: #B3E9DD;
+  --color-surface-dark: #183C40;
+  --color-surface-card: #FFFFFF;
+  --color-warning: #F5E663;
+  --color-warm: #DCBF85;
+
+  --color-border: rgba(24, 60, 64, 0.12);
+  --color-border-strong: rgba(24, 60, 64, 0.24);
+
+  --color-foreground-muted: rgba(24, 60, 64, 0.7);
+  --color-foreground-faint: rgba(24, 60, 64, 0.45);
+
+  --background: #F2F2F2;
+  --foreground: #183C40;
 }
 
 body {
-  background-color: var(--color-cream);
-  color: var(--color-text-main);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Typography scale */
-h1 {
-  font-family: 'Lora', Georgia, serif;
-  font-weight: 400;
-  font-size: 34px;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  color: var(--color-ink);
-}
-h2 {
-  font-family: 'Lora', Georgia, serif;
-  font-weight: 400;
-  font-size: 22px;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-  color: var(--color-ink);
-}
-h3 {
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.4;
+/* ============================================================
+   Typography — DM Sans, brand type scale
+   ============================================================ */
+
+h1, .h1 {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 54px;
+  line-height: 1.2;
   letter-spacing: -0.01em;
-  color: var(--color-ink);
+  color: var(--color-foreground);
 }
-p {
-  font-size: 15px;
-  line-height: 1.7;
+h2, .h2 {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 1.2;
+  color: var(--color-foreground);
+}
+h3, .h3 {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--color-foreground);
+}
+h4 {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.3;
+  color: var(--color-foreground);
+}
+p, .body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
-.font-serif {
-  font-family: 'Lora', Georgia, serif;
+/* Responsive: scale display sizes down on small screens */
+@media (max-width: 640px) {
+  h1, .h1 { font-size: 36px; }
+  h2, .h2 { font-size: 28px; }
+  h3, .h3 { font-size: 22px; }
 }
+
+/* Caption + footnote utilities */
+.caption-1 {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.caption-2 {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.caption-upper {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.footnote {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Backwards-compat: .font-serif previously meant a display treatment (Lora).
+   It now maps to DM Sans bold, since the brand has no serif. Kept so existing
+   markup still gets a sensible visual without inline restyling. */
+.font-serif {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+}
+
+/* ============================================================
+   Utility classes
+   ============================================================ */
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-linen) transparent;
+  scrollbar-color: var(--color-muted) transparent;
 }
-
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: var(--color-linen);
+  background-color: var(--color-muted);
   border-radius: 2px;
 }
 
-/* Amber focus glow utility */
-.input-amber-focus:focus {
+/* Focus ring — brand-coherent Sea Green glow */
+.input-amber-focus:focus,
+.input-focus:focus {
   outline: none;
-  border-color: var(--color-amber) !important;
-  box-shadow: 0 0 0 3px rgba(199, 123, 58, 0.12);
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(19, 163, 137, 0.18);
 }
 
-/* Button press effect */
+/* Press effect kept */
 button:active {
   transform: scale(0.98);
 }
+
+/* Decorative helpers */
+.brand-corner-one { border-radius: var(--radius-corner-one); }
+.brand-corner-one-lg { border-radius: var(--radius-corner-one-lg); }

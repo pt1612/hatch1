@@ -18,8 +18,7 @@ export async function POST(request: NextRequest) {
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 1024,
           system: systemPrompt,
-          messages: effectiveMessages,
-        })
+          messages: effectiveMessages })
 
         for await (const event of anthropicStream) {
           if (
@@ -34,23 +33,19 @@ export async function POST(request: NextRequest) {
         }
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))
         controller.close()
-      },
-    })
+      } })
 
     return new Response(readable, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-      },
-    })
+        Connection: 'keep-alive' } })
   } else {
     const msg = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
       system: systemPrompt,
-      messages: effectiveMessages,
-    })
+      messages: effectiveMessages })
     const content = msg.content[0].type === 'text' ? msg.content[0].text : ''
     return Response.json({ content })
   }

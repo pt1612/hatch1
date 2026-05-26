@@ -18,8 +18,7 @@ export default function WhereToPlayCompletion({
   spotlightOpportunity,
   spotlightScoreLabel,
   vpcs,
-  bmcs,
-}: {
+  bmcs }: {
   projectId: string
   abilitiesCount: number
   opportunitiesCount: number
@@ -45,8 +44,7 @@ export default function WhereToPlayCompletion({
         className="rounded-2xl overflow-hidden shadow-sm"
         style={{
           background: TEAL_BG,
-          border: `1px solid ${TEAL_BORDER}`,
-        }}
+          border: `1px solid ${TEAL_BORDER}` }}
       >
         <div className="p-6 sm:p-8">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
@@ -66,7 +64,7 @@ export default function WhereToPlayCompletion({
                 </p>
                 <h2
                   className="text-xl sm:text-2xl font-normal"
-                  style={{ fontFamily: "'Lora', Georgia, serif", color: '#fff', letterSpacing: '-0.02em' }}
+                  style={{ color: '#fff', letterSpacing: '-0.02em' }}
                 >
                   {t.strategy_wtp_completion_wtp_title}
                 </h2>
@@ -79,8 +77,7 @@ export default function WhereToPlayCompletion({
                 backgroundColor: 'rgba(255,255,255,0.95)',
                 color: '#0f766e',
                 textDecoration: 'none',
-                border: '1px solid rgba(255,255,255,0.5)',
-              }}
+                border: '1px solid rgba(255,255,255,0.5)' }}
             >
               {t.strategy_wtp_completion_review}
             </Link>
@@ -130,7 +127,7 @@ export default function WhereToPlayCompletion({
       </div>
 
       <div className="mt-6">
-        <p className="text-sm font-medium mb-3" style={{ color: 'var(--color-ink)' }}>
+        <p className="text-sm font-medium mb-3" style={{ color: 'var(--color-foreground)' }}>
           {t.strategy_wtp_completion_deepen_with}
         </p>
         {showDeepenings ? (
@@ -140,13 +137,13 @@ export default function WhereToPlayCompletion({
           >
             <p
               className="text-[10px] font-medium uppercase tracking-[0.1em] mb-4"
-              style={{ color: 'var(--color-text-muted)' }}
+              style={{ color: 'var(--color-foreground-muted)' }}
             >
               {t.strategy_wtp_completion_deepenings_title}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-ink)' }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-foreground)' }}>
                   VPC
                 </p>
                 {hasVpcs ? (
@@ -156,7 +153,7 @@ export default function WhereToPlayCompletion({
                         <Link
                           href={`/project/${projectId}/vpcs/${v.id}`}
                           className="text-sm font-medium"
-                          style={{ color: 'var(--color-amber)', textDecoration: 'none' }}
+                          style={{ color: 'var(--color-primary)', textDecoration: 'none' }}
                         >
                           {v.customer_profile_name}
                         </Link>
@@ -164,20 +161,20 @@ export default function WhereToPlayCompletion({
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs italic mb-3" style={{ color: 'var(--color-text-faint)' }}>
+                  <p className="text-xs italic mb-3" style={{ color: 'var(--color-foreground-faint)' }}>
                     {t.strategy_wtp_completion_none_vpc}
                   </p>
                 )}
                 <Link
                   href={vpcNewHref}
                   className="inline-block text-xs font-medium"
-                  style={{ color: 'var(--color-text-muted)', textDecoration: 'underline' }}
+                  style={{ color: 'var(--color-foreground-muted)', textDecoration: 'underline' }}
                 >
                   {t.strategy_wtp_completion_add_another_vpc}
                 </Link>
               </div>
               <div>
-                <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-ink)' }}>
+                <p className="text-xs font-semibold mb-2" style={{ color: 'var(--color-foreground)' }}>
                   BMC
                 </p>
                 {hasBmcs ? (
@@ -187,7 +184,7 @@ export default function WhereToPlayCompletion({
                         <Link
                           href={`/project/${projectId}/bmcs/${b.id}`}
                           className="text-sm font-medium"
-                          style={{ color: 'var(--color-amber)', textDecoration: 'none' }}
+                          style={{ color: 'var(--color-primary)', textDecoration: 'none' }}
                         >
                           {b.title?.trim() || 'BMC'}
                         </Link>
@@ -195,14 +192,14 @@ export default function WhereToPlayCompletion({
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs italic mb-3" style={{ color: 'var(--color-text-faint)' }}>
+                  <p className="text-xs italic mb-3" style={{ color: 'var(--color-foreground-faint)' }}>
                     {t.strategy_wtp_completion_none_bmc}
                   </p>
                 )}
                 <Link
                   href={bmcNewHref}
                   className="inline-block text-xs font-medium"
-                  style={{ color: 'var(--color-text-muted)', textDecoration: 'underline' }}
+                  style={{ color: 'var(--color-foreground-muted)', textDecoration: 'underline' }}
                 >
                   {hasBmcs ? t.strategy_wtp_completion_add_another_bmc : t.strategy_wtp_completion_start_bmc}
                 </Link>
@@ -215,20 +212,20 @@ export default function WhereToPlayCompletion({
               className="rounded-2xl p-6 flex flex-col"
               style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
             >
-              <Users size={22} className="mb-3" style={{ color: 'var(--color-text-muted)' }} />
-              <p className="text-[10px] font-medium uppercase tracking-[0.1em] mb-1" style={{ color: 'var(--color-text-muted)' }}>
+              <Users size={22} className="mb-3" style={{ color: 'var(--color-foreground-muted)' }} />
+              <p className="text-[10px] font-medium uppercase tracking-[0.1em] mb-1" style={{ color: 'var(--color-foreground-muted)' }}>
                 {t.strategy_wtp_completion_level2}
               </p>
-              <h3 className="text-base font-medium mb-2" style={{ color: 'var(--color-ink)' }}>
+              <h3 className="text-base font-medium mb-2" style={{ color: 'var(--color-foreground)' }}>
                 {t.strategy_wtp_completion_vpc_card_title}
               </h3>
-              <p className="text-sm flex-1 mb-4" style={{ color: 'var(--color-text-muted)' }}>
+              <p className="text-sm flex-1 mb-4" style={{ color: 'var(--color-foreground-muted)' }}>
                 {t.strategy_wtp_completion_vpc_card_desc}
               </p>
               <Link
                 href={vpcNewHref}
                 className="inline-flex items-center justify-center py-2.5 px-4 text-sm font-medium rounded-lg w-fit"
-                style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-ink)', textDecoration: 'none' }}
+                style={{ backgroundColor: 'var(--color-muted)', color: 'var(--color-foreground)', textDecoration: 'none' }}
               >
                 {t.strategy_wtp_completion_start_vpc}
               </Link>
@@ -237,20 +234,20 @@ export default function WhereToPlayCompletion({
               className="rounded-2xl p-6 flex flex-col"
               style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
             >
-              <LayoutGrid size={22} className="mb-3" style={{ color: 'var(--color-text-muted)' }} />
-              <p className="text-[10px] font-medium uppercase tracking-[0.1em] mb-1" style={{ color: 'var(--color-text-muted)' }}>
+              <LayoutGrid size={22} className="mb-3" style={{ color: 'var(--color-foreground-muted)' }} />
+              <p className="text-[10px] font-medium uppercase tracking-[0.1em] mb-1" style={{ color: 'var(--color-foreground-muted)' }}>
                 {t.strategy_wtp_completion_level3}
               </p>
-              <h3 className="text-base font-medium mb-2" style={{ color: 'var(--color-ink)' }}>
+              <h3 className="text-base font-medium mb-2" style={{ color: 'var(--color-foreground)' }}>
                 {t.strategy_wtp_completion_bmc_card_title}
               </h3>
-              <p className="text-sm flex-1 mb-4" style={{ color: 'var(--color-text-muted)' }}>
+              <p className="text-sm flex-1 mb-4" style={{ color: 'var(--color-foreground-muted)' }}>
                 {t.strategy_wtp_completion_bmc_card_desc}
               </p>
               <Link
                 href={bmcNewHref}
                 className="inline-flex items-center justify-center py-2.5 px-4 text-sm font-medium rounded-lg w-fit"
-                style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-ink)', textDecoration: 'none' }}
+                style={{ backgroundColor: 'var(--color-muted)', color: 'var(--color-foreground)', textDecoration: 'none' }}
               >
                 {t.strategy_wtp_completion_start_bmc}
               </Link>
@@ -261,7 +258,7 @@ export default function WhereToPlayCompletion({
 
       <div
         className="mt-4 rounded-xl px-4 py-3 text-sm"
-        style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-text-muted)', border: '0.5px solid var(--color-border)' }}
+        style={{ backgroundColor: 'var(--color-muted)', color: 'var(--color-foreground-muted)', border: '0.5px solid var(--color-border)' }}
       >
         {t.strategy_wtp_completion_optional_note}
       </div>

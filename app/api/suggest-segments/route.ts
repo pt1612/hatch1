@@ -21,10 +21,8 @@ Customer segment: ${customer_segment}
 Each sub-segment must be a specific type of person or organization that falls within "${customer_segment}". Vary them by seniority, company size, specialization, or context — do not repeat the parent segment.
 
 Respond ONLY with a JSON array of strings. No other text.
-Example for segment "Hospital procurement teams": ["Large hospital network procurement directors", "Regional clinic purchasing managers", "Independent hospital CFOs"]`,
-      },
-    ],
-  })
+Example for segment "Hospital procurement teams": ["Large hospital network procurement directors", "Regional clinic purchasing managers", "Independent hospital CFOs"]` },
+    ] })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '[]'
   const match = raw.match(/\[[\s\S]*\]/)

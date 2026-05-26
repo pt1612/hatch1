@@ -5,15 +5,13 @@ import BMCClient from './BMCClient'
 export const dynamic = 'force-dynamic'
 
 export default async function BMCPage({
-  params,
-}: {
+  params }: {
   params: Promise<{ id: string; opp_id: string }>
 }) {
   const { id, opp_id } = await params
   const supabase = await createClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: project } = await supabase
@@ -72,8 +70,7 @@ export default async function BMCPage({
       twinSegment: row.segment ?? '',
       twinIdx: i,
       valueMap: iv?.value_map ?? null,
-      bmcData: iv?.bmc_data ?? null,
-    }
+      bmcData: iv?.bmc_data ?? null }
   })
 
   // Aggregate twin segments for the Aggregated tab

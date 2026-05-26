@@ -1,40 +1,48 @@
-// Twin-specific UI colors
+// Twin-specific UI colors — brand palette gives 5 distinguishable hues.
+// All foreground/background pairs meet WCAG AA Large (>=3:1) or use Deep Teal text
+// on lighter chips to stay above 4.5:1.
 export const TWIN_AVATAR_COLORS = [
-  'bg-[#1A1A18] text-white',
-  'bg-[#C77B3A] text-white',
-  'bg-[#4CAF7D] text-white',
-  'bg-[#888880] text-white',
-  'bg-[#B4A888] text-white',
+  'bg-[var(--color-foreground)] text-[var(--color-wispy-clouds)]',
+  'bg-[var(--color-primary)] text-[var(--color-primary-foreground)]',
+  'bg-[var(--color-secondary)] text-[var(--color-wispy-clouds)]',
+  'bg-[var(--color-warm)] text-[var(--color-foreground)]',
+  'bg-[var(--color-accent)] text-[var(--color-foreground)]',
 ]
 
 export const TWIN_BUBBLE_COLORS = [
-  'bg-[rgba(199,123,58,0.08)] border-[rgba(199,123,58,0.15)]',
-  'bg-[rgba(76,175,125,0.08)] border-[rgba(76,175,125,0.15)]',
-  'bg-[rgba(180,168,136,0.10)] border-[rgba(180,168,136,0.20)]',
-  'bg-[rgba(136,136,128,0.08)] border-[rgba(136,136,128,0.15)]',
-  'bg-[rgba(26,26,24,0.04)] border-[rgba(26,26,24,0.08)]',
+  'bg-[color-mix(in_srgb,var(--color-foreground)_6%,transparent)] border-[color-mix(in_srgb,var(--color-foreground)_12%,transparent)]',
+  'bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)] border-[color-mix(in_srgb,var(--color-primary)_18%,transparent)]',
+  'bg-[color-mix(in_srgb,var(--color-secondary)_8%,transparent)] border-[color-mix(in_srgb,var(--color-secondary)_18%,transparent)]',
+  'bg-[color-mix(in_srgb,var(--color-warm)_18%,transparent)] border-[color-mix(in_srgb,var(--color-warm)_35%,transparent)]',
+  'bg-[color-mix(in_srgb,var(--color-accent)_20%,transparent)] border-[color-mix(in_srgb,var(--color-accent)_40%,transparent)]',
 ]
 
 export const TWIN_DOT_COLORS = [
-  'bg-[#1A1A18]',
-  'bg-[#C77B3A]',
-  'bg-[#4CAF7D]',
-  'bg-[#888880]',
-  'bg-[#B4A888]',
+  'bg-[var(--color-foreground)]',
+  'bg-[var(--color-primary)]',
+  'bg-[var(--color-secondary)]',
+  'bg-[var(--color-warm)]',
+  'bg-[var(--color-accent)]',
 ]
 
-export const TWIN_COLORS_HEX = ['#1A1A18', '#C77B3A', '#4CAF7D', '#888880', '#B4A888']
+export const TWIN_COLORS_HEX = [
+  'var(--color-foreground)',
+  'var(--color-primary)',
+  'var(--color-secondary)',
+  'var(--color-warm)',
+  'var(--color-accent)',
+]
 
-// Attractiveness map dot palette
+// Attractiveness map dot palette — drawn from brand palette only.
 export const MAP_DOT_PALETTE = [
-  '#C77B3A',
-  '#4CAF7D',
-  '#888880',
-  '#E8A96A',
-  '#1A1A18',
-  '#B4A888',
-  '#6B9E8A',
-  '#D4956A',
+  'var(--color-primary)',
+  'var(--color-secondary)',
+  'var(--color-foreground)',
+  'var(--color-accent)',
+  'var(--color-warm)',
+  'var(--color-warning)',
+  'var(--color-foreground-muted)',
+  'var(--color-aruba-blue)',
 ]
 
 // Score → position on attractiveness map (percentages)
@@ -42,21 +50,19 @@ export const SCORE_TO_POSITION: Record<string, number> = {
   low: 15,
   mid: 38,
   high: 65,
-  super_high: 85,
-}
+  super_high: 85 }
 
-// Potential score badge classes — using new design system
+// Potential score badge classes — graded saturation of the primary color.
+// Text uses Deep Teal everywhere (≥4.5:1 on these tinted backgrounds).
 export const POTENTIAL_BADGE: Record<string, string> = {
-  low: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border-[rgba(76,175,125,0.20)]',
-  mid: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border-[rgba(199,123,58,0.20)]',
-  high: 'bg-[rgba(199,123,58,0.15)] text-[#7A3D10] border-[rgba(199,123,58,0.25)]',
-  super_high: 'bg-[rgba(199,123,58,0.20)] text-[#7A3D10] border-[rgba(199,123,58,0.30)]',
-}
+  low: 'bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] text-[var(--color-foreground)] border-[color-mix(in_srgb,var(--color-primary)_20%,transparent)]',
+  mid: 'bg-[color-mix(in_srgb,var(--color-primary)_18%,transparent)] text-[var(--color-foreground)] border-[color-mix(in_srgb,var(--color-primary)_30%,transparent)]',
+  high: 'bg-[color-mix(in_srgb,var(--color-primary)_28%,transparent)] text-[var(--color-foreground)] border-[color-mix(in_srgb,var(--color-primary)_40%,transparent)]',
+  super_high: 'bg-[var(--color-primary)] text-[var(--color-primary-foreground)] border-transparent' }
 
-// Challenge score badge classes (inverted — high challenge is bad)
+// Challenge score badge classes (inverted — high challenge is bad).
 export const CHALLENGE_BADGE: Record<string, string> = {
-  low: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border-[rgba(76,175,125,0.20)]',
-  mid: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border-[rgba(199,123,58,0.20)]',
-  high: 'bg-[rgba(199,123,58,0.15)] text-[#7A3D10] border-[rgba(199,123,58,0.25)]',
-  super_high: 'bg-[rgba(76,175,125,0.10)] text-[#DC2626] border-[#FECACA]',
-}
+  low: 'bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] text-[var(--color-foreground)] border-[color-mix(in_srgb,var(--color-primary)_20%,transparent)]',
+  mid: 'bg-[color-mix(in_srgb,var(--color-warning)_30%,transparent)] text-[var(--color-foreground)] border-[color-mix(in_srgb,var(--color-warning)_50%,transparent)]',
+  high: 'bg-[color-mix(in_srgb,var(--color-warm)_45%,transparent)] text-[var(--color-foreground)] border-[var(--color-warm)]',
+  super_high: 'bg-red-50 text-red-700 border-red-200' }

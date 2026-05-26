@@ -45,8 +45,7 @@ Return ONLY valid JSON, no other text.`
   const msg = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 2048,
-    messages: [{ role: 'user', content: prompt }],
-  })
+    messages: [{ role: 'user', content: prompt }] })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
   const match = raw.match(/\{[\s\S]*\}/)

@@ -468,5 +468,4 @@ export const it: Translations = {
   vpc_detail_col_pains: 'Pain',
   vpc_detail_col_gains: 'Gain',
   vpc_detail_value_map_header: 'Value Map',
-  vpc_detail_customer_profile_header: 'Profilo Cliente',
-}
+  vpc_detail_customer_profile_header: 'Profilo Cliente' }

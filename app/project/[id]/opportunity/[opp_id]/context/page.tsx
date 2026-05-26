@@ -20,8 +20,7 @@ function normalizeLinkedVpcs(raw: unknown): LinkedVPC[] {
 }
 
 export default async function ContextPage({
-  params,
-}: {
+  params }: {
   params: Promise<{ id: string; opp_id: string }>
 }) {
   const { id, opp_id } = await params

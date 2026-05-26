@@ -74,8 +74,7 @@ export default async function DashboardPage() {
         opportunity_count: opps?.length ?? 0,
         evaluated_count: evaluatedCount,
         completed_phases,
-        next_route,
-      }
+        next_route }
     })
   )
 

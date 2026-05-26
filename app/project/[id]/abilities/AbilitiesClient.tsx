@@ -71,8 +71,7 @@ function AbilityCard({
   onEdit,
   onSave,
   onCancel,
-  onDelete,
-}: {
+  onDelete }: {
   ability: LocalAbility
   isEditing: boolean
   draft: { name: string; description: string }
@@ -91,10 +90,9 @@ function AbilityCard({
       <div
         style={{
           backgroundColor: '#FFFFFF',
-          border: '0.5px solid var(--color-amber)',
+          border: '0.5px solid var(--color-primary)',
           borderRadius: 12,
-          padding: 14,
-        }}
+          padding: 14 }}
       >
         <input
           ref={nameRef}
@@ -111,12 +109,11 @@ function AbilityCard({
             width: '100%',
             fontSize: 13,
             fontWeight: 500,
-            color: 'var(--color-ink)',
+            color: 'var(--color-foreground)',
             background: 'none',
             border: 'none',
             outline: 'none',
-            marginBottom: 6,
-          }}
+            marginBottom: 6 }}
         />
         <textarea
           value={draft.description}
@@ -127,27 +124,25 @@ function AbilityCard({
           style={{
             width: '100%',
             fontSize: 12,
-            color: 'var(--color-text-muted)',
+            color: 'var(--color-foreground-muted)',
             background: 'none',
             border: 'none',
             outline: 'none',
             resize: 'none',
             lineHeight: 1.5,
             marginBottom: 10,
-            boxSizing: 'border-box',
-          }}
+            boxSizing: 'border-box' }}
         />
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button
             onClick={onCancel}
             style={{
               fontSize: 11,
-              color: 'var(--color-text-muted)',
+              color: 'var(--color-foreground-muted)',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: '4px 8px',
-            }}
+              padding: '4px 8px' }}
           >
             {t.abilities_cancel}
           </button>
@@ -156,13 +151,12 @@ function AbilityCard({
             style={{
               fontSize: 11,
               fontWeight: 500,
-              color: '#FFFFFF',
-              backgroundColor: 'var(--color-amber)',
+              color: 'var(--color-primary-foreground)',
+              backgroundColor: 'var(--color-primary)',
               border: 'none',
               borderRadius: 6,
               padding: '4px 10px',
-              cursor: 'pointer',
-            }}
+              cursor: 'pointer' }}
           >
             {t.abilities_save}
           </button>
@@ -179,20 +173,19 @@ function AbilityCard({
       style={{
         position: 'relative',
         backgroundColor: '#FFFFFF',
-        border: `0.5px solid ${hovered ? 'var(--color-amber)' : 'var(--color-border)'}`,
+        border: `0.5px solid ${hovered ? 'var(--color-primary)' : 'var(--color-border)'}`,
         borderRadius: 12,
         padding: 14,
         cursor: 'pointer',
-        transition: 'border-color 0.15s',
-      }}
+        transition: 'border-color 0.15s' }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4, lineHeight: 1.3 }}>
-            {ability.name || <span style={{ color: 'var(--color-text-faint)', fontStyle: 'italic' }}>{t.abilities_name_placeholder}</span>}
+          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-foreground)', marginBottom: 4, lineHeight: 1.3 }}>
+            {ability.name || <span style={{ color: 'var(--color-foreground-faint)', fontStyle: 'italic' }}>{t.abilities_name_placeholder}</span>}
           </p>
-          <p style={{ fontSize: 12, color: 'var(--color-text-muted)', lineHeight: 1.5, margin: 0 }}>
-            {ability.description || <span style={{ fontStyle: 'italic', color: 'var(--color-text-faint)' }}>{t.abilities_desc_placeholder}</span>}
+          <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', lineHeight: 1.5, margin: 0 }}>
+            {ability.description || <span style={{ fontStyle: 'italic', color: 'var(--color-foreground-faint)' }}>{t.abilities_desc_placeholder}</span>}
           </p>
         </div>
         {hovered && (
@@ -203,13 +196,12 @@ function AbilityCard({
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: 'var(--color-text-faint)',
+              color: 'var(--color-foreground-faint)',
               padding: 2,
               display: 'flex',
-              alignItems: 'center',
-            }}
+              alignItems: 'center' }}
             onMouseEnter={(e) => (e.currentTarget.style.color = '#DC2626')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-faint)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-foreground-faint)')}
           >
             <X size={13} />
           </button>
@@ -218,7 +210,7 @@ function AbilityCard({
       {hovered && (
         <Pencil
           size={10}
-          style={{ position: 'absolute', bottom: 10, right: 14, color: 'var(--color-text-faint)' }}
+          style={{ position: 'absolute', bottom: 10, right: 14, color: 'var(--color-foreground-faint)' }}
         />
       )}
     </div>
@@ -229,8 +221,7 @@ function AbilityCard({
 
 export default function AbilitiesClient({
   project,
-  initialAbilities,
-}: {
+  initialAbilities }: {
   project: { id: string; title: string }
   initialAbilities: Ability[]
 }) {
@@ -393,9 +384,7 @@ export default function AbilitiesClient({
       body: JSON.stringify({
         messages: messagesToSend,
         systemPrompt: buildSystemPrompt(tableAbilitiesRef.current, lang),
-        stream: true,
-      }),
-    })
+        stream: true }) })
 
     const reader = response.body!.getReader()
     const decoder = new TextDecoder()
@@ -455,8 +444,7 @@ export default function AbilitiesClient({
       const res = await fetch('/api/extract-abilities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversation: `ASSISTANT: ${content}` }),
-      })
+        body: JSON.stringify({ conversation: `ASSISTANT: ${content}` }) })
       const { abilities } = await res.json()
       if (abilities?.length > 0) {
         setMsgSuggestions((prev) => new Map(prev).set(msgIndex, abilities))
@@ -470,8 +458,7 @@ export default function AbilitiesClient({
       const res = await fetch('/api/extract-opportunities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversation, language: lang }),
-      })
+        body: JSON.stringify({ conversation, language: lang }) })
       const { opportunities: opps } = await res.json()
       if (opps?.length > 0) {
         setOpportunities(opps)
@@ -508,8 +495,7 @@ export default function AbilitiesClient({
         application: o.application,
         customer_segment: o.customer_segment,
         description: o.description,
-        phase: 'abilities',
-      }))
+        phase: 'abilities' }))
     )
 
     setSaving(false)
@@ -535,7 +521,7 @@ export default function AbilitiesClient({
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-cream)' }}>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       {/* Two-column body */}
@@ -553,8 +539,7 @@ export default function AbilitiesClient({
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            borderRight: '0.5px solid var(--color-border)',
-          }}
+            borderRight: '0.5px solid var(--color-border)' }}
         >
           {/* Header */}
           <div style={{ padding: '32px 36px 20px', flexShrink: 0 }}>
@@ -562,17 +547,15 @@ export default function AbilitiesClient({
               <div>
                 <h1
                   style={{
-                    fontFamily: "'Lora', Georgia, serif",
                     fontWeight: 400,
                     fontSize: 34,
                     letterSpacing: '-0.03em',
-                    color: 'var(--color-ink)',
-                    marginBottom: 4,
-                  }}
+                    color: 'var(--color-foreground)',
+                    marginBottom: 4 }}
                 >
                   {t.abilities_title}
                 </h1>
-                <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>
+                <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)', margin: 0 }}>
                   {t.abilities_subtitle}
                 </p>
               </div>
@@ -586,20 +569,19 @@ export default function AbilitiesClient({
                     padding: '8px 16px',
                     fontSize: 13,
                     fontWeight: 500,
-                    color: '#FFFFFF',
-                    backgroundColor: 'var(--color-amber)',
+                    color: 'var(--color-primary-foreground)',
+                    backgroundColor: 'var(--color-primary)',
                     border: 'none',
                     borderRadius: 8,
                     cursor: 'pointer',
                     flexShrink: 0,
-                    transition: 'background-color 0.15s ease, box-shadow 0.15s ease',
-                  }}
+                    transition: 'background-color 0.15s ease, box-shadow 0.15s ease' }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#A8612A'
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                    e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                    e.currentTarget.style.backgroundColor = 'var(--color-primary)'
                     e.currentTarget.style.boxShadow = 'none'
                   }}
                 >
@@ -621,10 +603,9 @@ export default function AbilitiesClient({
                   textAlign: 'center',
                   border: '0.5px dashed var(--color-border)',
                   borderRadius: 12,
-                  marginBottom: 12,
-                }}
+                  marginBottom: 12 }}
               >
-                <p style={{ fontSize: 13, color: 'var(--color-text-faint)', fontStyle: 'italic', margin: 0 }}>
+                <p style={{ fontSize: 13, color: 'var(--color-foreground-faint)', fontStyle: 'italic', margin: 0 }}>
                   {t.abilities_empty}
                 </p>
               </div>
@@ -634,8 +615,7 @@ export default function AbilitiesClient({
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, 1fr)',
                   gap: 10,
-                  marginBottom: 10,
-                }}
+                  marginBottom: 10 }}
               >
                 <AnimatePresence>
                   {tableAbilities.map((ab) => (
@@ -674,21 +654,20 @@ export default function AbilitiesClient({
                 width: '100%',
                 padding: '10px 0',
                 fontSize: 13,
-                color: 'var(--color-text-muted)',
+                color: 'var(--color-foreground-muted)',
                 background: 'none',
                 border: '0.5px dashed var(--color-border)',
                 borderRadius: 10,
                 cursor: 'pointer',
                 marginBottom: 36,
-                transition: 'border-color 0.15s, color 0.15s',
-              }}
+                transition: 'border-color 0.15s, color 0.15s' }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--color-amber)'
-                e.currentTarget.style.color = 'var(--color-amber)'
+                e.currentTarget.style.borderColor = 'var(--color-primary)'
+                e.currentTarget.style.color = 'var(--color-primary)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = 'var(--color-border)'
-                e.currentTarget.style.color = 'var(--color-text-muted)'
+                e.currentTarget.style.color = 'var(--color-foreground-muted)'
               }}
             >
               <Plus size={14} />
@@ -704,9 +683,8 @@ export default function AbilitiesClient({
                     fontWeight: 500,
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
-                    color: 'var(--color-text-muted)',
-                    marginBottom: 12,
-                  }}
+                    color: 'var(--color-foreground-muted)',
+                    marginBottom: 12 }}
                 >
                   {t.abilities_market_apps} ({opportunities.length})
                 </p>
@@ -727,36 +705,33 @@ export default function AbilitiesClient({
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             padding: '10px 14px',
-                            backgroundColor: 'var(--color-cream)',
+                            backgroundColor: 'var(--color-background)',
                             border: 'none',
                             cursor: 'pointer',
-                            textAlign: 'left',
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
-                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-cream)')}
+                            textAlign: 'left' }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-background)')}
                         >
-                          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }}>{appName}</span>
+                          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-foreground)' }}>{appName}</span>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span
                               style={{
                                 fontSize: 10,
                                 fontWeight: 500,
                                 backgroundColor: '#FFFFFF',
-                                color: 'var(--color-text-muted)',
+                                color: 'var(--color-foreground-muted)',
                                 border: '0.5px solid var(--color-border)',
                                 borderRadius: 99,
-                                padding: '1px 6px',
-                              }}
+                                padding: '1px 6px' }}
                             >
                               {opps.length}
                             </span>
                             <ChevronDown
                               size={12}
                               style={{
-                                color: 'var(--color-text-faint)',
+                                color: 'var(--color-foreground-faint)',
                                 transform: isCollapsed ? 'rotate(-90deg)' : 'none',
-                                transition: 'transform 0.15s',
-                              }}
+                                transition: 'transform 0.15s' }}
                             />
                           </div>
                         </button>
@@ -768,14 +743,13 @@ export default function AbilitiesClient({
                                 key={i}
                                 style={{
                                   padding: '8px 14px',
-                                  borderTop: i > 0 ? '0.5px solid var(--color-border)' : undefined,
-                                }}
+                                  borderTop: i > 0 ? '0.5px solid var(--color-border)' : undefined }}
                               >
-                                <p style={{ fontSize: 13, color: 'var(--color-ink)', fontWeight: 500, margin: '0 0 2px' }}>
+                                <p style={{ fontSize: 13, color: 'var(--color-foreground)', fontWeight: 500, margin: '0 0 2px' }}>
                                   {o.customer_segment}
                                 </p>
                                 {o.description && (
-                                  <p style={{ fontSize: 12, color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.5 }}>
+                                  <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', margin: 0, lineHeight: 1.5 }}>
                                     {o.description}
                                   </p>
                                 )}
@@ -801,22 +775,21 @@ export default function AbilitiesClient({
                       padding: '12px 24px',
                       fontSize: 14,
                       fontWeight: 500,
-                      backgroundColor: saving ? 'var(--color-linen)' : 'var(--color-amber)',
-                      color: saving ? 'var(--color-text-muted)' : '#FFFFFF',
+                      backgroundColor: saving ? 'var(--color-muted)' : 'var(--color-primary)',
+                      color: saving ? 'var(--color-foreground-muted)' : '#FFFFFF',
                       borderRadius: 10,
                       border: 'none',
                       cursor: saving ? 'default' : 'pointer',
-                      transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-                    }}
+                      transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease' }}
                     onMouseEnter={(e) => {
                       if (!saving) {
-                        ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
-                        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                        ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary-hover)'
+                        ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!saving) {
-                        ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                        ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary)'
                         ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
                       }
                     }}
@@ -831,7 +804,7 @@ export default function AbilitiesClient({
                     )}
                   </button>
                 ) : (
-                  <p style={{ fontSize: 12, color: 'var(--color-text-faint)', textAlign: 'center' }}>
+                  <p style={{ fontSize: 12, color: 'var(--color-foreground-faint)', textAlign: 'center' }}>
                     {t.abilities_apps_hint}
                   </p>
                 )}
@@ -839,7 +812,7 @@ export default function AbilitiesClient({
             )}
 
             {opportunities.length === 0 && tableAbilities.length > 0 && (
-              <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
+              <p style={{ fontSize: 12, color: 'var(--color-foreground-faint)', fontStyle: 'italic' }}>
                 {t.abilities_apps_hint}
               </p>
             )}
@@ -853,21 +826,19 @@ export default function AbilitiesClient({
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            backgroundColor: '#FAFAF8',
-          }}
+            backgroundColor: 'var(--color-background)' }}
         >
           {/* Chat header */}
           <div
             style={{
               padding: '20px 24px 16px',
               borderBottom: '0.5px solid var(--color-border)',
-              flexShrink: 0,
-            }}
+              flexShrink: 0 }}
           >
-            <h2 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 2 }}>
+            <h2 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-foreground)', marginBottom: 2 }}>
               {t.abilities_chat_title}
             </h2>
-            <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: 0 }}>
+            <p style={{ fontSize: 11, color: 'var(--color-foreground-muted)', margin: 0 }}>
               {t.abilities_chat_subtitle}
             </p>
           </div>
@@ -885,8 +856,7 @@ export default function AbilitiesClient({
                 <div
                   style={{
                     display: 'flex',
-                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                  }}
+                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}
                 >
                   {msg.role === 'assistant' && (
                     <div
@@ -894,15 +864,14 @@ export default function AbilitiesClient({
                         width: 26,
                         height: 26,
                         borderRadius: '50%',
-                        backgroundColor: 'var(--color-amber-bg)',
+                        backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
                         border: '0.5px solid var(--color-border)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
                         marginRight: 8,
-                        marginTop: 2,
-                      }}
+                        marginTop: 2 }}
                     >
                       <span style={{ fontSize: 12 }}>🥚</span>
                     </div>
@@ -915,20 +884,16 @@ export default function AbilitiesClient({
                       lineHeight: 1.55,
                       ...(msg.role === 'user'
                         ? {
-                            backgroundColor: 'var(--color-amber-bg)',
-                            border: '0.5px solid rgba(199,123,58,0.2)',
+                            backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+                            border: '0.5px solid rgba(19,163,137,0.2)',
                             borderRadius: '10px 10px 2px 10px',
-                            color: 'var(--color-ink)',
-                          }
+                            color: 'var(--color-foreground)' }
                         : {
                             backgroundColor: '#FFFFFF',
                             border: '0.5px solid var(--color-border)',
                             borderRadius: '10px 10px 10px 2px',
-                            color: 'var(--color-ink)',
-                            fontFamily: "'Lora', Georgia, serif",
-                            fontWeight: 400,
-                          }),
-                    }}
+                            color: 'var(--color-foreground)',
+                            fontWeight: 400 }) }}
                   >
                     {msg.content || (loading && i === messages.length - 1 ? '…' : '')}
                   </div>
@@ -946,16 +911,15 @@ export default function AbilitiesClient({
                           alignItems: 'center',
                           gap: 5,
                           fontSize: 11,
-                          color: 'var(--color-amber)',
+                          color: 'var(--color-primary)',
                           background: 'transparent',
-                          border: '0.5px solid rgba(199,123,58,0.35)',
+                          border: '0.5px solid rgba(19,163,137,0.35)',
                           borderRadius: 6,
                           padding: '3px 9px',
                           cursor: 'pointer',
                           transition: 'background-color 0.1s',
-                          alignSelf: 'flex-start',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber-bg)')}
+                          alignSelf: 'flex-start' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--color-primary) 10%, transparent)')}
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       >
                         <Plus size={10} />
@@ -975,13 +939,12 @@ export default function AbilitiesClient({
                     width: 26,
                     height: 26,
                     borderRadius: '50%',
-                    backgroundColor: 'var(--color-amber-bg)',
+                    backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
                     border: '0.5px solid var(--color-border)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginRight: 8,
-                  }}
+                    marginRight: 8 }}
                 >
                   <span style={{ fontSize: 12 }}>🥚</span>
                 </div>
@@ -990,10 +953,9 @@ export default function AbilitiesClient({
                     padding: '8px 12px',
                     borderRadius: 10,
                     backgroundColor: '#FFFFFF',
-                    border: '0.5px solid var(--color-border)',
-                  }}
+                    border: '0.5px solid var(--color-border)' }}
                 >
-                  <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
+                  <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
                 </div>
               </div>
             )}
@@ -1005,9 +967,8 @@ export default function AbilitiesClient({
             style={{
               padding: '12px 16px',
               borderTop: '0.5px solid var(--color-border)',
-              backgroundColor: 'var(--color-cream)',
-              flexShrink: 0,
-            }}
+              backgroundColor: 'var(--color-background)',
+              flexShrink: 0 }}
           >
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
               <textarea
@@ -1028,13 +989,12 @@ export default function AbilitiesClient({
                   backgroundColor: '#FFFFFF',
                   border: '0.5px solid var(--color-border)',
                   borderRadius: 8,
-                  color: 'var(--color-ink)',
+                  color: 'var(--color-foreground)',
                   minHeight: 40,
-                  maxHeight: 100,
-                }}
+                  maxHeight: 100 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--color-amber)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                  e.target.style.borderColor = 'var(--color-primary)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = 'var(--color-border)'
@@ -1048,17 +1008,16 @@ export default function AbilitiesClient({
                 style={{
                   width: 40,
                   height: 40,
-                  backgroundColor: 'var(--color-amber)',
+                  backgroundColor: 'var(--color-primary)',
                   borderRadius: 8,
                   border: 'none',
-                  cursor: loading || !input.trim() ? 'default' : 'pointer',
-                }}
+                  cursor: loading || !input.trim() ? 'default' : 'pointer' }}
                 onMouseEnter={(e) => {
                   if (!loading && input.trim())
-                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
+                    (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary-hover)'
                 }}
                 onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                  ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary)'
                 }}
               >
                 {loading ? (

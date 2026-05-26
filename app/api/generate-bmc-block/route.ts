@@ -10,8 +10,7 @@ const BLOCK_LABELS: Record<string, string> = {
   key_resources: 'Key Resources',
   key_partners: 'Key Partners',
   revenue_streams: 'Revenue Streams',
-  cost_structure: 'Cost Structure',
-}
+  cost_structure: 'Cost Structure' }
 
 type VPCSection = { text: string; twinIdx: number }[]
 type VPCWithAttribution = Record<string, VPCSection>
@@ -134,8 +133,7 @@ Example: ["Item 1", "Item 2", "Item 3"]`
   const msg = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 1024,
-    messages: [{ role: 'user', content: prompt }],
-  })
+    messages: [{ role: 'user', content: prompt }] })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '[]'
 

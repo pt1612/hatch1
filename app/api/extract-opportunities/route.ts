@@ -46,8 +46,7 @@ Example with 3 applications × 4 segments = 12 entries minimum:
 Application A → Segment 1, Segment 2, Segment 3, Segment 4
 Application B → Segment 1, Segment 2, Segment 3, Segment 4
 Application C → Segment 1, Segment 2, Segment 3, Segment 4`,
-    messages: [{ role: 'user', content: conversation }],
-  })
+    messages: [{ role: 'user', content: conversation }] })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '[]'
   const match = raw.match(/\[[\s\S]*\]/)

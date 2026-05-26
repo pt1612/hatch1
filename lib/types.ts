@@ -224,8 +224,7 @@ export const SCORE_TO_POSITION: Record<ScoreLevel, number> = {
   low: 15,
   mid: 38,
   high: 65,
-  super_high: 85,
-}
+  super_high: 85 }
 
 export function computeCategory(
   product_fit: boolean,
@@ -258,17 +257,13 @@ export function getAffinityDisplay(label: 'high_affinity' | 'moderate' | 'early_
   const map = {
     high_affinity: {
       text: 'HIGH AFFINITY',
-      className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    },
+      className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
     moderate: {
       text: 'MODERATE',
-      className: 'bg-slate-50 text-slate-600 border-slate-200',
-    },
+      className: 'bg-slate-50 text-slate-600 border-slate-200' },
     early_adopter: {
       text: 'EARLY ADOPTER',
-      className: 'bg-blue-50 text-blue-700 border-blue-200',
-    },
-  }
+      className: 'bg-blue-50 text-blue-700 border-blue-200' } }
   return map[label] ?? map.moderate
 }
 

@@ -23,8 +23,7 @@ function countItems(raw: unknown): number {
 
 export default function NewBMCClient({
   project,
-  vpcs,
-}: {
+  vpcs }: {
   project: { id: string; title: string }
   vpcs: VPCOption[]
 }) {
@@ -57,8 +56,7 @@ export default function NewBMCClient({
         key_resources: [],
         key_partners: [],
         revenue_streams: [],
-        cost_structure: [],
-      })
+        cost_structure: [] })
       .select('id')
       .single()
 
@@ -83,31 +81,31 @@ export default function NewBMCClient({
 
   return (
     <main className="pt-20 px-6 pb-16 max-w-4xl mx-auto">
-      <Link href={`/project/${project.id}/vpcs`} className="inline-flex items-center gap-2 text-xs mb-7" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>
+      <Link href={`/project/${project.id}/vpcs`} className="inline-flex items-center gap-2 text-xs mb-7" style={{ color: 'var(--color-foreground-muted)', textDecoration: 'none' }}>
         <ArrowLeft size={14} />
         Back to VPCs
       </Link>
 
       <div className="mb-7">
-        <p className="text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-text-muted)' }}>
+        <p className="text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-foreground-muted)' }}>
           Level 3
         </p>
-        <h1 style={{ fontFamily: "'Lora', Georgia, serif", fontWeight: 400, fontSize: 34, letterSpacing: '-0.03em', color: 'var(--color-ink)' }}>
+        <h1 style={{ fontWeight: 400, fontSize: 34, letterSpacing: '-0.03em', color: 'var(--color-foreground)' }}>
           Start a BMC
         </h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>
+        <p className="text-sm mt-1" style={{ color: 'var(--color-foreground-muted)' }}>
           Choose one VPC as the primary segment. Customer Segments and Value Propositions will be inherited from it.
         </p>
       </div>
 
       {vpcs.length === 0 ? (
         <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
-          <SquareStack size={30} className="mx-auto mb-3" style={{ color: 'var(--color-amber)' }} />
-          <h2 className="text-base font-medium mb-2" style={{ color: 'var(--color-ink)' }}>Create a VPC first</h2>
-          <p className="text-sm mb-5" style={{ color: 'var(--color-text-muted)' }}>
+          <SquareStack size={30} className="mx-auto mb-3" style={{ color: 'var(--color-primary)' }} />
+          <h2 className="text-base font-medium mb-2" style={{ color: 'var(--color-foreground)' }}>Create a VPC first</h2>
+          <p className="text-sm mb-5" style={{ color: 'var(--color-foreground-muted)' }}>
             A BMC needs exactly one primary VPC before it can be created.
           </p>
-          <Link href={`/project/${project.id}/vpcs/new`} className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium" style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, textDecoration: 'none' }}>
+          <Link href={`/project/${project.id}/vpcs/new`} className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium" style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 10, textDecoration: 'none' }}>
             <Plus size={15} />
             Start a VPC
           </Link>
@@ -123,22 +121,21 @@ export default function NewBMCClient({
                   onClick={() => setSelectedVPCId(vpc.id)}
                   className="text-left rounded-2xl p-5 transition-colors"
                   style={{
-                    backgroundColor: selected ? 'rgba(76,175,125,0.08)' : '#FFFFFF',
-                    border: selected ? '0.5px solid rgba(76,175,125,0.45)' : '0.5px solid var(--color-border)',
-                  }}
+                    backgroundColor: selected ? 'rgba(19,163,137,0.08)' : '#FFFFFF',
+                    border: selected ? '0.5px solid rgba(19,163,137,0.45)' : '0.5px solid var(--color-border)' }}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-text-muted)' }}>
+                      <p className="text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-foreground-muted)' }}>
                         Primary VPC
                       </p>
-                      <h2 className="text-base font-medium mt-1" style={{ color: 'var(--color-ink)' }}>
+                      <h2 className="text-base font-medium mt-1" style={{ color: 'var(--color-foreground)' }}>
                         {vpc.customer_profile_name}
                       </h2>
                     </div>
-                    {selected && <Check size={18} style={{ color: '#2D7A57' }} />}
+                    {selected && <Check size={18} style={{ color: 'var(--color-primary)' }} />}
                   </div>
-                  <p className="text-xs mt-4" style={{ color: 'var(--color-text-muted)' }}>
+                  <p className="text-xs mt-4" style={{ color: 'var(--color-foreground-muted)' }}>
                     {countItems(vpc.final_canvas)} VPC items
                   </p>
                 </button>
@@ -148,7 +145,7 @@ export default function NewBMCClient({
 
           {error && <p className="text-xs mb-4" style={{ color: '#B91C1C' }}>{error}</p>}
 
-          <button onClick={createBMC} disabled={saving || !selectedVPCId} className="inline-flex items-center gap-2 px-5 py-3 text-sm font-medium disabled:opacity-60" style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10 }}>
+          <button onClick={createBMC} disabled={saving || !selectedVPCId} className="inline-flex items-center gap-2 px-5 py-3 text-sm font-medium disabled:opacity-60" style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 10 }}>
             {saving ? 'Creating...' : 'Create BMC'}
             <ArrowRight size={15} />
           </button>

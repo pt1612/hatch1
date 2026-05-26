@@ -5,8 +5,7 @@ import type { Opportunity, Strategy } from '@/lib/types'
 import {
   averagePotentialScoreFromReport,
   isWtpStrategyComplete,
-  resolveSpotlightOpportunity,
-} from '@/lib/strategy-wtp-completion'
+  resolveSpotlightOpportunity } from '@/lib/strategy-wtp-completion'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,8 +13,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
   const { id } = await params
   const supabase = await createClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: project } = await supabase
@@ -73,8 +71,7 @@ export default async function StrategyPage({ params }: { params: Promise<{ id: s
         spotlightOpportunity: spotlightOpp ? { id: spotlightOpp.id, name: spotlightOpp.name } : null,
         spotlightScoreLabel,
         vpcs: (vpcsRes.data ?? []) as { id: string; customer_profile_name: string }[],
-        bmcs: (bmcsRes.data ?? []) as { id: string; title: string | null }[],
-      }
+        bmcs: (bmcsRes.data ?? []) as { id: string; title: string | null }[] }
     : null
 
   return (

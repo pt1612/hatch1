@@ -21,8 +21,7 @@ export default function ContextClient({
   project,
   opportunity,
   linkedVpcs,
-  allVpcs,
-}: {
+  allVpcs }: {
   project: { id: string; title: string }
   opportunity: Opportunity
   linkedVpcs: LinkedVPC[]
@@ -82,7 +81,7 @@ export default function ContextClient({
   const availableVpcs = allVpcs.filter((vpc) => !currentLinkedVpcs.some((linked) => linked.id === vpc.id))
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -91,17 +90,15 @@ export default function ContextClient({
         <div style={{ maxWidth: 896 }}>
           <h1
             style={{
-              fontFamily: "'Lora', Georgia, serif",
               fontWeight: 400,
               fontSize: 22,
               letterSpacing: '-0.02em',
-              color: 'var(--color-ink)',
-              marginBottom: 4,
-            }}
+              color: 'var(--color-foreground)',
+              marginBottom: 4 }}
           >
             {opportunity.name}
           </h1>
-          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 24 }}>
+          <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)', marginBottom: 24 }}>
             {opportunity.customer_segment} · {opportunity.application}
           </p>
 
@@ -113,23 +110,21 @@ export default function ContextClient({
               <div>
                 <h2
                   style={{
-                    fontFamily: "'Lora', Georgia, serif",
                     fontWeight: 400,
                     fontSize: 16,
-                    color: 'var(--color-ink)',
-                    marginBottom: 4,
-                  }}
+                    color: 'var(--color-foreground)',
+                    marginBottom: 4 }}
                 >
                   Linked VPCs
                 </h2>
-                <p style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)' }}>
                   Connect this opportunity to one or more independent customer profiles.
                 </p>
               </div>
               <Link
                 href={`/project/${project.id}/vpcs/new?opportunityId=${opportunity.id}`}
                 className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium"
-                style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-ink)', borderRadius: 8, textDecoration: 'none' }}
+                style={{ backgroundColor: 'var(--color-muted)', color: 'var(--color-foreground)', borderRadius: 8, textDecoration: 'none' }}
               >
                 <Plus size={13} />
                 New VPC
@@ -142,7 +137,7 @@ export default function ContextClient({
                   <span
                     key={vpc.id}
                     className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-full text-xs"
-                    style={{ backgroundColor: 'rgba(76,175,125,0.10)', color: '#2D7A57' }}
+                    style={{ backgroundColor: 'rgba(19,163,137,0.10)', color: 'var(--color-primary)' }}
                   >
                     <Link href={`/project/${project.id}/vpcs/${vpc.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
                       {vpc.customer_profile_name}
@@ -154,7 +149,7 @@ export default function ContextClient({
                 ))}
               </div>
             ) : (
-              <p className="text-xs italic mb-4" style={{ color: 'var(--color-text-faint)' }}>
+              <p className="text-xs italic mb-4" style={{ color: 'var(--color-foreground-faint)' }}>
                 No VPC linked to this opportunity yet.
               </p>
             )}
@@ -165,7 +160,7 @@ export default function ContextClient({
                   value={selectedVPCId}
                   onChange={(event) => setSelectedVPCId(event.target.value)}
                   className="flex-1 px-3 py-2 text-sm outline-none"
-                  style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-ink)' }}
+                  style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-foreground)' }}
                 >
                   <option value="">Add an existing VPC...</option>
                   {availableVpcs.map((vpc) => (
@@ -178,7 +173,7 @@ export default function ContextClient({
                   onClick={linkVPC}
                   disabled={!selectedVPCId}
                   className="px-3 py-2 text-xs font-medium disabled:opacity-50"
-                  style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8 }}
+                  style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 8 }}
                 >
                   Link
                 </button>
@@ -193,16 +188,14 @@ export default function ContextClient({
           >
             <h2
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
                 fontSize: 16,
-                color: 'var(--color-ink)',
-                marginBottom: 4,
-              }}
+                color: 'var(--color-foreground)',
+                marginBottom: 4 }}
             >
               {t.ctx_context_title}
             </h2>
-            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 16 }}>
+            <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', marginBottom: 16 }}>
               {t.ctx_context_desc}
             </p>
             <textarea
@@ -215,11 +208,10 @@ export default function ContextClient({
                 backgroundColor: '#FFFFFF',
                 border: '0.5px solid var(--color-border)',
                 borderRadius: 8,
-                color: 'var(--color-ink)',
-              }}
+                color: 'var(--color-foreground)' }}
               onFocus={(e) => {
-                e.target.style.borderColor = 'var(--color-amber)'
-                e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                e.target.style.borderColor = 'var(--color-primary)'
+                e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = 'var(--color-border)'
@@ -235,12 +227,10 @@ export default function ContextClient({
           >
             <h2
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
                 fontSize: 16,
-                color: 'var(--color-ink)',
-                marginBottom: 16,
-              }}
+                color: 'var(--color-foreground)',
+                marginBottom: 16 }}
             >
               {t.ctx_dims_title}
             </h2>
@@ -249,11 +239,11 @@ export default function ContextClient({
                 <div key={d.label} className="flex items-start gap-2">
                   <div
                     className="flex-shrink-0 mt-1.5"
-                    style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: 'var(--color-sage)' }}
+                    style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: 'var(--color-primary)' }}
                   />
                   <div>
-                    <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-ink)' }}>{d.label}</p>
-                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>{d.desc}</p>
+                    <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-foreground)' }}>{d.label}</p>
+                    <p style={{ fontSize: 11, color: 'var(--color-foreground-muted)' }}>{d.desc}</p>
                   </div>
                 </div>
               ))}
@@ -265,20 +255,19 @@ export default function ContextClient({
             disabled={loading}
             className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-sm font-medium disabled:opacity-60"
             style={{
-              backgroundColor: 'var(--color-amber)',
-              color: '#FFFFFF',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-primary-foreground)',
               borderRadius: 10,
               border: 'none',
-              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-            }}
+              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease' }}
             onMouseEnter={(e) => {
               if (!loading) {
-                ;(e.currentTarget).style.backgroundColor = '#A8612A'
-                ;(e.currentTarget).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                ;(e.currentTarget).style.backgroundColor = 'var(--color-primary-hover)'
+                ;(e.currentTarget).style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
               }
             }}
             onMouseLeave={(e) => {
-              ;(e.currentTarget).style.backgroundColor = 'var(--color-amber)'
+              ;(e.currentTarget).style.backgroundColor = 'var(--color-primary)'
               ;(e.currentTarget).style.boxShadow = 'none'
             }}
           >

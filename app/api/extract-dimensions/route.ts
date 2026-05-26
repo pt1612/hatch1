@@ -28,8 +28,7 @@ Return ONLY valid JSON with scores 0-100 for dimensions that have been discussed
   "time_to_revenue": 30,
   "external_risks": 25
 }`,
-    messages: [{ role: 'user', content: conversation }],
-  })
+    messages: [{ role: 'user', content: conversation }] })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
   const match = raw.match(/\{[\s\S]*\}/)

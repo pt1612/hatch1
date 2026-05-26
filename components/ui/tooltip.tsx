@@ -24,7 +24,7 @@ export function Tooltip({ content, children, className }: TooltipProps) {
           className={cn(
             'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50',
             'px-2.5 py-1.5 rounded-lg text-xs whitespace-nowrap pointer-events-none',
-            'bg-[var(--color-ink)] text-white shadow-lg',
+            'bg-[var(--color-surface-dark)] text-white shadow-lg',
             className
           )}
         >
@@ -36,8 +36,7 @@ export function Tooltip({ content, children, className }: TooltipProps) {
               height: 0,
               borderLeft: '4px solid transparent',
               borderRight: '4px solid transparent',
-              borderTop: '4px solid var(--color-ink)',
-            }}
+              borderTop: '4px solid var(--color-surface-dark)' }}
           />
         </span>
       )}

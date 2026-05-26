@@ -40,8 +40,7 @@ export default async function MapPage({ params }: { params: Promise<{ id: string
 
   const oppsWithReport = (opportunities ?? []).map((o) => ({
     ...o,
-    report: evalMap[o.id] ?? null,
-  }))
+    report: evalMap[o.id] ?? null }))
 
   return <MapClient project={project} opportunities={oppsWithReport} />
 }

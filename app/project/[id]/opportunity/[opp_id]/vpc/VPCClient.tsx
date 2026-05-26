@@ -38,18 +38,17 @@ type Ability = { id: string; name: string; description: string }
 type TwinInterviewWithId = TwinInterview & { twinSequentialId: string }
 
 // ─── Pill colour classes ────────────────────────────────────────────────────────
-const PRODUCT_CLASS  = 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]'
-const RELIEVER_CLASS = 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]'
-const CREATOR_CLASS  = 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]'
-const JOB_CLASS      = 'bg-[rgba(199,123,58,0.10)] text-[#C77B3A] border border-[rgba(199,123,58,0.15)]'
-const PAIN_CLASS     = 'bg-[rgba(232,169,106,0.15)] text-[#7A3D10] border border-[rgba(232,169,106,0.25)]'
-const GAIN_CLASS     = 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]'
+const PRODUCT_CLASS  = 'bg-[rgba(19,163,137,0.10)] text-[#7A4A20] border border-[rgba(19,163,137,0.2)]'
+const RELIEVER_CLASS = 'bg-[var(--color-border)] text-[var(--color-foreground)] border border-[var(--color-border)]'
+const CREATOR_CLASS  = 'bg-[rgba(19,163,137,0.10)] text-[var(--color-primary)] border border-[rgba(19,163,137,0.2)]'
+const JOB_CLASS      = 'bg-[rgba(19,163,137,0.10)] text-[var(--color-primary)] border border-[rgba(19,163,137,0.15)]'
+const PAIN_CLASS     = 'bg-[rgba(111,226,214,0.15)] text-[#7A3D10] border border-[rgba(111,226,214,0.25)]'
+const GAIN_CLASS     = 'bg-[rgba(19,163,137,0.10)] text-[var(--color-primary)] border border-[rgba(19,163,137,0.2)]'
 
 // ─── Normalise incoming vpc_value_map (old string[] or new FinalVPCItem[]) ──────
 const EMPTY_FINAL: FinalVPC = {
   productsAndServices: [], painRelievers: [], gainCreators: [],
-  jobs: [], pains: [], gains: [],
-}
+  jobs: [], pains: [], gains: [] }
 
 function normalizeFinalVPC(raw: unknown): FinalVPC {
   if (!raw || typeof raw !== 'object') return EMPTY_FINAL
@@ -70,8 +69,7 @@ function normalizeFinalVPC(raw: unknown): FinalVPC {
     gainCreators:        toItems(r.gainCreators),
     jobs:                toItems(r.jobs),
     pains:               toItems(r.pains),
-    gains:               toItems(r.gains),
-  }
+    gains:               toItems(r.gains) }
 }
 
 // ─── Pill with optional "add to Final VPC" button ───────────────────────────────
@@ -80,8 +78,7 @@ function TwinPill({
   pillClass,
   dotColor,
   onAddToFinal,
-  onRemove,
-}: {
+  onRemove }: {
   text: string
   pillClass: string
   dotColor?: string
@@ -128,8 +125,7 @@ function TwinPill({
 function FinalPill({
   item,
   pillClass,
-  onRemove,
-}: {
+  onRemove }: {
   item: FinalVPCItem
   pillClass: string
   onRemove: () => void
@@ -169,8 +165,7 @@ function VPCSubCol({
   emptyText,
   onAdd,
   renderPill,
-  onAddAll,
-}: {
+  onAddAll }: {
   title: string
   items: string[]
   pillClass: string
@@ -201,15 +196,15 @@ function VPCSubCol({
   return (
     <div className="mb-3 last:mb-0">
       <div className="flex items-center gap-1 mb-1">
-        <p style={{ fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)' }}>{title}</p>
+        <p style={{ fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-foreground-muted)' }}>{title}</p>
         <button
           onClick={() => setAdding(true)}
           className="w-3 h-3 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
-          style={{ backgroundColor: 'var(--color-linen)' }}
+          style={{ backgroundColor: 'var(--color-muted)' }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
         >
-          <Plus size={7} style={{ color: 'var(--color-text-muted)' }} />
+          <Plus size={7} style={{ color: 'var(--color-foreground-muted)' }} />
         </button>
         {onAddAll && items.length > 0 && (
           <button
@@ -218,10 +213,9 @@ function VPCSubCol({
             style={{
               fontSize: 8,
               fontWeight: 500,
-              backgroundColor: addedAll ? 'rgba(76,175,125,0.15)' : 'var(--color-amber-bg)',
-              color: addedAll ? 'var(--color-sage)' : 'var(--color-amber)',
-              border: addedAll ? '0.5px solid rgba(76,175,125,0.3)' : '0.5px solid rgba(199,123,58,0.2)',
-            }}
+              backgroundColor: addedAll ? 'rgba(19,163,137,0.15)' : 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+              color: addedAll ? 'var(--color-primary)' : 'var(--color-primary)',
+              border: addedAll ? '0.5px solid rgba(19,163,137,0.3)' : '0.5px solid rgba(19,163,137,0.2)' }}
           >
             {addedAll ? t.vpc_added_all : t.vpc_add_all}
           </button>
@@ -230,7 +224,7 @@ function VPCSubCol({
       {items.length > 0 ? (
         <div className="flex flex-wrap gap-1">{items.map(renderPill)}</div>
       ) : (
-        !adding && <p style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>{emptyText}</p>
+        !adding && <p style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-foreground-faint)' }}>{emptyText}</p>
       )}
       {adding && (
         <div className="flex items-center gap-1 mt-1">
@@ -245,10 +239,10 @@ function VPCSubCol({
             }}
             placeholder={t.vpc_add_item}
             className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
-            style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
+            style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-muted)' }}
             onFocus={(e) => {
-              e.target.style.borderColor = 'var(--color-amber)'
-              e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+              e.target.style.borderColor = 'var(--color-primary)'
+              e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
             }}
             onBlur={(e) => {
               e.target.style.borderColor = 'var(--color-border)'
@@ -258,12 +252,12 @@ function VPCSubCol({
           <button
             onClick={submit}
             className="text-[10px] px-1.5 py-1 rounded-lg flex-shrink-0"
-            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
+            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
           >
             {t.vpc_add_btn}
           </button>
           <button onClick={() => { setAdding(false); setVal('') }} className="flex-shrink-0">
-            <X size={10} style={{ color: 'var(--color-text-faint)' }} />
+            <X size={10} style={{ color: 'var(--color-foreground-faint)' }} />
           </button>
         </div>
       )}
@@ -278,8 +272,7 @@ function FinalSubCol({
   pillClass,
   emptyText,
   onAdd,
-  onRemove,
-}: {
+  onRemove }: {
   title: string
   items: FinalVPCItem[]
   pillClass: string
@@ -301,15 +294,15 @@ function FinalSubCol({
   return (
     <div className="mb-3 last:mb-0">
       <div className="flex items-center gap-1 mb-1">
-        <p style={{ fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)' }}>{title}</p>
+        <p style={{ fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-foreground-muted)' }}>{title}</p>
         <button
           onClick={() => setAdding(true)}
           className="w-3 h-3 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
-          style={{ backgroundColor: 'var(--color-linen)' }}
+          style={{ backgroundColor: 'var(--color-muted)' }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
         >
-          <Plus size={7} style={{ color: 'var(--color-text-muted)' }} />
+          <Plus size={7} style={{ color: 'var(--color-foreground-muted)' }} />
         </button>
       </div>
       {items.length > 0 ? (
@@ -319,7 +312,7 @@ function FinalSubCol({
           ))}
         </div>
       ) : (
-        !adding && <p style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>{emptyText}</p>
+        !adding && <p style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-foreground-faint)' }}>{emptyText}</p>
       )}
       {adding && (
         <div className="flex items-center gap-1 mt-1">
@@ -334,10 +327,10 @@ function FinalSubCol({
             }}
             placeholder={t.vpc_add_item}
             className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
-            style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
+            style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-muted)' }}
             onFocus={(e) => {
-              e.target.style.borderColor = 'var(--color-amber)'
-              e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+              e.target.style.borderColor = 'var(--color-primary)'
+              e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
             }}
             onBlur={(e) => {
               e.target.style.borderColor = 'var(--color-border)'
@@ -347,12 +340,12 @@ function FinalSubCol({
           <button
             onClick={submit}
             className="text-[10px] px-1.5 py-1 rounded-lg flex-shrink-0"
-            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
+            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
           >
             {t.vpc_add_btn}
           </button>
           <button onClick={() => { setAdding(false); setVal('') }} className="flex-shrink-0">
-            <X size={10} style={{ color: 'var(--color-text-faint)' }} />
+            <X size={10} style={{ color: 'var(--color-foreground-faint)' }} />
           </button>
         </div>
       )}
@@ -371,8 +364,7 @@ export default function VPCClient({
   abilities,
   sessionId,
   existingFinalVPC,
-  vpcRecordId: _vpcRecordId,
-}: {
+  vpcRecordId: _vpcRecordId }: {
   project: { id: string; title: string }
   opportunity: Opportunity
   twins: DigitalTwin[]
@@ -408,8 +400,7 @@ export default function VPCClient({
           ? {
               productsAndServices: raw.productsAndServices as string[],
               painRelievers: Array.isArray(raw.painRelievers) ? (raw.painRelievers as string[]) : [],
-              gainCreators:  Array.isArray(raw.gainCreators)  ? (raw.gainCreators  as string[]) : [],
-            }
+              gainCreators:  Array.isArray(raw.gainCreators)  ? (raw.gainCreators  as string[]) : [] }
           : null
     }
     return s
@@ -542,23 +533,19 @@ export default function VPCClient({
           existingVPCItems: {
             productsAndServices: finalVPC.productsAndServices.map((i) => i.text),
             painRelievers: finalVPC.painRelievers.map((i) => i.text),
-            gainCreators: finalVPC.gainCreators.map((i) => i.text),
-          },
-        }
+            gainCreators: finalVPC.gainCreators.map((i) => i.text) } }
         console.log('[VPC generate] step 1 – prompt payload built for twin:', twin.name, {
           hasOpportunity: !!payload.opportunityName,
           painsCount: payload.aggregatedPains.length,
           gainsCount: payload.aggregatedGains.length,
-          jobsCount: payload.aggregatedJobs.length,
-        })
+          jobsCount: payload.aggregatedJobs.length })
 
         // Step 2: API call
         console.log('[VPC generate] step 2 – calling /api/generate-vpc-value-map')
         const res = await fetch('/api/generate-vpc-value-map', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        })
+          body: JSON.stringify(payload) })
         console.log('[VPC generate] step 3 – response received, status:', res.status)
 
         // Step 3: parse response
@@ -646,7 +633,7 @@ export default function VPCClient({
   }
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -658,16 +645,14 @@ export default function VPCClient({
         <div className="mb-6">
           <h1
             style={{
-              fontFamily: "'Lora', Georgia, serif",
               fontWeight: 400,
               fontSize: 34,
               letterSpacing: '-0.03em',
-              color: 'var(--color-ink)',
-            }}
+              color: 'var(--color-foreground)' }}
           >
             Value Proposition Canvas
           </h1>
-          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
+          <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)', marginTop: 2 }}>{opportunity.name}</p>
         </div>
 
         {!hasInterviews ? (
@@ -676,21 +661,21 @@ export default function VPCClient({
             style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
           >
             <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
-              <rect x="20" y="25" width="60" height="50" rx="8" fill="var(--color-amber-bg)" />
-              <rect x="30" y="35" width="40" height="5" rx="2" fill="var(--color-linen)" />
-              <rect x="30" y="45" width="30" height="5" rx="2" fill="var(--color-linen)" />
-              <rect x="30" y="55" width="35" height="5" rx="2" fill="var(--color-linen)" />
+              <rect x="20" y="25" width="60" height="50" rx="8" fill="color-mix(in srgb, var(--color-primary) 10%, transparent)" />
+              <rect x="30" y="35" width="40" height="5" rx="2" fill="var(--color-muted)" />
+              <rect x="30" y="45" width="30" height="5" rx="2" fill="var(--color-muted)" />
+              <rect x="30" y="55" width="35" height="5" rx="2" fill="var(--color-muted)" />
             </svg>
-            <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 8 }}>{t.vpc_no_data_title}</h3>
-            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20, lineHeight: '1.6' }}>
+            <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-foreground)', marginBottom: 8 }}>{t.vpc_no_data_title}</h3>
+            <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', marginBottom: 20, lineHeight: '1.6' }}>
               {t.vpc_no_data_desc}
             </p>
             <Link
               href={`/project/${project.id}/opportunity/${opportunity.id}/twins/interview`}
               className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-medium transition-colors"
-              style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, textDecoration: 'none' }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+              style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 10, textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
             >
               {t.vpc_go_interviews}
             </Link>
@@ -700,7 +685,7 @@ export default function VPCClient({
 
             {/* ── Section 1: Per-twin VPC cards ────────────────────────────── */}
             <div>
-              <h2 style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', marginBottom: 12, fontFamily: 'inherit' }}>
+              <h2 style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-foreground-muted)', marginBottom: 12, fontFamily: 'inherit' }}>
                 Per-Twin VPC
               </h2>
               <div className="space-y-4">
@@ -726,11 +711,11 @@ export default function VPCClient({
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-ink)' }}>{twin.name}</p>
-                            <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{twin.role}</span>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-foreground)' }}>{twin.name}</p>
+                            <span style={{ fontSize: 12, color: 'var(--color-foreground-muted)' }}>{twin.role}</span>
                           </div>
                           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                            <span className="text-[10px] font-medium uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--color-amber-bg)', color: 'var(--color-amber)' }}>
+                            <span className="text-[10px] font-medium uppercase tracking-widest px-2 py-0.5 rounded-full" style={{ backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)', color: 'var(--color-primary)' }}>
                               {twin.segment}
                             </span>
                             <span
@@ -749,24 +734,24 @@ export default function VPCClient({
                       </div>
 
                       {!ivId ? (
-                        <p style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--color-text-faint)', padding: '16px 20px' }}>
+                        <p style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--color-foreground-faint)', padding: '16px 20px' }}>
                           No interview data — complete this twin&apos;s interview first.
                         </p>
                       ) : (
                         <div className="grid grid-cols-2" style={{ borderTop: '0.5px solid var(--color-border)' }}>
                           {/* LEFT: Value Map ─────────────────────────────── */}
-                          <div className="p-4" style={{ backgroundColor: 'var(--color-amber-bg)', borderRight: '0.5px solid var(--color-border)' }}>
+                          <div className="p-4" style={{ backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)', borderRight: '0.5px solid var(--color-border)' }}>
                             <div className="flex items-center justify-between mb-3">
-                              <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-amber)' }}>
+                              <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-primary)' }}>
                                 Value Map
                               </p>
                               <button
                                 onClick={() => generateTwinVM(ivId, twin)}
                                 disabled={isGenerating}
                                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-colors disabled:opacity-60"
-                                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
-                                onMouseEnter={(e) => !isGenerating && (e.currentTarget.style.backgroundColor = '#A8612A')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
+                                onMouseEnter={(e) => !isGenerating && (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
                               >
                                 {isGenerating ? (
                                   <><Loader2 size={9} className="animate-spin" /> Generating…</>
@@ -778,13 +763,13 @@ export default function VPCClient({
 
                             {isGenerating && !vm && (
                               <div className="flex items-center gap-2 py-4 justify-center">
-                                <Loader2 size={13} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
-                                <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Generating…</span>
+                                <Loader2 size={13} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
+                                <span style={{ fontSize: 12, color: 'var(--color-foreground-muted)' }}>Generating…</span>
                               </div>
                             )}
 
                             {!vm && !isGenerating && (
-                              <p style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>
+                              <p style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-foreground-faint)' }}>
                                 Click &ldquo;Generate&rdquo; to create the value map from this twin&apos;s profile.
                               </p>
                             )}
@@ -862,7 +847,7 @@ export default function VPCClient({
 
                           {/* RIGHT: Customer Profile ─────────────────────── */}
                           <div className="p-4">
-                            <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)', marginBottom: 12 }}>
+                            <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-foreground-muted)', marginBottom: 12 }}>
                               Customer Profile
                             </p>
                             <VPCSubCol
@@ -931,7 +916,7 @@ export default function VPCClient({
             {/* ── Section 2: Final VPC ─────────────────────────────────────── */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <h2 style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)', fontFamily: 'inherit' }}>
+                <h2 style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-foreground-muted)', fontFamily: 'inherit' }}>
                   {t.vpc_your_final}
                 </h2>
                 {hasFinalData && (
@@ -941,9 +926,8 @@ export default function VPCClient({
                     style={{
                       backgroundColor: '#FFFFFF',
                       border: '0.5px solid var(--color-border)',
-                      color: 'var(--color-ink)',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+                      color: 'var(--color-foreground)' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
                   >
                     <Download size={11} />
@@ -951,7 +935,7 @@ export default function VPCClient({
                   </button>
                 )}
               </div>
-              <p style={{ fontSize: 10, color: 'var(--color-text-faint)', marginBottom: 12 }}>
+              <p style={{ fontSize: 10, color: 'var(--color-foreground-faint)', marginBottom: 12 }}>
                 Click the <Plus size={8} className="inline" /> on any per-twin pill to curate it here.
               </p>
 
@@ -959,7 +943,7 @@ export default function VPCClient({
               {twins.length > 0 && (
                 <div className="flex flex-wrap gap-3 mb-4">
                   {twins.map((twin, i) => (
-                    <span key={twin.id} className="flex items-center gap-1.5" style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
+                    <span key={twin.id} className="flex items-center gap-1.5" style={{ fontSize: 10, color: 'var(--color-foreground-muted)' }}>
                       <span
                         className="w-2 h-2 rounded-full flex-shrink-0"
                         style={{ backgroundColor: TWIN_COLORS_HEX[i % TWIN_COLORS_HEX.length] }}
@@ -967,8 +951,8 @@ export default function VPCClient({
                       {twin.name}
                     </span>
                   ))}
-                  <span className="flex items-center gap-1.5" style={{ fontSize: 10, color: 'var(--color-text-faint)' }}>
-                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--color-warm-gray)' }} />
+                  <span className="flex items-center gap-1.5" style={{ fontSize: 10, color: 'var(--color-foreground-faint)' }}>
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--color-warm)' }} />
                     {t.vpc_legend_custom}
                   </span>
                 </div>
@@ -976,14 +960,14 @@ export default function VPCClient({
 
               <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
                 {!hasFinalData && (
-                  <div className="px-5 py-4" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>
+                  <div className="px-5 py-4" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--color-foreground-faint)' }}>
                     {t.vpc_empty_canvas}
                   </div>
                 )}
                 <div className="grid grid-cols-2" style={{ borderTop: hasFinalData ? undefined : '0.5px solid var(--color-border)' }}>
                   {/* LEFT: Value Map */}
-                  <div className="p-4" style={{ backgroundColor: 'var(--color-amber-bg)', borderRight: '0.5px solid var(--color-border)' }}>
-                    <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-amber)', marginBottom: 12 }}>
+                  <div className="p-4" style={{ backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)', borderRight: '0.5px solid var(--color-border)' }}>
+                    <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-primary)', marginBottom: 12 }}>
                       Value Map
                     </p>
                     <FinalSubCol
@@ -1014,7 +998,7 @@ export default function VPCClient({
 
                   {/* RIGHT: Customer Profile */}
                   <div className="p-4">
-                    <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)', marginBottom: 12 }}>
+                    <p style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-foreground-muted)', marginBottom: 12 }}>
                       Customer Profile
                     </p>
                     <FinalSubCol
@@ -1051,9 +1035,9 @@ export default function VPCClient({
               <Link
                 href={`/project/${project.id}/opportunity/${opportunity.id}/bmc`}
                 className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium transition-colors"
-                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, textDecoration: 'none' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 10, textDecoration: 'none' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
               >
                 {t.vpc_continue_bmc}
               </Link>

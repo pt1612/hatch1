@@ -13,8 +13,7 @@ import {
   Plus,
   Sparkles,
   Users,
-  X,
-} from 'lucide-react'
+  X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { DigitalTwin, TwinMessage } from '@/lib/types'
 import { useI18n } from '@/lib/i18n/context'
@@ -36,8 +35,7 @@ function StickyColumn({
   onAdd,
   onRemove,
   placeholder,
-  addLabel,
-}: {
+  addLabel }: {
   label: string
   items: string[]
   onAdd: (text: string) => void
@@ -48,7 +46,7 @@ function StickyColumn({
   const [draft, setDraft] = useState('')
   return (
     <div className="rounded-2xl p-4" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
-      <p className="text-[10px] font-medium uppercase tracking-[0.1em] mb-3" style={{ color: 'var(--color-text-muted)' }}>
+      <p className="text-[10px] font-medium uppercase tracking-[0.1em] mb-3" style={{ color: 'var(--color-foreground-muted)' }}>
         {label}
       </p>
       <div className="flex flex-wrap gap-2 mb-3 min-h-[28px]">
@@ -56,7 +54,7 @@ function StickyColumn({
           <span
             key={`${text}-${i}`}
             className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg"
-            style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-ink)' }}
+            style={{ backgroundColor: 'var(--color-muted)', color: 'var(--color-foreground)' }}
           >
             {text}
             <button
@@ -70,7 +68,7 @@ function StickyColumn({
           </span>
         ))}
         {items.length === 0 && (
-          <span className="text-xs italic" style={{ color: 'var(--color-text-faint)' }}>
+          <span className="text-xs italic" style={{ color: 'var(--color-foreground-faint)' }}>
             —
           </span>
         )}
@@ -91,7 +89,7 @@ function StickyColumn({
           }}
           placeholder={placeholder}
           className="flex-1 min-w-0 px-3 py-2 text-sm outline-none"
-          style={{ border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-ink)' }}
+          style={{ border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-foreground)' }}
         />
         <button
           type="button"
@@ -103,7 +101,7 @@ function StickyColumn({
             }
           }}
           className="px-3 py-2 text-xs font-medium shrink-0"
-          style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8, border: 'none' }}
+          style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 8, border: 'none' }}
         >
           {addLabel}
         </button>
@@ -114,8 +112,7 @@ function StickyColumn({
 
 export default function NewVPCClient({
   project,
-  opportunities,
-}: {
+  opportunities }: {
   project: { id: string; title: string }
   opportunities: OpportunityOption[]
 }) {
@@ -189,9 +186,7 @@ export default function NewVPCClient({
         body: JSON.stringify({
           name: linkedOpp?.name ?? project.title,
           description: '',
-          customer_segment: linkedOpp?.customer_segment ?? '',
-        }),
-      })
+          customer_segment: linkedOpp?.customer_segment ?? '' }) })
       const { segments: segs } = await res.json()
       if (Array.isArray(segs) && segs.length > 0) {
         setSegments((prev) => {
@@ -237,9 +232,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
           stream: false,
           systemPrompt:
             'You are a Value Proposition Canvas expert. Return ONLY valid JSON with keys jobs, pains, gains. No other text.',
-          messages: [{ role: 'user', content: prompt }],
-        }),
-      })
+          messages: [{ role: 'user', content: prompt }] }) })
       const data = await res.json()
       const text: string = data.content ?? ''
       const match = text.match(/\{[\s\S]*\}/)
@@ -285,11 +278,8 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
           messages: [
             {
               role: 'user',
-              content: `Opportunity: "${linkedOpp.name}". Customer segment: "${linkedOpp.customer_segment ?? ''}". Generate a short VPC segment label. Respond in ${lang === 'it' ? 'Italian' : 'English'}.`,
-            },
-          ],
-        }),
-      })
+              content: `Opportunity: "${linkedOpp.name}". Customer segment: "${linkedOpp.customer_segment ?? ''}". Generate a short VPC segment label. Respond in ${lang === 'it' ? 'Italian' : 'English'}.` },
+          ] }) })
       const data = await res.json()
       const name = (data.content ?? '').trim().replace(/^["']|["']$/g, '').replace(/[.!?]$/, '')
       if (name) setCustomerName(name)
@@ -353,9 +343,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           language: lang,
-          ...(transcriptMessages ? { messages: transcriptMessages } : { sourceText: sourceText ?? rawInterviewText }),
-        }),
-      })
+          ...(transcriptMessages ? { messages: transcriptMessages } : { sourceText: sourceText ?? rawInterviewText }) }) })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'extract')
       setJobs(Array.isArray(data.jobs) ? data.jobs : [])
@@ -413,9 +401,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             language: lang,
-            messages: twinMessages.map((m) => ({ role: m.role, content: m.content })),
-          }),
-        })
+            messages: twinMessages.map((m) => ({ role: m.role, content: m.content })) }) })
         const extractData = await extractRes.json()
         if (!extractRes.ok) {
           console.error(`[VPC] Extract failed for twin ${twin.name}:`, extractData.error)
@@ -441,22 +427,18 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
               gainCreators: [],
               jobs: twinJobs,
               pains: twinPains,
-              gains: twinGains,
-            },
+              gains: twinGains },
             interview_attachment: {
               version: 1,
               synthetic_twin_id: twin.id,
               twin_name: twin.name,
               twin_segment: twin.segment,
-              chat_mode: chatMode,
-            },
+              chat_mode: chatMode },
             twin_transcript: twinMessages.map((m) => ({
               role: m.role,
               content: m.content,
               twinId: m.twinId ?? null,
-              twinName: m.twinName ?? null,
-            })),
-          })
+              twinName: m.twinName ?? null })) })
           .select('id')
           .single()
 
@@ -473,8 +455,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
             .insert(
               linkedOpportunityIds.map((opportunityId) => ({
                 vpc_id: vpcRow.id,
-                opportunity_id: opportunityId,
-              }))
+                opportunity_id: opportunityId }))
             )
           if (linkError) {
             console.error(`[VPC] vpc_opportunities link failed for ${vpcRow.id}:`, linkError)
@@ -515,9 +496,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
         body: JSON.stringify({
           projectInfo: { name: project.title, problem: seg, target: seg, solution: '' },
           segments: segments,
-          count: twinCount,
-        }),
-      })
+          count: twinCount }) })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'twin')
       const rawTwins: Array<{ id: string; name: string; occupation?: string; segment: string; context: string }> =
@@ -534,8 +513,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
         budgetTier: 'mid' as const,
         affinityLabel: 'moderate' as const,
         occupation: tw.occupation,
-        background: tw.context,
-      }))
+        background: tw.context }))
       setSyntheticTwins(twins)
       setChatMessages([])
       setStep('virtual_chat')
@@ -567,29 +545,24 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
             name: project.title,
             problem: segDesc,
             target: segDesc,
-            solution: '',
-          },
+            solution: '' },
           twins: syntheticTwins,
           selectedTwinId: 'all',
           mode: chatMode,
           messages: priorMessages,
-          userMessage: text,
-        }),
-      })
+          userMessage: text }) })
       const data = await res.json()
       const responses: { twinId: string; twinName: string; text: string }[] = data.responses ?? []
       const assistantMessages: TwinMessage[] = responses.map((r) => ({
         role: 'assistant' as const,
         content: r.text,
         twinId: r.twinId,
-        twinName: r.twinName,
-      }))
+        twinName: r.twinName }))
       setChatMessages([...withUser, ...assistantMessages])
     } catch {
       setChatMessages([...withUser, {
         role: 'assistant',
-        content: t.vpc_wizard_error_extract,
-      }])
+        content: t.vpc_wizard_error_extract }])
     } finally {
       setChatLoading(false)
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
@@ -636,14 +609,12 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
       ...emptyLeft,
       jobs: [...jobs],
       pains: [...pains],
-      gains: [...gains],
-    }
+      gains: [...gains] }
     const customer_profile = { jobs: [...jobs], pains: [...pains], gains: [...gains] }
     const value_map = {
       productsAndServices: [] as string[],
       painRelievers: [] as string[],
-      gainCreators: [] as string[],
-    }
+      gainCreators: [] as string[] }
 
     let interview_attachment: Record<string, unknown> | null = null
     let twin_transcript: unknown = null
@@ -653,16 +624,14 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
         version: 1,
         source: realSource,
         filename: realFilename,
-        raw_text: rawInterviewText.trim(),
-      }
+        raw_text: rawInterviewText.trim() }
     }
     if (mode === 'virtual_interview') {
       twin_transcript = chatMessages.map((m) => ({
         role: m.role,
         content: m.content,
         twinId: m.twinId ?? null,
-        twinName: m.twinName ?? null,
-      }))
+        twinName: m.twinName ?? null }))
     }
 
     const { data: vpc, error: vpcError } = await supabase
@@ -675,8 +644,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
         value_map,
         final_canvas: finalCanvas,
         interview_attachment,
-        twin_transcript,
-      })
+        twin_transcript })
       .select('id')
       .single()
 
@@ -690,8 +658,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
       const { error: linkError } = await supabase.from('vpc_opportunities').insert(
         linkedOpportunityIds.map((opportunityId) => ({
           vpc_id: vpc.id,
-          opportunity_id: opportunityId,
-        }))
+          opportunity_id: opportunityId }))
       )
       if (linkError) {
         setSaving(false)
@@ -714,7 +681,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
     <div className="space-y-5 mb-8">
       <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
         <div className="flex items-center justify-between mb-2">
-          <label className="block text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-text-muted)' }}>
+          <label className="block text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-foreground-muted)' }}>
             {t.vpc_wizard_customer_name_label}
           </label>
           {linkedOpportunityIds.length > 0 && (
@@ -723,7 +690,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
               onClick={suggestCustomerName}
               disabled={suggestingName}
               className="inline-flex items-center gap-1 text-[10px] disabled:opacity-50"
-              style={{ color: 'var(--color-amber)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              style={{ color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
             >
               {suggestingName ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
               {suggestingName ? t.vpc_wizard_suggesting_segment : t.vpc_wizard_suggest_segment}
@@ -735,19 +702,19 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
           onChange={(e) => setCustomerName(e.target.value)}
           placeholder={t.vpc_wizard_customer_name_placeholder}
           className="w-full px-4 py-3 text-sm outline-none"
-          style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-ink)' }}
+          style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-foreground)' }}
         />
       </div>
       <div className="rounded-2xl p-6" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
         <div className="flex items-center gap-2 mb-4">
-          <Users size={15} style={{ color: 'var(--color-amber)' }} />
+          <Users size={15} style={{ color: 'var(--color-primary)' }} />
           <div>
-            <h2 className="text-sm font-medium" style={{ color: 'var(--color-ink)' }}>{t.vpc_wizard_linked_opps_header}</h2>
-            <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t.vpc_wizard_linked_opps_hint}</p>
+            <h2 className="text-sm font-medium" style={{ color: 'var(--color-foreground)' }}>{t.vpc_wizard_linked_opps_header}</h2>
+            <p className="text-xs" style={{ color: 'var(--color-foreground-muted)' }}>{t.vpc_wizard_linked_opps_hint}</p>
           </div>
         </div>
         {opportunities.length === 0 ? (
-          <p className="text-xs italic" style={{ color: 'var(--color-text-faint)' }}>{t.vpc_wizard_no_opps}</p>
+          <p className="text-xs italic" style={{ color: 'var(--color-foreground-faint)' }}>{t.vpc_wizard_no_opps}</p>
         ) : (
           <div className="space-y-2">
             {opportunities.map((opportunity) => {
@@ -760,17 +727,16 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
                   className="w-full flex items-center justify-between gap-3 px-3 py-3 text-left"
                   style={{
                     borderRadius: 8,
-                    border: selected ? '0.5px solid rgba(76,175,125,0.45)' : '0.5px solid var(--color-border)',
-                    backgroundColor: selected ? 'rgba(76,175,125,0.08)' : '#FFFFFF',
-                  }}
+                    border: selected ? '0.5px solid rgba(19,163,137,0.45)' : '0.5px solid var(--color-border)',
+                    backgroundColor: selected ? 'rgba(19,163,137,0.08)' : '#FFFFFF' }}
                 >
                   <span>
-                    <span className="block text-sm font-medium" style={{ color: 'var(--color-ink)' }}>{opportunity.name}</span>
+                    <span className="block text-sm font-medium" style={{ color: 'var(--color-foreground)' }}>{opportunity.name}</span>
                     {opportunity.customer_segment && (
-                      <span className="block text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{opportunity.customer_segment}</span>
+                      <span className="block text-xs mt-0.5" style={{ color: 'var(--color-foreground-muted)' }}>{opportunity.customer_segment}</span>
                     )}
                   </span>
-                  {selected && <Check size={16} style={{ color: '#2D7A57' }} />}
+                  {selected && <Check size={16} style={{ color: 'var(--color-primary)' }} />}
                 </button>
               )
             })}
@@ -815,7 +781,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
         type="button"
         onClick={() => router.push(`/project/${project.id}/vpcs`)}
         className="inline-flex items-center gap-2 text-xs mb-7"
-        style={{ color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}
+        style={{ color: 'var(--color-foreground-muted)', background: 'none', border: 'none', cursor: 'pointer' }}
       >
         <ArrowLeft size={14} />
         {t.vpc_wizard_back_vpcs}
@@ -826,28 +792,26 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
           type="button"
           onClick={goBack}
           className="block text-xs mb-4"
-          style={{ color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}
+          style={{ color: 'var(--color-foreground-muted)', background: 'none', border: 'none', cursor: 'pointer' }}
         >
           {t.vpc_wizard_back_step}
         </button>
       )}
 
       <div className="mb-7">
-        <p className="text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-text-muted)' }}>
+        <p className="text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-foreground-muted)' }}>
           {t.vpc_wizard_level}
         </p>
         <h1
           style={{
-            fontFamily: "'Lora', Georgia, serif",
             fontWeight: 400,
             fontSize: 34,
             letterSpacing: '-0.03em',
-            color: 'var(--color-ink)',
-          }}
+            color: 'var(--color-foreground)' }}
         >
           {t.vpc_wizard_title}
         </h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>{t.vpc_wizard_subtitle}</p>
+        <p className="text-sm mt-1" style={{ color: 'var(--color-foreground-muted)' }}>{t.vpc_wizard_subtitle}</p>
       </div>
 
       {error && (
@@ -856,30 +820,27 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
 
       {step === 'mode' && (
         <div>
-          <p className="text-sm font-medium mb-4" style={{ color: 'var(--color-ink)' }}>{t.vpc_wizard_mode_heading}</p>
+          <p className="text-sm font-medium mb-4" style={{ color: 'var(--color-foreground)' }}>{t.vpc_wizard_mode_heading}</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               {
                 key: 'manual' as const,
-                icon: <Pencil size={22} style={{ color: 'var(--color-amber)' }} />,
+                icon: <Pencil size={22} style={{ color: 'var(--color-primary)' }} />,
                 title: t.vpc_wizard_mode_manual_title,
                 desc: t.vpc_wizard_mode_manual_desc,
-                cta: t.vpc_wizard_mode_manual_cta,
-              },
+                cta: t.vpc_wizard_mode_manual_cta },
               {
                 key: 'real_interview' as const,
-                icon: <FileText size={22} style={{ color: 'var(--color-amber)' }} />,
+                icon: <FileText size={22} style={{ color: 'var(--color-primary)' }} />,
                 title: t.vpc_wizard_mode_real_title,
                 desc: t.vpc_wizard_mode_real_desc,
-                cta: t.vpc_wizard_mode_real_cta,
-              },
+                cta: t.vpc_wizard_mode_real_cta },
               {
                 key: 'virtual_interview' as const,
-                icon: <MessageCircle size={22} style={{ color: 'var(--color-amber)' }} />,
+                icon: <MessageCircle size={22} style={{ color: 'var(--color-primary)' }} />,
                 title: t.vpc_wizard_mode_virtual_title,
                 desc: t.vpc_wizard_mode_virtual_desc,
-                cta: t.vpc_wizard_mode_virtual_cta,
-              },
+                cta: t.vpc_wizard_mode_virtual_cta },
             ].map((card) => (
               <button
                 key={card.key}
@@ -889,15 +850,14 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
                 style={{
                   backgroundColor: '#FFFFFF',
                   border: '0.5px solid var(--color-border)',
-                  cursor: 'pointer',
-                }}
+                  cursor: 'pointer' }}
               >
                 <div className="mb-3">{card.icon}</div>
-                <h2 className="text-base font-medium mb-2" style={{ color: 'var(--color-ink)' }}>{card.title}</h2>
-                <p className="text-sm flex-1 mb-4" style={{ color: 'var(--color-text-muted)' }}>{card.desc}</p>
+                <h2 className="text-base font-medium mb-2" style={{ color: 'var(--color-foreground)' }}>{card.title}</h2>
+                <p className="text-sm flex-1 mb-4" style={{ color: 'var(--color-foreground-muted)' }}>{card.desc}</p>
                 <span
                   className="inline-flex items-center gap-2 text-sm font-medium"
-                  style={{ color: 'var(--color-amber)' }}
+                  style={{ color: 'var(--color-primary)' }}
                 >
                   {card.cta}
                   <ArrowRight size={15} />
@@ -911,25 +871,25 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
       {step === 'manual' && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium" style={{ color: 'var(--color-ink)' }}>{t.vpc_wizard_manual_heading}</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--color-foreground)' }}>{t.vpc_wizard_manual_heading}</p>
             <button
               type="button"
               onClick={suggestManualProfile}
               disabled={suggestingProfile}
               className="inline-flex items-center gap-1.5 text-xs disabled:opacity-50"
-              style={{ color: 'var(--color-amber)', background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               {suggestingProfile ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
               {suggestingProfile ? t.vpc_wizard_suggesting_profile : t.vpc_wizard_suggest_profile}
             </button>
           </div>
-          <p className="text-xs mb-6" style={{ color: 'var(--color-text-muted)' }}>{t.vpc_wizard_manual_hint}</p>
+          <p className="text-xs mb-6" style={{ color: 'var(--color-foreground-muted)' }}>{t.vpc_wizard_manual_hint}</p>
           {profileEditor}
           <button
             type="button"
             onClick={() => setStep('review')}
             className="inline-flex items-center gap-2 px-5 py-3 text-sm font-medium"
-            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
+            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 10, border: 'none' }}
           >
             {t.vpc_wizard_continue_review}
             <ArrowRight size={15} />
@@ -939,8 +899,8 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
 
       {step === 'real' && (
         <div>
-          <p className="text-sm font-medium mb-2" style={{ color: 'var(--color-ink)' }}>{t.vpc_wizard_real_heading}</p>
-          <p className="text-xs mb-4" style={{ color: 'var(--color-text-muted)' }}>{t.vpc_wizard_real_hint}</p>
+          <p className="text-sm font-medium mb-2" style={{ color: 'var(--color-foreground)' }}>{t.vpc_wizard_real_heading}</p>
+          <p className="text-xs mb-4" style={{ color: 'var(--color-foreground-muted)' }}>{t.vpc_wizard_real_hint}</p>
           <textarea
             value={rawInterviewText}
             onChange={(e) => {
@@ -949,7 +909,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
             }}
             rows={14}
             className="w-full px-4 py-3 text-sm outline-none mb-4"
-            style={{ border: '0.5px solid var(--color-border)', borderRadius: 12, color: 'var(--color-ink)', backgroundColor: '#FFFFFF' }}
+            style={{ border: '0.5px solid var(--color-border)', borderRadius: 12, color: 'var(--color-foreground)', backgroundColor: '#FFFFFF' }}
             placeholder={t.vpc_wizard_paste_label}
           />
           <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -958,19 +918,19 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium"
-              style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-ink)', borderRadius: 8, border: '0.5px solid var(--color-border)' }}
+              style={{ backgroundColor: 'var(--color-muted)', color: 'var(--color-foreground)', borderRadius: 8, border: '0.5px solid var(--color-border)' }}
             >
               <FileText size={15} />
               {t.vpc_wizard_upload_txt}
             </button>
-            {realFilename && <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{realFilename}</span>}
+            {realFilename && <span className="text-xs" style={{ color: 'var(--color-foreground-muted)' }}>{realFilename}</span>}
           </div>
           <button
             type="button"
             onClick={handleRealExtract}
             disabled={extracting}
             className="inline-flex items-center gap-2 px-5 py-3 text-sm font-medium disabled:opacity-60"
-            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
+            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 10, border: 'none' }}
           >
             {extracting ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
             {extracting ? t.vpc_wizard_extracting : t.vpc_wizard_extract_btn}
@@ -981,25 +941,25 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
       {step === 'virtual_segment' && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium" style={{ color: 'var(--color-ink)' }}>{t.vpc_wizard_virtual_segment_heading}</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--color-foreground)' }}>{t.vpc_wizard_virtual_segment_heading}</p>
             <button
               type="button"
               onClick={suggestSegmentChips}
               disabled={suggestingSegment}
               className="inline-flex items-center gap-1.5 text-xs disabled:opacity-50"
-              style={{ color: 'var(--color-amber)', background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               {suggestingSegment ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
               {suggestingSegment ? t.vpc_wizard_suggesting_segment : t.vpc_wizard_suggest_segment}
             </button>
           </div>
-          <p className="text-xs mb-4" style={{ color: 'var(--color-text-muted)' }}>{t.vpc_wizard_virtual_segment_hint}</p>
+          <p className="text-xs mb-4" style={{ color: 'var(--color-foreground-muted)' }}>{t.vpc_wizard_virtual_segment_hint}</p>
 
           {/* Segment chips */}
           <div className="rounded-2xl p-4 mb-5" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
             <div className="flex flex-wrap gap-2 mb-3 min-h-[28px]">
               {segments.length === 0 && (
-                <span className="text-xs italic" style={{ color: 'var(--color-text-faint)' }}>
+                <span className="text-xs italic" style={{ color: 'var(--color-foreground-faint)' }}>
                   {t.vpc_wizard_segment_placeholder}
                 </span>
               )}
@@ -1007,7 +967,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
                 <span
                   key={`${seg}-${i}`}
                   className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg"
-                  style={{ backgroundColor: 'rgba(199,123,58,0.10)', color: 'var(--color-amber)', border: '0.5px solid rgba(199,123,58,0.25)' }}
+                  style={{ backgroundColor: 'rgba(19,163,137,0.10)', color: 'var(--color-primary)', border: '0.5px solid rgba(19,163,137,0.25)' }}
                 >
                   {seg}
                   <button
@@ -1037,7 +997,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
                 }}
                 placeholder={t.vpc_wizard_segment_placeholder}
                 className="flex-1 min-w-0 px-3 py-2 text-sm outline-none"
-                style={{ border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-ink)' }}
+                style={{ border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-foreground)' }}
               />
               <button
                 type="button"
@@ -1049,7 +1009,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
                   }
                 }}
                 className="px-3 py-2 flex items-center justify-center"
-                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8, border: 'none', cursor: 'pointer' }}
+                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 8, border: 'none', cursor: 'pointer' }}
               >
                 <Plus size={14} />
               </button>
@@ -1058,7 +1018,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
 
           {/* Twin count selector */}
           <div className="mb-5">
-            <p className="text-[10px] font-medium uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--color-text-muted)' }}>
+            <p className="text-[10px] font-medium uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--color-foreground-muted)' }}>
               {t.vpc_wizard_twin_count_label}
             </p>
             <div className="flex gap-2">
@@ -1069,11 +1029,10 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
                   onClick={() => setTwinCount(n)}
                   className="w-10 h-10 rounded-xl text-sm font-medium"
                   style={{
-                    backgroundColor: twinCount === n ? 'var(--color-amber)' : 'var(--color-linen)',
-                    color: twinCount === n ? '#FFFFFF' : 'var(--color-text-muted)',
+                    backgroundColor: twinCount === n ? 'var(--color-primary)' : 'var(--color-muted)',
+                    color: twinCount === n ? '#FFFFFF' : 'var(--color-foreground-muted)',
                     border: 'none',
-                    cursor: 'pointer',
-                  }}
+                    cursor: 'pointer' }}
                 >
                   {n}
                 </button>
@@ -1085,7 +1044,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
             onClick={handleGenerateTwins}
             disabled={generatingTwin}
             className="inline-flex items-center gap-2 px-5 py-3 text-sm font-medium disabled:opacity-60"
-            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
+            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 10, border: 'none' }}
           >
             {generatingTwin ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
             {generatingTwin ? t.vpc_wizard_generating_twin : t.vpc_wizard_generate_twin_btn}
@@ -1095,19 +1054,19 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
 
       {step === 'virtual_chat' && syntheticTwins.length > 0 && (
         <div>
-          <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-ink)' }}>{t.vpc_wizard_chat_heading}</p>
-          <p className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>{t.vpc_wizard_chat_hint}</p>
+          <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-foreground)' }}>{t.vpc_wizard_chat_heading}</p>
+          <p className="text-xs mb-3" style={{ color: 'var(--color-foreground-muted)' }}>{t.vpc_wizard_chat_hint}</p>
 
           {/* Twin profile pills */}
           <div className="flex flex-wrap gap-2 mb-4">
             {syntheticTwins.map((twin, idx) => {
-              const colors = ['rgba(199,123,58,0.12)', 'rgba(76,175,125,0.12)', 'rgba(99,102,241,0.12)', 'rgba(236,72,153,0.12)']
-              const textColors = ['var(--color-amber)', '#2D7A57', '#6366F1', '#DB2777']
+              const colors = ['rgba(19,163,137,0.12)', 'rgba(19,163,137,0.12)', 'rgba(99,102,241,0.12)', 'rgba(236,72,153,0.12)']
+              const textColors = ['var(--color-primary)', 'var(--color-primary)', '#6366F1', '#DB2777']
               return (
                 <span key={twin.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium"
                   style={{ backgroundColor: colors[idx % colors.length], color: textColors[idx % textColors.length] }}>
                   <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
-                    style={{ backgroundColor: textColors[idx % textColors.length], color: '#FFFFFF' }}>
+                    style={{ backgroundColor: textColors[idx % textColors.length], color: 'var(--color-primary-foreground)' }}>
                     {twin.name[0]}
                   </span>
                   {twin.name} · {twin.segment}
@@ -1122,11 +1081,10 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
               <button key={m} type="button" onClick={() => setChatMode(m)}
                 className="px-3 py-1.5 text-xs font-medium rounded-lg"
                 style={{
-                  backgroundColor: chatMode === m ? 'var(--color-amber-bg)' : 'var(--color-linen)',
-                  color: chatMode === m ? 'var(--color-amber)' : 'var(--color-text-muted)',
-                  border: chatMode === m ? '0.5px solid rgba(199,123,58,0.25)' : '0.5px solid var(--color-border)',
-                  cursor: 'pointer',
-                }}>
+                  backgroundColor: chatMode === m ? 'color-mix(in srgb, var(--color-primary) 10%, transparent)' : 'var(--color-muted)',
+                  color: chatMode === m ? 'var(--color-primary)' : 'var(--color-foreground-muted)',
+                  border: chatMode === m ? '0.5px solid rgba(19,163,137,0.25)' : '0.5px solid var(--color-border)',
+                  cursor: 'pointer' }}>
                 {m === 'problem' ? t.vpc_wizard_chat_mode_problem : t.vpc_wizard_chat_mode_value}
               </button>
             ))}
@@ -1136,31 +1094,30 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
           <div className="rounded-2xl p-4 mb-3 max-h-[460px] overflow-y-auto"
             style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
             {chatMessages.length === 0 && (
-              <p className="text-xs italic" style={{ color: 'var(--color-text-faint)' }}>—</p>
+              <p className="text-xs italic" style={{ color: 'var(--color-foreground-faint)' }}>—</p>
             )}
             {chatMessages.map((m, i) => {
               const twinIdx = syntheticTwins.findIndex((tw) => tw.id === m.twinId)
-              const textColors = ['var(--color-amber)', '#2D7A57', '#6366F1', '#DB2777']
+              const textColors = ['var(--color-primary)', 'var(--color-primary)', '#6366F1', '#DB2777']
               return (
                 <div key={i} className="mb-3" style={{ textAlign: m.role === 'user' ? 'right' : 'left' }}>
                   {m.role === 'assistant' && m.twinName && (
                     <p className="text-[10px] font-semibold mb-1"
-                      style={{ color: twinIdx >= 0 ? textColors[twinIdx % textColors.length] : 'var(--color-text-muted)' }}>
+                      style={{ color: twinIdx >= 0 ? textColors[twinIdx % textColors.length] : 'var(--color-foreground-muted)' }}>
                       {m.twinName}
                     </p>
                   )}
                   <span className="inline-block max-w-[85%] px-3 py-2 rounded-xl text-sm"
                     style={{
-                      backgroundColor: m.role === 'user' ? 'rgba(199,123,58,0.12)' : 'var(--color-linen)',
-                      color: 'var(--color-ink)',
-                    }}>
+                      backgroundColor: m.role === 'user' ? 'rgba(19,163,137,0.12)' : 'var(--color-muted)',
+                      color: 'var(--color-foreground)' }}>
                     {m.content || (chatLoading && i === chatMessages.length - 1 ? '…' : '')}
                   </span>
                 </div>
               )
             })}
             {chatLoading && (
-              <div className="flex items-center gap-2 mt-2" style={{ color: 'var(--color-text-faint)' }}>
+              <div className="flex items-center gap-2 mt-2" style={{ color: 'var(--color-foreground-faint)' }}>
                 <Loader2 size={12} className="animate-spin" />
                 <span className="text-xs">All twins are replying…</span>
               </div>
@@ -1172,7 +1129,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
           <div className="mb-3">
             <button type="button" onClick={() => setGuidelinesOpen((v) => !v)}
               className="text-xs mb-2"
-              style={{ color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
+              style={{ color: 'var(--color-foreground-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
               {t.vpc_wizard_prompts_btn} {guidelinesOpen ? '▲' : '▼'}
             </button>
             {guidelinesOpen && (
@@ -1184,7 +1141,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
                   { label: t.vpc_wizard_q_cat_jobs,    qs: [t.vpc_wizard_q_jobs_1, t.vpc_wizard_q_jobs_2, t.vpc_wizard_q_jobs_3, t.vpc_wizard_q_jobs_4] },
                 ].map((cat) => (
                   <div key={cat.label} className="mb-3 last:mb-0">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--color-amber)' }}>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1.5" style={{ color: 'var(--color-primary)' }}>
                       {cat.label}
                     </p>
                     <div className="flex flex-col gap-1">
@@ -1193,7 +1150,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
                           onClick={() => { setChatInput(q); setGuidelinesOpen(false) }}
                           disabled={chatLoading}
                           className="text-left text-xs px-3 py-2 rounded-lg disabled:opacity-40 transition-colors"
-                          style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-ink)', border: 'none', cursor: 'pointer' }}>
+                          style={{ backgroundColor: 'var(--color-muted)', color: 'var(--color-foreground)', border: 'none', cursor: 'pointer' }}>
                           {q}
                         </button>
                       ))}
@@ -1211,19 +1168,19 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage() } }}
               className="flex-1 px-4 py-2.5 text-sm outline-none"
-              style={{ border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-ink)' }}
+              style={{ border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-foreground)' }}
               placeholder="…"
             />
             <button type="button" onClick={() => sendChatMessage()} disabled={chatLoading}
               className="px-4 py-2 text-sm font-medium disabled:opacity-50"
-              style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8, border: 'none', cursor: 'pointer' }}>
+              style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 8, border: 'none', cursor: 'pointer' }}>
               {t.vpc_wizard_send}
             </button>
           </div>
 
           <button type="button" onClick={handleVirtualExtract} disabled={extracting}
             className="inline-flex items-center gap-2 px-5 py-3 text-sm font-medium disabled:opacity-60"
-            style={{ backgroundColor: 'var(--color-linen)', color: 'var(--color-ink)', borderRadius: 10, border: '0.5px solid var(--color-border)', cursor: 'pointer' }}>
+            style={{ backgroundColor: 'var(--color-muted)', color: 'var(--color-foreground)', borderRadius: 10, border: '0.5px solid var(--color-border)', cursor: 'pointer' }}>
             {extracting ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
             {extracting ? t.vpc_wizard_extracting : t.vpc_wizard_finish_extract}
           </button>
@@ -1232,8 +1189,8 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
 
       {step === 'review' && (
         <div>
-          <p className="text-sm font-medium mb-2" style={{ color: 'var(--color-ink)' }}>{t.vpc_wizard_review_heading}</p>
-          <p className="text-xs mb-6" style={{ color: 'var(--color-text-muted)' }}>{t.vpc_wizard_review_hint}</p>
+          <p className="text-sm font-medium mb-2" style={{ color: 'var(--color-foreground)' }}>{t.vpc_wizard_review_heading}</p>
+          <p className="text-xs mb-6" style={{ color: 'var(--color-foreground-muted)' }}>{t.vpc_wizard_review_hint}</p>
           {nameAndLinksBlock}
           {profileEditor}
           <button
@@ -1241,7 +1198,7 @@ Return ONLY valid JSON: {"jobs":["..."],"pains":["..."],"gains":["..."]}`
             onClick={saveVpc}
             disabled={saving}
             className="inline-flex items-center gap-2 px-5 py-3 text-sm font-medium disabled:opacity-60"
-            style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 10, border: 'none' }}
+            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 10, border: 'none' }}
           >
             {saving ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
             {saving ? t.vpc_wizard_saving : t.vpc_wizard_save}

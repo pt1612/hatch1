@@ -82,8 +82,7 @@ export default async function EvaluationsPage({ params }: { params: Promise<{ id
           (iv.jobs_to_be_done?.length ?? 0) > 0
       ),
       hasVPC,
-      hasBMC: bmcSet.has(opp.id),
-    }
+      hasBMC: bmcSet.has(opp.id) }
   })
 
   return <EvaluationsClient project={project} opportunities={oppsWithStatus} />

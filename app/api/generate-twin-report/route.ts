@@ -94,8 +94,7 @@ Return ONLY valid JSON, no other text.`
   const msg = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 2048,
-    messages: [{ role: 'user', content: prompt }],
-  })
+    messages: [{ role: 'user', content: prompt }] })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
   const match = raw.match(/\{[\s\S]*\}/)
@@ -151,8 +150,7 @@ Return ONLY valid JSON, no other text.`
             ability_to_serve: entry.abilityToServe,
             gains: entryGains,
             pains: entryPains,
-            jobs_to_be_done: entryJobs,
-          })
+            jobs_to_be_done: entryJobs })
           .eq('twin_id', dbId)
           .select('id, gains, pains, jobs_to_be_done')
 
@@ -190,23 +188,20 @@ Return ONLY valid JSON, no other text.`
           gainCreators: [],
           jobs: entryJobs,
           pains: entryPains,
-          gains: entryGains,
-        }
+          gains: entryGains }
         const twinTranscript = messages
           .filter((m) => m.role === 'user' || m.twinId === entry.twinId || m.twinName === entry.twinName)
           .map((m) => ({
             role: m.role,
             content: m.content,
             twinId: m.twinId ?? null,
-            twinName: m.twinName ?? null,
-          }))
+            twinName: m.twinName ?? null }))
         const interviewAttachment = {
           version: 1,
           twin_id: dbId,
           twin_name: twinName,
           twin_segment: twin?.segment ?? null,
-          opportunity_id: opportunityId,
-        }
+          opportunity_id: opportunityId }
 
         console.log(`[generate-twin-report] inserting VPC for twin ${dbId} (${twinName})`)
 
@@ -220,8 +215,7 @@ Return ONLY valid JSON, no other text.`
             value_map: valueMap,
             final_canvas: finalCanvas,
             interview_attachment: interviewAttachment,
-            twin_transcript: twinTranscript,
-          })
+            twin_transcript: twinTranscript })
           .select('id')
           .single()
 

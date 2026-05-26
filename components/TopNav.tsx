@@ -25,9 +25,7 @@ interface TopNavProps {
 // Nav labels are ALWAYS in English (technical framework terms — not translated)
 function isItemLocked(label: string, entryPath: string | null | undefined, href?: string): boolean {
   if (label === 'VPC') {
-    // VPC dashboard (/vpcs) is always accessible
     if (href?.endsWith('/vpcs') || href?.includes('/vpcs/')) return false
-    // VPC canvas (→ evaluations): locked unless entry path is 'vpc'
     if (!entryPath || entryPath === 'full' || entryPath === 'idea') return true
     if (entryPath === 'bmc') return true
     return false
@@ -47,38 +45,24 @@ function isItemLocked(label: string, entryPath: string | null | undefined, href?
 function LangToggle() {
   const { lang, setLang } = useI18n()
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 0,
-        backgroundColor: 'var(--color-linen)',
-        border: '0.5px solid var(--color-border)',
-        borderRadius: 6,
-        overflow: 'hidden',
-        height: 26,
-      }}
-    >
-      {(['en', 'it'] as Lang[]).map((l) => (
-        <button
-          key={l}
-          onClick={() => setLang(l)}
-          style={{
-            fontSize: 11,
-            fontWeight: lang === l ? 600 : 400,
-            color: lang === l ? '#FFFFFF' : 'var(--color-text-muted)',
-            backgroundColor: lang === l ? 'var(--color-amber)' : 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '0 9px',
-            height: '100%',
-            letterSpacing: '0.04em',
-            transition: 'background-color 0.12s, color 0.12s',
-          }}
-        >
-          {l.toUpperCase()}
-        </button>
-      ))}
+    <div className="inline-flex items-center h-[26px] rounded-md overflow-hidden border border-[var(--color-border)] bg-[var(--color-muted)]">
+      {(['en', 'it'] as Lang[]).map((l) => {
+        const active = lang === l
+        return (
+          <button
+            key={l}
+            onClick={() => setLang(l)}
+            className={[
+              'h-full px-[9px] text-[11px] tracking-[0.04em] transition-colors',
+              active
+                ? 'bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-semibold'
+                : 'bg-transparent text-[var(--color-foreground-muted)] hover:text-[var(--color-foreground)]',
+            ].join(' ')}
+          >
+            {l.toUpperCase()}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -128,8 +112,6 @@ export default function TopNav({
 
   const entryPath = entryPathProp ?? fetchedEntryPath
 
-  // Nav labels are ALWAYS English (framework technical terms — not translated)
-  // For full/idea paths, VPC points to the new dashboard; for vpc/bmc paths, to the canvas
   const vpcHref = (entryPath === 'vpc' || entryPath === 'bmc')
     ? `/project/${projectId}/evaluations`
     : `/project/${projectId}/vpcs`
@@ -159,28 +141,10 @@ export default function TopNav({
 
   return (
     <>
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          backgroundColor: 'var(--color-cream)',
-          height: 52,
-          display: 'flex',
-          alignItems: 'center',
-          paddingLeft: 20,
-          paddingRight: 20,
-          borderBottom: '0.5px solid var(--color-border)',
-        }}
-      >
-        {/* Left: logo only (clicking logo goes to dashboard) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
-          <Link
-            href="/dashboard"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}
-          >
+      <div className="fixed top-0 left-0 right-0 z-50 h-[52px] flex items-center px-5 bg-[var(--color-background)] border-b border-[var(--color-border)]">
+        {/* Left: logo */}
+        <div className="flex items-center flex-shrink-0">
+          <Link href="/dashboard" className="flex items-center gap-2 no-underline">
             <Image
               src="/hatch_logo.svg"
               alt="Hatch"
@@ -188,56 +152,32 @@ export default function TopNav({
               height={28}
               style={{ height: 28, width: 'auto' }}
             />
-            <span
-              style={{
-                fontFamily: "'Lora', Georgia, serif",
-                fontWeight: 400,
-                fontSize: 16,
-                color: 'var(--color-ink)',
-                letterSpacing: '-0.01em',
-              }}
-            >
+            <span className="font-bold text-[16px] tracking-[-0.01em] text-[var(--color-foreground)]">
               Hatch
             </span>
           </Link>
         </div>
 
-        {/* Center: nav items — only show unlocked ones */}
+        {/* Center: nav items */}
         {items.length > 0 && (
-          <nav
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 0,
-            }}
-          >
+          <nav className="flex-1 flex items-center justify-center">
             {items
               .filter((item) => !isItemLocked(item.label, entryPath, item.href))
               .map((item, i) => {
                 const active = isActive(item.href)
                 return (
-                  <span key={item.label} style={{ display: 'flex', alignItems: 'center' }}>
+                  <span key={item.label} className="flex items-center">
                     {i > 0 && (
-                      <span style={{ color: 'var(--color-border)', fontSize: 14, marginLeft: 4, marginRight: 4, userSelect: 'none' }}>
-                        ·
-                      </span>
+                      <span className="text-[var(--color-border-strong)] text-sm mx-1 select-none">·</span>
                     )}
                     <Link
                       href={item.href}
-                      style={{
-                        fontSize: 13,
-                        color: active ? 'var(--color-amber)' : 'var(--color-text-muted)',
-                        textDecoration: 'none',
-                        paddingBottom: 2,
-                        borderBottom: active ? '1.5px solid var(--color-amber)' : '1.5px solid transparent',
-                        transition: 'color 0.1s ease, border-color 0.1s ease',
-                        whiteSpace: 'nowrap',
-                        textShadow: active ? '0 0 20px rgba(199,123,58,0.3)' : 'none',
-                      }}
-                      onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = 'var(--color-ink)' }}
-                      onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = 'var(--color-text-muted)' }}
+                      className={[
+                        'text-[13px] whitespace-nowrap pb-0.5 border-b-[1.5px] transition-colors no-underline',
+                        active
+                          ? 'text-[var(--color-primary)] border-[var(--color-primary)]'
+                          : 'text-[var(--color-foreground-muted)] border-transparent hover:text-[var(--color-foreground)]',
+                      ].join(' ')}
                     >
                       {item.label}
                     </Link>
@@ -247,29 +187,17 @@ export default function TopNav({
           </nav>
         )}
 
-        {/* Right: EN/IT toggle + project title + avatar */}
+        {/* Right */}
         <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            flexShrink: 0,
-            marginLeft: items.length === 0 ? 'auto' : 0,
-          }}
+          className={[
+            'flex items-center gap-2.5 flex-shrink-0',
+            items.length === 0 ? 'ml-auto' : '',
+          ].join(' ')}
         >
           <LangToggle />
 
           {projectTitle && (
-            <span
-              style={{
-                fontSize: 12,
-                color: 'var(--color-text-faint)',
-                maxWidth: 140,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
+            <span className="text-[12px] text-[var(--color-foreground-faint)] max-w-[140px] overflow-hidden text-ellipsis whitespace-nowrap">
               {projectTitle}
             </span>
           )}
@@ -277,30 +205,7 @@ export default function TopNav({
             <button
               onClick={handleSignOut}
               title={t.nav_signout}
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: '50%',
-                backgroundColor: 'rgba(199,123,58,0.10)',
-                border: '1px solid rgba(199,123,58,0.25)',
-                color: 'var(--color-amber)',
-                fontSize: 11,
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                letterSpacing: '0.03em',
-                transition: 'background-color 0.15s ease, transform 0.15s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(199,123,58,0.18)'
-                e.currentTarget.style.transform = 'scale(1.05)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(199,123,58,0.10)'
-                e.currentTarget.style.transform = 'scale(1)'
-              }}
+              className="w-[30px] h-[30px] rounded-full bg-[color-mix(in_srgb,var(--color-primary)_15%,transparent)] border border-[color-mix(in_srgb,var(--color-primary)_30%,transparent)] text-[var(--color-primary)] text-[11px] font-semibold tracking-[0.03em] flex items-center justify-center cursor-pointer transition-all hover:bg-[color-mix(in_srgb,var(--color-primary)_25%,transparent)] hover:scale-105"
             >
               {userInitials}
             </button>
@@ -309,25 +214,10 @@ export default function TopNav({
       </div>
 
       {progressPct > 0 && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 52,
-            left: 0,
-            right: 0,
-            height: 2,
-            zIndex: 49,
-            backgroundColor: 'var(--color-linen)',
-          }}
-        >
+        <div className="fixed top-[52px] left-0 right-0 h-0.5 z-[49] bg-[var(--color-muted)]">
           <div
-            style={{
-              height: '100%',
-              width: `${progressPct}%`,
-              backgroundColor: 'var(--color-amber)',
-              transition: 'width 0.4s ease',
-              boxShadow: '0 0 8px rgba(199,123,58,0.4)',
-            }}
+            className="h-full bg-[var(--color-primary)] transition-[width] duration-[0.4s] ease"
+            style={{ width: `${progressPct}%` }}
           />
         </div>
       )}

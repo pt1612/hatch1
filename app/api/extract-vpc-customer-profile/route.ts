@@ -54,8 +54,7 @@ Rules:
 
 Return ONLY valid JSON, no markdown:
 {"jobs":["..."],"pains":["..."],"gains":["..."]}`,
-      messages: [{ role: 'user', content: truncated }],
-    })
+      messages: [{ role: 'user', content: truncated }] })
 
     const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
     const match = raw.match(/\{[\s\S]*\}/)
@@ -69,8 +68,7 @@ Return ONLY valid JSON, no markdown:
     return Response.json({
       jobs: asList(parsed.jobs),
       pains: asList(parsed.pains),
-      gains: asList(parsed.gains),
-    })
+      gains: asList(parsed.gains) })
   } catch (e) {
     console.error('[extract-vpc-customer-profile]', e)
     return Response.json({ error: 'Extraction failed' }, { status: 500 })

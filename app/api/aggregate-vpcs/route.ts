@@ -69,8 +69,7 @@ Return a JSON object ONLY (no other text):
     const msg = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
-    })
+      messages: [{ role: 'user', content: prompt }] })
 
     const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
     const match = raw.match(/\{[\s\S]*\}/)
@@ -82,8 +81,7 @@ Return a JSON object ONLY (no other text):
     const customerProfile = {
       jobs: parsed.jobs ?? [],
       pains: parsed.pains ?? [],
-      gains: parsed.gains ?? [],
-    }
+      gains: parsed.gains ?? [] }
     const valueMap = { productsAndServices: [], painRelievers: [], gainCreators: [] }
     const finalCanvas = {
       productsAndServices: [],
@@ -91,14 +89,12 @@ Return a JSON object ONLY (no other text):
       gainCreators: [],
       jobs: customerProfile.jobs,
       pains: customerProfile.pains,
-      gains: customerProfile.gains,
-    }
+      gains: customerProfile.gains }
     const interviewAttachment = {
       version: 1,
       kind: 'aggregate',
       source_vpc_ids,
-      reasoning: parsed.reasoning ?? null,
-    }
+      reasoning: parsed.reasoning ?? null }
 
     console.log('[aggregate-vpcs] inserting aggregate VPC:', { project_id, segmentName, source_count: n })
 
@@ -112,8 +108,7 @@ Return a JSON object ONLY (no other text):
         value_map: valueMap,
         final_canvas: finalCanvas,
         interview_attachment: interviewAttachment,
-        is_aggregate: true,
-      })
+        is_aggregate: true })
       .select('*')
       .single()
 
@@ -129,8 +124,7 @@ Return a JSON object ONLY (no other text):
 
     const aggregateRows = source_vpc_ids.map((sid) => ({
       aggregate_vpc_id: newVpc.id,
-      source_vpc_id: sid,
-    }))
+      source_vpc_id: sid }))
     const { error: linkErr } = await supabase.from('vpc_aggregates').insert(aggregateRows)
 
     if (linkErr) {
@@ -139,8 +133,7 @@ Return a JSON object ONLY (no other text):
         {
           error: `Aggregate row created (id=${newVpc.id}) but source linking failed: ${linkErr.message}. Verify migration 010_vpc_aggregates.sql is applied (vpc_aggregates table must exist).`,
           details: linkErr,
-          vpc: newVpc,
-        },
+          vpc: newVpc },
         { status: 500 }
       )
     }

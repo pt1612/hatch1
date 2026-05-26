@@ -19,15 +19,13 @@ function normalizeBmcVpcs(raw: unknown): { role: 'primary' | 'secondary'; vpcs: 
 }
 
 export default async function BMCDetailPage({
-  params,
-}: {
+  params }: {
   params: Promise<{ id: string; bmc_id: string }>
 }) {
   const { id, bmc_id } = await params
   const supabase = await createClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: project } = await supabase
@@ -76,14 +74,12 @@ export default async function BMCDetailPage({
         id: linkedOpportunity.id,
         name: linkedOpportunity.name,
         description: linkedOpportunity.description ?? '',
-        customer_segment: linkedOpportunity.customer_segment ?? '',
-      }
+        customer_segment: linkedOpportunity.customer_segment ?? '' }
     : {
         id: '00000000-0000-0000-0000-000000000000',
         name: existingBMC.title ?? 'Business Model Canvas',
         description: '',
-        customer_segment: primaryVPC.customer_profile_name,
-      }
+        customer_segment: primaryVPC.customer_profile_name }
 
   return (
     <BMCClient

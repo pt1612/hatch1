@@ -33,8 +33,7 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
         description: form.description.trim(),
         application: form.sector.trim(),
         customer_segment: '',
-        phase: 'abilities',
-      })
+        phase: 'abilities' })
       .select()
       .single()
 
@@ -47,8 +46,8 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
 
   if (!projectId) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
-        <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
+      <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+        <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
       </div>
     )
   }
@@ -56,16 +55,24 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
   const canSubmit = form.name.trim().length > 0
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="relative min-h-screen flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={projectId} />
 
-      <motion.div className="flex-1 flex flex-col items-center justify-center px-6 py-16" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
+      {/* Stacked shapes near top-right (mobile-visible) */}
+      <div className="absolute top-20 right-6 md:right-16 pointer-events-none" aria-hidden="true">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 rounded-2xl bg-[var(--color-primary)] opacity-90 translate-x-1.5 translate-y-1.5" />
+          <div className="absolute inset-0 rounded-2xl bg-[var(--color-aruba-blue)]" />
+        </div>
+      </div>
+
+      <motion.div className="relative flex-1 flex flex-col items-center justify-center px-6 py-16" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
         <div style={{ width: '100%', maxWidth: 480 }}>
           <button
             onClick={() => router.push(`/project/${projectId}/onboarding`)}
             style={{
               fontSize: 12,
-              color: 'var(--color-text-muted)',
+              color: 'var(--color-foreground-muted)',
               marginBottom: 32,
               display: 'flex',
               alignItems: 'center',
@@ -73,25 +80,22 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: 0,
-            }}
+              padding: 0 }}
           >
             ← Indietro
           </button>
 
           <h1
             style={{
-              fontFamily: "'Lora', Georgia, serif",
               fontWeight: 400,
               fontSize: 34,
               letterSpacing: '-0.03em',
-              color: 'var(--color-ink)',
-              marginBottom: 8,
-            }}
+              color: 'var(--color-foreground)',
+              marginBottom: 8 }}
           >
             La tua idea
           </h1>
-          <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 32 }}>
+          <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)', marginBottom: 32 }}>
             Descrivi la tua idea — la salveremo come opportunità e partiremo da lì.
           </p>
 
@@ -105,9 +109,8 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
-                  color: 'var(--color-text-muted)',
-                  marginBottom: 6,
-                }}
+                  color: 'var(--color-foreground-muted)',
+                  marginBottom: 6 }}
               >
                 Nome dell'idea *
               </label>
@@ -122,13 +125,12 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                   backgroundColor: '#FFFFFF',
                   border: '0.5px solid var(--color-border)',
                   borderRadius: 8,
-                  color: 'var(--color-ink)',
+                  color: 'var(--color-foreground)',
                   outline: 'none',
-                  boxSizing: 'border-box',
-                }}
+                  boxSizing: 'border-box' }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--color-amber)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                  e.target.style.borderColor = 'var(--color-primary)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = 'var(--color-border)'
@@ -146,9 +148,8 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
-                  color: 'var(--color-text-muted)',
-                  marginBottom: 6,
-                }}
+                  color: 'var(--color-foreground-muted)',
+                  marginBottom: 6 }}
               >
                 Descrizione
               </label>
@@ -164,15 +165,14 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                   backgroundColor: '#FFFFFF',
                   border: '0.5px solid var(--color-border)',
                   borderRadius: 8,
-                  color: 'var(--color-ink)',
+                  color: 'var(--color-foreground)',
                   outline: 'none',
                   resize: 'vertical',
                   lineHeight: '1.6',
-                  boxSizing: 'border-box',
-                }}
+                  boxSizing: 'border-box' }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--color-amber)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                  e.target.style.borderColor = 'var(--color-primary)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = 'var(--color-border)'
@@ -190,9 +190,8 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
-                  color: 'var(--color-text-muted)',
-                  marginBottom: 6,
-                }}
+                  color: 'var(--color-foreground-muted)',
+                  marginBottom: 6 }}
               >
                 Settore di riferimento
               </label>
@@ -207,13 +206,12 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                   backgroundColor: '#FFFFFF',
                   border: '0.5px solid var(--color-border)',
                   borderRadius: 8,
-                  color: 'var(--color-ink)',
+                  color: 'var(--color-foreground)',
                   outline: 'none',
-                  boxSizing: 'border-box',
-                }}
+                  boxSizing: 'border-box' }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--color-amber)'
-                  e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                  e.target.style.borderColor = 'var(--color-primary)'
+                  e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = 'var(--color-border)'
@@ -231,24 +229,23 @@ export default function IdeaPage({ params }: { params: Promise<{ id: string }> }
                 justifyContent: 'center',
                 gap: 8,
                 padding: '12px 24px',
-                backgroundColor: canSubmit && !saving ? 'var(--color-amber)' : 'var(--color-linen)',
-                color: canSubmit && !saving ? '#FFFFFF' : 'var(--color-text-muted)',
+                backgroundColor: canSubmit && !saving ? 'var(--color-primary)' : 'var(--color-muted)',
+                color: canSubmit && !saving ? '#FFFFFF' : 'var(--color-foreground-muted)',
                 borderRadius: 10,
                 border: 'none',
                 fontSize: 14,
                 fontWeight: 500,
                 cursor: canSubmit && !saving ? 'pointer' : 'default',
-                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-              }}
+                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease' }}
               onMouseEnter={(e) => {
                 if (canSubmit && !saving) {
-                  ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
-                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                  ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary-hover)'
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
                 }
               }}
               onMouseLeave={(e) => {
                 if (canSubmit && !saving) {
-                  ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                  ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary)'
                   ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
                 }
               }}

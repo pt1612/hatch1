@@ -46,21 +46,17 @@ interface VPCDashboardClientProps {
 function Badge({ label, variant }: { label: string; variant: 'ready' | 'missing' | 'aggregate' }) {
   const styles = {
     ready: {
-      backgroundColor: 'rgba(76,175,125,0.10)',
-      color: '#2D7A57',
-      border: '0.5px solid rgba(76,175,125,0.20)',
-    },
+      backgroundColor: 'rgba(19,163,137,0.10)',
+      color: 'var(--color-primary)',
+      border: '0.5px solid rgba(19,163,137,0.20)' },
     missing: {
       backgroundColor: 'rgba(136,136,128,0.08)',
-      color: 'var(--color-text-muted)',
-      border: '0.5px solid var(--color-border)',
-    },
+      color: 'var(--color-foreground-muted)',
+      border: '0.5px solid var(--color-border)' },
     aggregate: {
-      backgroundColor: 'rgba(199,123,58,0.10)',
-      color: 'var(--color-amber)',
-      border: '0.5px solid rgba(199,123,58,0.30)',
-    },
-  }
+      backgroundColor: 'rgba(19,163,137,0.10)',
+      color: 'var(--color-primary)',
+      border: '0.5px solid rgba(19,163,137,0.30)' } }
   return (
     <span
       style={{
@@ -71,8 +67,7 @@ function Badge({ label, variant }: { label: string; variant: 'ready' | 'missing'
         textTransform: 'uppercase',
         padding: '2px 8px',
         borderRadius: 4,
-        whiteSpace: 'nowrap',
-      }}
+        whiteSpace: 'nowrap' }}
     >
       {label}
     </span>
@@ -94,8 +89,7 @@ export default function VPCDashboardClient({
   opportunities,
   vpcs,
   vpcOpportunities,
-  aggregateLinks,
-}: VPCDashboardClientProps) {
+  aggregateLinks }: VPCDashboardClientProps) {
   const router = useRouter()
   const { toast } = useToast()
   const { t } = useI18n()
@@ -161,9 +155,7 @@ export default function VPCDashboardClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           project_id: project.id,
-          source_vpc_ids: Array.from(selected),
-        }),
-      })
+          source_vpc_ids: Array.from(selected) }) })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         const detail = data?.error ?? `HTTP ${res.status}`
@@ -185,7 +177,7 @@ export default function VPCDashboardClient({
   const hasAnyVpc = vpcs.length > 0
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-cream)' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '88px 24px 60px' }}>
@@ -193,13 +185,11 @@ export default function VPCDashboardClient({
           <div>
             <h1
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
                 fontSize: 28,
-                color: 'var(--color-ink)',
+                color: 'var(--color-foreground)',
                 letterSpacing: '-0.02em',
-                margin: 0,
-              }}
+                margin: 0 }}
             >
               {t.vpcd_title}
             </h1>
@@ -220,10 +210,9 @@ export default function VPCDashboardClient({
                 cursor: selected.size >= 2 && !aggregating ? 'pointer' : 'not-allowed',
                 border: '0.5px solid',
                 transition: 'all 0.15s ease',
-                backgroundColor: selected.size >= 2 && !aggregating ? 'var(--color-amber)' : 'var(--color-linen)',
-                borderColor: selected.size >= 2 && !aggregating ? 'var(--color-amber)' : 'var(--color-border)',
-                color: selected.size >= 2 && !aggregating ? '#FFFFFF' : 'var(--color-text-faint)',
-              }}
+                backgroundColor: selected.size >= 2 && !aggregating ? 'var(--color-primary)' : 'var(--color-muted)',
+                borderColor: selected.size >= 2 && !aggregating ? 'var(--color-primary)' : 'var(--color-border)',
+                color: selected.size >= 2 && !aggregating ? '#FFFFFF' : 'var(--color-foreground-faint)' }}
             >
               {aggregating ? (
                 <>
@@ -239,7 +228,7 @@ export default function VPCDashboardClient({
               )}
             </button>
             {selected.size < 2 && (
-              <p style={{ fontSize: 11, color: 'var(--color-text-faint)', margin: 0 }}>
+              <p style={{ fontSize: 11, color: 'var(--color-foreground-faint)', margin: 0 }}>
                 {t.vpcd_select_hint}
               </p>
             )}
@@ -255,13 +244,12 @@ export default function VPCDashboardClient({
               borderRadius: 16,
               backgroundColor: '#FFFFFF',
               border: '0.5px solid var(--color-border)',
-              textAlign: 'center',
-            }}
+              textAlign: 'center' }}
           >
-            <p style={{ fontSize: 16, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 8 }}>
+            <p style={{ fontSize: 16, fontWeight: 500, color: 'var(--color-foreground)', marginBottom: 8 }}>
               {t.vpcd_no_vpcs}
             </p>
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', maxWidth: 400, margin: '0 auto' }}>
+            <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)', maxWidth: 400, margin: '0 auto' }}>
               {t.vpcd_no_vpcs_hint}
             </p>
           </motion.div>
@@ -275,10 +263,9 @@ export default function VPCDashboardClient({
                     fontWeight: 600,
                     letterSpacing: '0.08em',
                     textTransform: 'uppercase',
-                    color: 'var(--color-text-muted)',
+                    color: 'var(--color-foreground-muted)',
                     marginBottom: 16,
-                    margin: '0 0 16px 0',
-                  }}
+                    margin: '0 0 16px 0' }}
                 >
                   {t.vpcd_section_a}
                 </h2>
@@ -290,11 +277,10 @@ export default function VPCDashboardClient({
                         style={{
                           fontSize: 13,
                           fontWeight: 500,
-                          color: 'var(--color-ink)',
+                          color: 'var(--color-foreground)',
                           marginBottom: 8,
                           paddingBottom: 8,
-                          borderBottom: '0.5px solid var(--color-border)',
-                        }}
+                          borderBottom: '0.5px solid var(--color-border)' }}
                       >
                         {oppMap.get(oppId)?.name ?? oppId}
                       </p>
@@ -321,12 +307,11 @@ export default function VPCDashboardClient({
                         style={{
                           fontSize: 13,
                           fontWeight: 500,
-                          color: 'var(--color-text-muted)',
+                          color: 'var(--color-foreground-muted)',
                           marginBottom: 8,
                           paddingBottom: 8,
                           borderBottom: '0.5px solid var(--color-border)',
-                          fontStyle: 'italic',
-                        }}
+                          fontStyle: 'italic' }}
                       >
                         Unassigned
                       </p>
@@ -357,15 +342,14 @@ export default function VPCDashboardClient({
                   fontWeight: 600,
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  color: 'var(--color-text-muted)',
-                  margin: '0 0 16px 0',
-                }}
+                  color: 'var(--color-foreground-muted)',
+                  margin: '0 0 16px 0' }}
               >
                 {t.vpcd_section_b}
               </h2>
 
               {aggregateVpcs.length === 0 ? (
-                <p style={{ fontSize: 13, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
+                <p style={{ fontSize: 13, color: 'var(--color-foreground-faint)', fontStyle: 'italic' }}>
                   {t.vpcd_no_aggregates}
                 </p>
               ) : (
@@ -404,8 +388,7 @@ function VPCLeafRow({
   isSelected,
   onToggle,
   isReady,
-  t,
-}: {
+  t }: {
   vpc: VPC
   projectId: string
   opportunityNames: string[]
@@ -435,12 +418,11 @@ function VPCLeafRow({
         padding: '12px 16px',
         borderRadius: 10,
         backgroundColor: '#FFFFFF',
-        border: '0.5px solid var(--color-border)',
-      }}
+        border: '0.5px solid var(--color-border)' }}
     >
       <button
         onClick={onToggle}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, color: isSelected ? 'var(--color-amber)' : 'var(--color-border)', display: 'flex' }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, color: isSelected ? 'var(--color-primary)' : 'var(--color-border)', display: 'flex' }}
         aria-label={isSelected ? 'Deselect' : 'Select'}
       >
         {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
@@ -451,12 +433,11 @@ function VPCLeafRow({
           style={{
             fontSize: 13,
             fontWeight: 600,
-            color: 'var(--color-ink)',
+            color: 'var(--color-foreground)',
             margin: 0,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
+            whiteSpace: 'nowrap' }}
         >
           {twinName}
         </p>
@@ -464,12 +445,11 @@ function VPCLeafRow({
           <p
             style={{
               fontSize: 11,
-              color: 'var(--color-text-muted)',
+              color: 'var(--color-foreground-muted)',
               margin: '2px 0 0 0',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
+              whiteSpace: 'nowrap' }}
           >
             {subtitle}
           </p>
@@ -481,7 +461,7 @@ function VPCLeafRow({
         variant={isReady ? 'ready' : 'missing'}
       />
 
-      <span style={{ fontSize: 11, color: 'var(--color-text-faint)', whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: 11, color: 'var(--color-foreground-faint)', whiteSpace: 'nowrap' }}>
         {new Date(vpc.created_at).toLocaleDateString('it-IT')}
       </span>
 
@@ -492,10 +472,9 @@ function VPCLeafRow({
           alignItems: 'center',
           gap: 4,
           fontSize: 12,
-          color: 'var(--color-amber)',
+          color: 'var(--color-primary)',
           textDecoration: 'none',
-          flexShrink: 0,
-        }}
+          flexShrink: 0 }}
       >
         {t.vpcd_open}
         <ChevronRight size={14} />
@@ -511,8 +490,7 @@ function VPCAggregateRow({
   isSelected,
   onToggle,
   isReady,
-  t,
-}: {
+  t }: {
   vpc: VPC
   projectId: string
   sources: string[]
@@ -533,23 +511,22 @@ function VPCAggregateRow({
         padding: '12px 16px',
         borderRadius: 10,
         backgroundColor: '#FFFFFF',
-        border: '1.5px solid rgba(199,123,58,0.30)',
-      }}
+        border: '1.5px solid rgba(19,163,137,0.30)' }}
     >
       <button
         onClick={onToggle}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, color: isSelected ? 'var(--color-amber)' : 'var(--color-border)', display: 'flex' }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, color: isSelected ? 'var(--color-primary)' : 'var(--color-border)', display: 'flex' }}
         aria-label={isSelected ? 'Deselect' : 'Select'}
       >
         {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
       </button>
 
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-ink)', margin: '0 0 2px' }}>
+        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-foreground)', margin: '0 0 2px' }}>
           {vpc.customer_profile_name}
         </p>
         {sources.length > 0 && (
-          <p style={{ fontSize: 11, color: 'var(--color-text-faint)', margin: 0 }}>
+          <p style={{ fontSize: 11, color: 'var(--color-foreground-faint)', margin: 0 }}>
             {t.vpcd_sources}: {sources.join(' · ')}
           </p>
         )}
@@ -561,7 +538,7 @@ function VPCAggregateRow({
         variant={isReady ? 'ready' : 'missing'}
       />
 
-      <span style={{ fontSize: 11, color: 'var(--color-text-faint)', whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: 11, color: 'var(--color-foreground-faint)', whiteSpace: 'nowrap' }}>
         {new Date(vpc.created_at).toLocaleDateString('it-IT')}
       </span>
 
@@ -572,10 +549,9 @@ function VPCAggregateRow({
           alignItems: 'center',
           gap: 4,
           fontSize: 12,
-          color: 'var(--color-amber)',
+          color: 'var(--color-primary)',
           textDecoration: 'none',
-          flexShrink: 0,
-        }}
+          flexShrink: 0 }}
       >
         {t.vpcd_open}
         <ChevronRight size={14} />

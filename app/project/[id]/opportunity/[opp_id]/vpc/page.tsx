@@ -6,15 +6,13 @@ import type { DigitalTwin, TwinInterview } from '@/lib/types'
 export const dynamic = 'force-dynamic'
 
 export default async function VPCPage({
-  params,
-}: {
+  params }: {
   params: Promise<{ id: string; opp_id: string }>
 }) {
   const { id, opp_id } = await params
   const supabase = await createClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: project } = await supabase
@@ -57,8 +55,7 @@ export default async function VPCPage({
     affinityLabel: (row.affinity_label ?? 'moderate') as
       | 'high_affinity'
       | 'moderate'
-      | 'early_adopter',
-  }))
+      | 'early_adopter' }))
 
   // Load twin_interviews with VPC data.
   // Use select('*') so the query never fails if optional columns (value_map)
@@ -82,8 +79,7 @@ export default async function VPCPage({
       if (iv) {
         interviews.push({
           ...(iv as TwinInterview),
-          twinSequentialId: `twin${i + 1}`,
-        })
+          twinSequentialId: `twin${i + 1}` })
       }
     })
   }
@@ -96,8 +92,7 @@ export default async function VPCPage({
     twin_id: r.twin_id,
     gains: r.gains,
     pains: r.pains,
-    jobs: r.jobs_to_be_done,
-  }))))
+    jobs: r.jobs_to_be_done }))))
 
   const hasInterviews = interviews.length > 0
 

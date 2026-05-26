@@ -7,8 +7,7 @@ import TopNav from '@/components/TopNav'
 import BackButton from '@/components/BackButton'
 import {
   Plus, X, Loader2, Sparkles, Download,
-  Handshake, Zap, Package, Gift, Heart, Users, Truck, Tag, DollarSign,
-} from 'lucide-react'
+  Handshake, Zap, Package, Gift, Heart, Users, Truck, Tag, DollarSign } from 'lucide-react'
 import { TWIN_COLORS_HEX } from '@/lib/constants'
 import type { Opportunity } from '@/lib/types'
 import { motion } from 'framer-motion'
@@ -43,7 +42,6 @@ type AggAttribution = Partial<Record<BlockKey, Record<string, number[]>>>
 
 type Ability = { id: string; name: string; description: string }
 
-
 type TwinInterviewData = {
   id: string | null
   twinDbId: string
@@ -72,57 +70,47 @@ const BLOCK_CONFIG: Record<
     title: 'Value Propositions',
     subtitle: 'What value do we deliver to the customer?',
     icon: <Gift size={13} />,
-    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[#7A4A20] border border-[rgba(19,163,137,0.2)]' },
   customer_segments: {
     title: 'Customer Segments',
     subtitle: 'For whom are we creating value?',
     icon: <Users size={13} />,
-    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[#7A4A20] border border-[rgba(19,163,137,0.2)]' },
   customer_relationships: {
     title: 'Customer Relationships',
     subtitle: 'What relationship does each segment expect?',
     icon: <Heart size={13} />,
-    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
-  },
+    pillClass: 'bg-[var(--color-border)] text-[var(--color-foreground)] border border-[var(--color-border)]' },
   channels: {
     title: 'Channels',
     subtitle: 'How do we reach our customer segments?',
     icon: <Truck size={13} />,
-    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
-  },
+    pillClass: 'bg-[var(--color-border)] text-[var(--color-foreground)] border border-[var(--color-border)]' },
   key_activities: {
     title: 'Key Activities',
     subtitle: 'What key activities does our value proposition require?',
     icon: <Zap size={13} />,
-    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
-  },
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[var(--color-foreground)] border border-[rgba(180,168,136,0.25)]' },
   key_resources: {
     title: 'Key Resources',
     subtitle: 'What key resources does our value proposition require?',
     icon: <Package size={13} />,
-    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
-  },
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[var(--color-foreground)] border border-[rgba(180,168,136,0.25)]' },
   key_partners: {
     title: 'Key Partners',
     subtitle: 'Who are our key partners and suppliers?',
     icon: <Handshake size={13} />,
-    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
-  },
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[var(--color-foreground)] border border-[rgba(180,168,136,0.25)]' },
   revenue_streams: {
     title: 'Revenue Streams',
     subtitle: 'For what value are customers willing to pay?',
     icon: <DollarSign size={13} />,
-    pillClass: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[var(--color-primary)] border border-[rgba(19,163,137,0.2)]' },
   cost_structure: {
     title: 'Cost Structure',
     subtitle: 'What are the most important costs in our model?',
     icon: <Tag size={13} />,
-    pillClass: 'bg-[#E8E5DC] text-[#888880] border border-[#E5E3DC]',
-  },
-}
+    pillClass: 'bg-[var(--color-border)] text-[var(--color-foreground-muted)] border border-[var(--color-border)]' } }
 
 const GENERATION_ORDER: BlockKey[] = [
   'customer_relationships',
@@ -145,8 +133,7 @@ const GRID_PLACEMENT: Record<BlockKey, React.CSSProperties> = {
   key_resources:          { gridRow: '2 / 3', gridColumn: '2 / 3' },
   channels:               { gridRow: '2 / 3', gridColumn: '4 / 5' },
   cost_structure:         { gridRow: '3 / 4', gridColumn: '1 / 3' },
-  revenue_streams:        { gridRow: '3 / 4', gridColumn: '3 / 6' },
-}
+  revenue_streams:        { gridRow: '3 / 4', gridColumn: '3 / 6' } }
 
 const GRID_BORDERS: Record<BlockKey, string> = {
   key_partners:           'border-r border-b border-[var(--color-border)]',
@@ -157,8 +144,7 @@ const GRID_BORDERS: Record<BlockKey, string> = {
   key_resources:          'border-r border-b border-[var(--color-border)]',
   channels:               'border-r border-b border-[var(--color-border)]',
   cost_structure:         'border-r border-[var(--color-border)]',
-  revenue_streams:        '',
-}
+  revenue_streams:        '' }
 
 const MOBILE_ORDER: BlockKey[] = [
   'value_propositions',
@@ -231,14 +217,12 @@ function initAggData(
       key_resources:          existingBMC.key_resources ?? [],
       key_partners:           existingBMC.key_partners ?? [],
       revenue_streams:        existingBMC.revenue_streams ?? [],
-      cost_structure:         existingBMC.cost_structure ?? [],
-    }
+      cost_structure:         existingBMC.cost_structure ?? [] }
   }
   return {
     value_propositions: vp, customer_segments: cs,
     customer_relationships: [], channels: [], key_activities: [],
-    key_resources: [], key_partners: [], revenue_streams: [], cost_structure: [],
-  }
+    key_resources: [], key_partners: [], revenue_streams: [], cost_structure: [] }
 }
 
 /** Init per-twin BMC data from saved bmc_data or prefill from value_map + segment */
@@ -260,15 +244,13 @@ function initTwinBmcData(iv: TwinInterviewData): BMCData {
       key_resources:          rawBmc.key_resources          ?? [],
       key_partners:           rawBmc.key_partners           ?? [],
       revenue_streams:        rawBmc.revenue_streams        ?? [],
-      cost_structure:         rawBmc.cost_structure         ?? [],
-    }
+      cost_structure:         rawBmc.cost_structure         ?? [] }
   }
   return {
     value_propositions:     prefillTwinVP(iv),
     customer_segments:      iv.twinSegment ? [iv.twinSegment] : [],
     customer_relationships: [], channels: [], key_activities: [],
-    key_resources: [], key_partners: [], revenue_streams: [], cost_structure: [],
-  }
+    key_resources: [], key_partners: [], revenue_streams: [], cost_structure: [] }
 }
 
 function prefillTwinVP(iv: TwinInterviewData): string[] {
@@ -297,8 +279,7 @@ function BMCBlock({
   getTwinDots,
   forceGeneratable = false,
   readOnly = false,
-  editInVpcHref,
-}: {
+  editInVpcHref }: {
   blockKey: BlockKey
   items: string[]
   isUnlocked: boolean
@@ -347,39 +328,39 @@ function BMCBlock({
     <div className={`flex flex-col overflow-hidden ${borderClass}`} style={{ backgroundColor: '#FFFFFF', ...style }}>
       {/* Header */}
       <div className="flex items-center gap-1.5 px-3 py-2.5 flex-shrink-0" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
-        <span style={{ color: 'var(--color-amber)' }} className="flex-shrink-0">{config.icon}</span>
-        <span className="text-[11px] font-semibold leading-tight flex-1" style={{ color: 'var(--color-ink)' }}>{config.title}</span>
+        <span style={{ color: 'var(--color-primary)' }} className="flex-shrink-0">{config.icon}</span>
+        <span className="text-[11px] font-semibold leading-tight flex-1" style={{ color: 'var(--color-foreground)' }}>{config.title}</span>
         {readOnly && editInVpcHref ? (
-          <Link href={editInVpcHref} className="text-[9px] font-medium" style={{ color: 'var(--color-amber)', textDecoration: 'none' }}>
+          <Link href={editInVpcHref} className="text-[9px] font-medium" style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>
             Edit in VPC
           </Link>
         ) : (
           <button
             onClick={() => setAdding((v) => !v)}
             className="w-5 h-5 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
-            style={{ backgroundColor: 'var(--color-linen)' }}
+            style={{ backgroundColor: 'var(--color-muted)' }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
             title="Add item"
           >
-            <Plus size={9} style={{ color: 'var(--color-text-muted)' }} />
+            <Plus size={9} style={{ color: 'var(--color-foreground-muted)' }} />
           </button>
         )}
       </div>
 
-      <p className="text-[9px] italic px-3 pt-1.5 pb-1 leading-tight flex-shrink-0" style={{ color: 'var(--color-text-faint)' }}>
+      <p className="text-[9px] italic px-3 pt-1.5 pb-1 leading-tight flex-shrink-0" style={{ color: 'var(--color-foreground-faint)' }}>
         {config.subtitle}
       </p>
 
       <div className="flex-1 overflow-y-auto px-3 pb-2.5 min-h-0 scrollbar-thin">
         {readOnly && (
-          <p className="text-[9px] italic mt-1" style={{ color: 'var(--color-text-faint)' }}>
+          <p className="text-[9px] italic mt-1" style={{ color: 'var(--color-foreground-faint)' }}>
             Inherited from the primary VPC.
           </p>
         )}
 
         {isPreFilled && !hasItems && !readOnly && (
-          <p className="text-[9px] italic mt-1" style={{ color: 'var(--color-text-faint)' }}>
+          <p className="text-[9px] italic mt-1" style={{ color: 'var(--color-foreground-faint)' }}>
             {t.bmc_complete_vpc_first}
           </p>
         )}
@@ -387,8 +368,8 @@ function BMCBlock({
         {!isPreFilled && !hasItems && !readOnly && (
           <div className="mt-1.5">
             {isGenerating ? (
-              <div className="flex items-center gap-1.5 text-[10px]" style={{ color: 'var(--color-text-muted)' }}>
-                <Loader2 size={11} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
+              <div className="flex items-center gap-1.5 text-[10px]" style={{ color: 'var(--color-foreground-muted)' }}>
+                <Loader2 size={11} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
                 {t.bmc_generating}
               </div>
             ) : (
@@ -397,15 +378,15 @@ function BMCBlock({
                   onClick={onGenerate}
                   disabled={!isUnlocked}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
-                  onMouseEnter={(e) => isUnlocked && (e.currentTarget.style.backgroundColor = '#A8612A')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                  style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
+                  onMouseEnter={(e) => isUnlocked && (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
                 >
                   <Sparkles size={9} />
                   {t.bmc_generate}
                 </button>
                 {!isUnlocked && (
-                  <p className="text-[9px] italic mt-1.5" style={{ color: 'var(--color-text-faint)' }}>{t.bmc_complete_previous}</p>
+                  <p className="text-[9px] italic mt-1.5" style={{ color: 'var(--color-foreground-faint)' }}>{t.bmc_complete_previous}</p>
                 )}
               </>
             )}
@@ -431,11 +412,10 @@ function BMCBlock({
                         onBlur={() => commitEdit(i)}
                         className="text-[10px] px-1.5 py-0.5 rounded-lg outline-none min-w-0"
                         style={{
-                          border: '0.5px solid var(--color-amber)',
+                          border: '0.5px solid var(--color-primary)',
                           backgroundColor: '#FFFFFF',
                           width: Math.max(80, editVal.length * 6.5),
-                          maxWidth: '100%',
-                        }}
+                          maxWidth: '100%' }}
                       />
                     </span>
                   )
@@ -486,9 +466,9 @@ function BMCBlock({
                 onClick={onGenerate}
                 disabled={isGenerating}
                 className="flex items-center gap-1 text-[9px] transition-colors mt-2"
-                style={{ color: 'var(--color-text-muted)' }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-ink)')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
+                style={{ color: 'var(--color-foreground-muted)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-foreground)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-foreground-muted)')}
               >
                 {isGenerating ? <Loader2 size={9} className="animate-spin" /> : <Sparkles size={9} />}
                 {t.bmc_regenerate}
@@ -510,10 +490,10 @@ function BMCBlock({
               }}
               placeholder={t.bmc_add_item}
               className="flex-1 text-[10px] px-2 py-1 rounded-lg outline-none min-w-0"
-              style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-linen)' }}
+              style={{ border: '0.5px solid var(--color-border)', backgroundColor: 'var(--color-muted)' }}
               onFocus={(e) => {
-                e.target.style.borderColor = 'var(--color-amber)'
-                e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                e.target.style.borderColor = 'var(--color-primary)'
+                e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = 'var(--color-border)'
@@ -523,14 +503,14 @@ function BMCBlock({
             <button
               onClick={submit}
               className="text-[10px] px-2 py-1 rounded-lg transition-colors flex-shrink-0"
-              style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+              style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
             >
               {t.common_add}
             </button>
             <button onClick={() => { setAdding(false); setInputVal('') }} className="flex-shrink-0">
-              <X size={10} style={{ color: 'var(--color-text-faint)' }} />
+              <X size={10} style={{ color: 'var(--color-foreground-faint)' }} />
             </button>
           </div>
         )}
@@ -552,8 +532,7 @@ function BMCGrid({
   getTwinDots,
   twinTab = false,
   readOnlyBlocks = new Set<BlockKey>(),
-  editInVpcHref,
-}: {
+  editInVpcHref }: {
   data: BMCData
   isUnlocked: (block: BlockKey) => boolean
   generating: Partial<Record<BlockKey, boolean>>
@@ -576,8 +555,7 @@ function BMCGrid({
             border: '0.5px solid var(--color-border)',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr 1.3fr 1fr 1fr',
-            gridTemplateRows: 'minmax(200px, 1fr) minmax(170px, 1fr) minmax(140px, auto)',
-          }}
+            gridTemplateRows: 'minmax(200px, 1fr) minmax(170px, 1fr) minmax(140px, auto)' }}
         >
           {(Object.keys(GRID_PLACEMENT) as BlockKey[]).map((key) => (
             <BMCBlock
@@ -638,8 +616,7 @@ export default function BMCClient({
   primaryVPC = null,
   secondaryVPCs = [],
   availableSecondaryVPCs = [],
-  bmcBackHref,
-}: {
+  bmcBackHref }: {
   project: { id: string; title: string }
   opportunity: Pick<Opportunity, 'id' | 'name' | 'description' | 'customer_segment'>
   abilities: Ability[]
@@ -860,8 +837,7 @@ export default function BMCClient({
             gainCreators:        extractVPCSection(derivedVPC.gainCreators),
             jobs:                extractVPCSection(derivedVPC.jobs),
             pains:               extractVPCSection(derivedVPC.pains),
-            gains:               extractVPCSection(derivedVPC.gains),
-          }
+            gains:               extractVPCSection(derivedVPC.gains) }
         : undefined
 
       // Build per-twin VPC data for twin-specific generation
@@ -869,8 +845,7 @@ export default function BMCClient({
         ? {
             productsAndServices: (iv.valueMap as Record<string, unknown>).productsAndServices ?? [],
             painRelievers:       (iv.valueMap as Record<string, unknown>).painRelievers ?? [],
-            gainCreators:        (iv.valueMap as Record<string, unknown>).gainCreators ?? [],
-          }
+            gainCreators:        (iv.valueMap as Record<string, unknown>).gainCreators ?? [] }
         : undefined
 
       const twinProfile = !isAgg && iv
@@ -896,10 +871,7 @@ export default function BMCClient({
             key_activities:         data.key_activities,
             key_resources:          data.key_resources,
             key_partners:           data.key_partners,
-            revenue_streams:        data.revenue_streams,
-          },
-        }),
-      })
+            revenue_streams:        data.revenue_streams } }) })
       const json = await res.json()
       const items: string[] = json.items
 
@@ -1025,7 +997,7 @@ export default function BMCClient({
   const isAggTab = activeTab === twinInterviews.length
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-6 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -1039,19 +1011,17 @@ export default function BMCClient({
           <div>
             <h1
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
                 fontSize: 34,
                 letterSpacing: '-0.03em',
-                color: 'var(--color-ink)',
-              }}
+                color: 'var(--color-foreground)' }}
             >
               Business Model Canvas
             </h1>
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
+            <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)', marginTop: 2 }}>{opportunity.name}</p>
             {primaryVPC && (
-              <p style={{ fontSize: 12, color: 'var(--color-text-faint)', marginTop: 4 }}>
-                Primary VPC: <Link href={`/project/${project.id}/vpcs/${primaryVPC.id}`} style={{ color: 'var(--color-amber)', textDecoration: 'none' }}>{primaryVPC.customer_profile_name}</Link>
+              <p style={{ fontSize: 12, color: 'var(--color-foreground-faint)', marginTop: 4 }}>
+                Primary VPC: <Link href={`/project/${project.id}/vpcs/${primaryVPC.id}`} style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>{primaryVPC.customer_profile_name}</Link>
               </p>
             )}
           </div>
@@ -1059,8 +1029,8 @@ export default function BMCClient({
             onClick={downloadPDF}
             disabled={exporting}
             className="flex items-center gap-2 py-2 px-4 rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
-            style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', color: 'var(--color-ink)' }}
-            onMouseEnter={(e) => !exporting && (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+            style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', color: 'var(--color-foreground)' }}
+            onMouseEnter={(e) => !exporting && (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
           >
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
@@ -1077,10 +1047,9 @@ export default function BMCClient({
                 onClick={() => setActiveTab(i)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                 style={{
-                  backgroundColor: activeTab === i ? 'var(--color-amber)' : 'transparent',
-                  color: activeTab === i ? '#FFFFFF' : 'var(--color-text-muted)',
-                }}
-                onMouseEnter={(e) => activeTab !== i && (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+                  backgroundColor: activeTab === i ? 'var(--color-primary)' : 'transparent',
+                  color: activeTab === i ? '#FFFFFF' : 'var(--color-foreground-muted)' }}
+                onMouseEnter={(e) => activeTab !== i && (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
                 onMouseLeave={(e) => activeTab !== i && (e.currentTarget.style.backgroundColor = 'transparent')}
               >
                 <span
@@ -1094,10 +1063,9 @@ export default function BMCClient({
               onClick={() => setActiveTab(twinInterviews.length)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
               style={{
-                backgroundColor: isAggTab ? 'var(--color-amber)' : 'transparent',
-                color: isAggTab ? '#FFFFFF' : 'var(--color-text-muted)',
-              }}
-              onMouseEnter={(e) => !isAggTab && (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+                backgroundColor: isAggTab ? 'var(--color-primary)' : 'transparent',
+                color: isAggTab ? '#FFFFFF' : 'var(--color-foreground-muted)' }}
+              onMouseEnter={(e) => !isAggTab && (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
               onMouseLeave={(e) => !isAggTab && (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               {t.bmc_aggregated}
@@ -1107,8 +1075,8 @@ export default function BMCClient({
 
         {/* Legend (aggregated tab only, when twins exist) */}
         {isAggTab && twinInterviews.length > 0 && (
-          <div className="flex flex-wrap items-center gap-3 mb-4" style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
-            <span style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-faint)' }}>{t.bmc_dots_label}</span>
+          <div className="flex flex-wrap items-center gap-3 mb-4" style={{ fontSize: 10, color: 'var(--color-foreground-muted)' }}>
+            <span style={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-foreground-faint)' }}>{t.bmc_dots_label}</span>
             {twinInterviews.map((iv, i) => (
               <span key={i} className="flex items-center gap-1">
                 <span
@@ -1118,7 +1086,7 @@ export default function BMCClient({
                 {iv.twinName}
               </span>
             ))}
-            <span style={{ fontStyle: 'italic', color: 'var(--color-text-faint)' }}>{t.bmc_dots_desc}</span>
+            <span style={{ fontStyle: 'italic', color: 'var(--color-foreground-faint)' }}>{t.bmc_dots_desc}</span>
           </div>
         )}
 
@@ -1126,10 +1094,10 @@ export default function BMCClient({
           <div className="rounded-2xl p-4 mb-4" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-text-muted)' }}>
+                <p className="text-[10px] font-medium uppercase tracking-[0.12em]" style={{ color: 'var(--color-foreground-muted)' }}>
                   Secondary segments
                 </p>
-                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                <p className="text-xs mt-1" style={{ color: 'var(--color-foreground-muted)' }}>
                   The primary VPC remains the core. Add secondary VPCs only when the model expands to adjacent segments.
                 </p>
               </div>
@@ -1139,7 +1107,7 @@ export default function BMCClient({
                     value={selectedSecondaryVPCId}
                     onChange={(event) => setSelectedSecondaryVPCId(event.target.value)}
                     className="flex-1 px-3 py-2 text-xs outline-none"
-                    style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-ink)' }}
+                    style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)', borderRadius: 8, color: 'var(--color-foreground)' }}
                   >
                     <option value="">Add secondary VPC...</option>
                     {availableSecondaryVPCs
@@ -1152,7 +1120,7 @@ export default function BMCClient({
                     onClick={addSecondaryVPC}
                     disabled={!selectedSecondaryVPCId}
                     className="px-3 py-2 text-xs font-medium disabled:opacity-50"
-                    style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8 }}
+                    style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 8 }}
                   >
                     Add
                   </button>
@@ -1163,13 +1131,13 @@ export default function BMCClient({
             {secondaryVpcs.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                 {secondaryVpcs.map((vpc) => (
-                  <div key={vpc.id} className="rounded-xl p-3" style={{ backgroundColor: 'var(--color-linen)', border: '0.5px solid var(--color-border)' }}>
+                  <div key={vpc.id} className="rounded-xl p-3" style={{ backgroundColor: 'var(--color-muted)', border: '0.5px solid var(--color-border)' }}>
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <Link href={`/project/${project.id}/vpcs/${vpc.id}`} className="text-sm font-medium" style={{ color: 'var(--color-ink)', textDecoration: 'none' }}>
+                        <Link href={`/project/${project.id}/vpcs/${vpc.id}`} className="text-sm font-medium" style={{ color: 'var(--color-foreground)', textDecoration: 'none' }}>
                           {vpc.customer_profile_name}
                         </Link>
-                        <p className="text-[10px] mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                        <p className="text-[10px] mt-1" style={{ color: 'var(--color-foreground-muted)' }}>
                           Segments: {deriveCustomerSegmentsFromVPC(vpc).join(', ') || 'None'} · VP: {deriveValuePropositionsFromVPC(vpc).join(', ') || 'None'}
                         </p>
                       </div>
@@ -1181,7 +1149,7 @@ export default function BMCClient({
                 ))}
               </div>
             ) : (
-              <p className="text-xs italic mt-4" style={{ color: 'var(--color-text-faint)' }}>
+              <p className="text-xs italic mt-4" style={{ color: 'var(--color-foreground-faint)' }}>
                 No secondary VPCs yet.
               </p>
             )}
@@ -1218,7 +1186,7 @@ export default function BMCClient({
           />
         )}
 
-        <p className="mt-4 text-center" style={{ fontSize: 10, color: 'var(--color-text-faint)' }}>
+        <p className="mt-4 text-center" style={{ fontSize: 10, color: 'var(--color-foreground-faint)' }}>
           {t.bmc_order_hint}
         </p>
       </motion.div>

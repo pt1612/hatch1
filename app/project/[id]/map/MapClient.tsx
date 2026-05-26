@@ -25,8 +25,7 @@ type OppWithReport = Opportunity & { report: { overall_potential?: string; overa
 
 export default function MapClient({
   project,
-  opportunities,
-}: {
+  opportunities }: {
   project: { id: string; title: string }
   opportunities: OppWithReport[]
 }) {
@@ -45,7 +44,7 @@ export default function MapClient({
   }
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-8 pt-14" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -54,16 +53,14 @@ export default function MapClient({
           <div>
             <h1
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
                 fontSize: 34,
                 letterSpacing: '-0.03em',
-                color: 'var(--color-ink)',
-              }}
+                color: 'var(--color-foreground)' }}
             >
               Attractiveness Map
             </h1>
-            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
+            <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', marginTop: 2 }}>
               {`${evaluated.length} ${t.map_evaluated}${evaluated.length === 1 ? t.map_evaluated_singular : t.map_evaluated_plural}`}
             </p>
           </div>
@@ -72,13 +69,12 @@ export default function MapClient({
               href={`/project/${project.id}/strategy`}
               className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium transition-colors"
               style={{
-                backgroundColor: 'var(--color-amber)',
-                color: '#FFFFFF',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-primary-foreground)',
                 borderRadius: 8,
-                textDecoration: 'none',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
             >
               {t.map_continue}
               <ChevronRight size={15} />
@@ -89,25 +85,23 @@ export default function MapClient({
         {evaluated.length === 0 ? (
           <div className="text-center py-16">
             <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
-              <rect x="15" y="15" width="70" height="70" rx="8" fill="var(--color-amber-bg)" />
-              <line x1="50" y1="15" x2="50" y2="85" stroke="var(--color-linen)" strokeWidth="1.5" />
-              <line x1="15" y1="50" x2="85" y2="50" stroke="var(--color-linen)" strokeWidth="1.5" />
-              <circle cx="38" cy="38" r="5" fill="var(--color-amber-light)" opacity="0.5" />
+              <rect x="15" y="15" width="70" height="70" rx="8" fill="color-mix(in srgb, var(--color-primary) 10%, transparent)" />
+              <line x1="50" y1="15" x2="50" y2="85" stroke="var(--color-muted)" strokeWidth="1.5" />
+              <line x1="15" y1="50" x2="85" y2="50" stroke="var(--color-muted)" strokeWidth="1.5" />
+              <circle cx="38" cy="38" r="5" fill="var(--color-accent)" opacity="0.5" />
             </svg>
             <p
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontStyle: 'italic',
                 fontSize: 14,
-                color: 'var(--color-text-muted)',
-                marginBottom: 8,
-              }}
+                color: 'var(--color-foreground-muted)',
+                marginBottom: 8 }}
             >
               {t.map_empty}
             </p>
             <Link
               href={`/project/${project.id}/evaluations`}
-              style={{ fontSize: 12, color: 'var(--color-amber)' }}
+              style={{ fontSize: 12, color: 'var(--color-primary)' }}
             >
               {t.map_go_evaluate}
             </Link>
@@ -122,13 +116,12 @@ export default function MapClient({
                     style={{
                       fontSize: 10,
                       fontWeight: 500,
-                      color: 'var(--color-text-faint)',
+                      color: 'var(--color-foreground-faint)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
                       whiteSpace: 'nowrap',
                       transform: 'rotate(-90deg)',
-                      transformOrigin: 'center',
-                    }}
+                      transformOrigin: 'center' }}
                   >
                     Challenge ↑
                   </span>
@@ -144,9 +137,9 @@ export default function MapClient({
                     {/* Quadrant backgrounds */}
                     <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
                       <div style={{ backgroundColor: 'rgba(180,168,136,0.06)' }} />
-                      <div style={{ backgroundColor: 'rgba(76,175,125,0.06)' }} />
-                      <div style={{ backgroundColor: 'var(--color-cream)' }} />
-                      <div style={{ backgroundColor: 'rgba(199,123,58,0.06)' }} />
+                      <div style={{ backgroundColor: 'rgba(19,163,137,0.06)' }} />
+                      <div style={{ backgroundColor: 'var(--color-background)' }} />
+                      <div style={{ backgroundColor: 'rgba(19,163,137,0.06)' }} />
                     </div>
 
                     {/* Dividers */}
@@ -155,10 +148,10 @@ export default function MapClient({
 
                     {/* Quadrant labels */}
                     {[
-                      { x: '25%', y: '10%', label: 'Questionable', color: 'var(--color-text-faint)' },
-                      { x: '75%', y: '10%', label: 'Moonshot',     color: 'var(--color-amber)' },
-                      { x: '25%', y: '60%', label: 'Quick win',    color: 'var(--color-warm-gray)' },
-                      { x: '75%', y: '60%', label: 'Gold mine',    color: 'var(--color-sage)' },
+                      { x: '25%', y: '10%', label: 'Questionable', color: 'var(--color-foreground-faint)' },
+                      { x: '75%', y: '10%', label: 'Moonshot',     color: 'var(--color-primary)' },
+                      { x: '25%', y: '60%', label: 'Quick win',    color: 'var(--color-warm)' },
+                      { x: '75%', y: '60%', label: 'Gold mine',    color: 'var(--color-primary)' },
                     ].map(({ x, y, label, color }) => (
                       <span
                         key={label}
@@ -171,8 +164,7 @@ export default function MapClient({
                           fontWeight: 600,
                           textTransform: 'uppercase',
                           letterSpacing: '0.08em',
-                          color,
-                        }}
+                          color }}
                       >
                         {label}
                       </span>
@@ -210,14 +202,13 @@ export default function MapClient({
                           style={{
                             fontSize: 10,
                             fontWeight: 500,
-                            color: 'var(--color-ink)',
+                            color: 'var(--color-foreground)',
                             top: labelTop,
                             ...(labelAlign === 'center'
                               ? { left: '50%', transform: 'translateX(-50%)' }
                               : labelAlign === 'left'
                               ? { left: 0 }
-                              : { right: 0 }),
-                          }}
+                              : { right: 0 }) }}
                         >
                           {opp.name.length > 22 ? opp.name.slice(0, 22) + '…' : opp.name}
                         </span>
@@ -232,20 +223,19 @@ export default function MapClient({
                                 : { left: '50%', transform: 'translateX(-50%)' }),
                               ...(tipBelow
                                 ? { top: '100%', marginTop: 8, bottom: 'auto' }
-                                : { bottom: '100%', marginBottom: 8, top: 'auto' }),
-                            }}
+                                : { bottom: '100%', marginBottom: 8, top: 'auto' }) }}
                           >
-                            <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 4 }}>{opp.name}</p>
-                            <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
-                              {t.map_tooltip_potential} <span style={{ fontWeight: 500, color: 'var(--color-ink)' }}>{opp.potential_score?.replace('_', ' ')}</span>
+                            <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-foreground)', marginBottom: 4 }}>{opp.name}</p>
+                            <p style={{ fontSize: 11, color: 'var(--color-foreground-muted)' }}>
+                              {t.map_tooltip_potential} <span style={{ fontWeight: 500, color: 'var(--color-foreground)' }}>{opp.potential_score?.replace('_', ' ')}</span>
                             </p>
-                            <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
-                              {t.map_tooltip_challenge} <span style={{ fontWeight: 500, color: 'var(--color-ink)' }}>{opp.challenge_score?.replace('_', ' ')}</span>
+                            <p style={{ fontSize: 11, color: 'var(--color-foreground-muted)' }}>
+                              {t.map_tooltip_challenge} <span style={{ fontWeight: 500, color: 'var(--color-foreground)' }}>{opp.challenge_score?.replace('_', ' ')}</span>
                             </p>
                             {opp.report?.summary && (
                               <p
                                 className="line-clamp-3"
-                                style={{ fontSize: 11, color: 'var(--color-text-faint)', marginTop: 4, lineHeight: '1.5' }}
+                                style={{ fontSize: 11, color: 'var(--color-foreground-faint)', marginTop: 4, lineHeight: '1.5' }}
                               >
                                 {opp.report.summary}
                               </p>
@@ -263,10 +253,9 @@ export default function MapClient({
                 style={{
                   fontSize: 10,
                   fontWeight: 500,
-                  color: 'var(--color-text-faint)',
+                  color: 'var(--color-foreground-faint)',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                }}
+                  letterSpacing: '0.1em' }}
               >
                 Potential →
               </p>
@@ -276,13 +265,12 @@ export default function MapClient({
                   href={`/project/${project.id}/strategy`}
                   className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium transition-colors"
                   style={{
-                    backgroundColor: 'var(--color-amber)',
-                    color: '#FFFFFF',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'var(--color-primary-foreground)',
                     borderRadius: 8,
-                    textDecoration: 'none',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                    textDecoration: 'none' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
                 >
                   {t.map_go_strategy}
                 </Link>
@@ -298,8 +286,7 @@ export default function MapClient({
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
-                  color: 'var(--color-text-muted)',
-                }}
+                  color: 'var(--color-foreground-muted)' }}
               >
                 {t.map_legend}
               </h3>
@@ -311,8 +298,8 @@ export default function MapClient({
                       style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: MAP_DOT_PALETTE[idx % MAP_DOT_PALETTE.length] }}
                     />
                     <div>
-                      <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-ink)', lineHeight: '1.4' }}>{opp.name}</p>
-                      <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
+                      <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-foreground)', lineHeight: '1.4' }}>{opp.name}</p>
+                      <p style={{ fontSize: 11, color: 'var(--color-foreground-muted)' }}>
                         {getQuadrantLabel(opp.potential_score!, opp.challenge_score!)}
                       </p>
                     </div>
@@ -329,8 +316,7 @@ export default function MapClient({
                       fontWeight: 500,
                       textTransform: 'uppercase',
                       letterSpacing: '0.08em',
-                      color: 'var(--color-text-faint)',
-                    }}
+                      color: 'var(--color-foreground-faint)' }}
                   >
                     {t.map_not_evaluated}
                   </p>
@@ -338,8 +324,8 @@ export default function MapClient({
                     .filter((o) => !o.potential_score)
                     .map((o) => (
                       <div key={o.id} className="flex items-center gap-2 mb-1.5">
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: 'var(--color-linen)', flexShrink: 0 }} />
-                        <p className="truncate" style={{ fontSize: 12, color: 'var(--color-text-faint)' }}>{o.name}</p>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: 'var(--color-muted)', flexShrink: 0 }} />
+                        <p className="truncate" style={{ fontSize: 12, color: 'var(--color-foreground-faint)' }}>{o.name}</p>
                       </div>
                     ))}
                 </div>

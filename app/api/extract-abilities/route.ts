@@ -24,8 +24,7 @@ Return ONLY a valid JSON array:
 ]
 
 If no clear abilities are mentioned, return [].`,
-    messages: [{ role: 'user', content: conversation }],
-  })
+    messages: [{ role: 'user', content: conversation }] })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '[]'
   const match = raw.match(/\[[\s\S]*\]/)

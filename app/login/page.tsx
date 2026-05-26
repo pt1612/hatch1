@@ -30,78 +30,58 @@ export default function LoginPage() {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{ backgroundColor: 'var(--color-cream)' }}
-    >
-      <div className="w-full max-w-md">
-        {/* Card */}
-        <div
-          className="rounded-2xl p-10"
-          style={{
-            backgroundColor: '#FFFFFF',
-            border: '0.5px solid var(--color-border)',
-          }}
-        >
+    <div className="relative min-h-screen flex items-center justify-center p-4 bg-[var(--color-background)] overflow-hidden">
+      {/* Decorative line-art circles (large, hidden on mobile) */}
+      <svg
+        viewBox="0 0 400 400"
+        className="hidden md:block absolute -right-24 -top-24 w-[480px] opacity-30 pointer-events-none"
+        aria-hidden="true"
+      >
+        <g fill="none" stroke="var(--color-deep-teal)" strokeWidth="1">
+          <circle cx="200" cy="200" r="180" />
+          <circle cx="203" cy="197" r="180" />
+          <circle cx="206" cy="194" r="180" />
+          <circle cx="209" cy="191" r="180" />
+        </g>
+      </svg>
+      {/* Decorative stacked shapes (small, visible on mobile too) */}
+      <div className="absolute bottom-6 left-6 pointer-events-none" aria-hidden="true">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-2xl bg-[var(--color-secondary)] opacity-90 translate-x-2 translate-y-2" />
+          <div className="absolute inset-0 rounded-2xl bg-[var(--color-accent)]" />
+        </div>
+      </div>
+
+      <div className="relative w-full max-w-md z-10">
+        {/* Card with single-corner rounded (brand feature treatment) */}
+        <div className="relative bg-[var(--color-surface-card)] border border-[var(--color-border)] p-10 rounded-[var(--radius-card-lg)] md:rounded-[var(--radius-corner-one-lg)] overflow-hidden">
           {/* Logo + wordmark */}
-          <div className="flex flex-col items-center mb-6">
+          <div className="flex flex-col items-center mb-8">
             <Image
               src="/hatch_logo.svg"
               alt="Hatch"
               width={40}
               height={40}
-              style={{ height: 40, width: 'auto', marginBottom: 12 }}
+              className="mb-3"
+              style={{ height: 40, width: 'auto' }}
             />
-            <h1
-              style={{
-                fontFamily: "'Lora', Georgia, serif",
-                fontWeight: 400,
-                fontSize: 26,
-                letterSpacing: '-0.02em',
-                color: 'var(--color-ink)',
-                marginBottom: 4,
-              }}
-            >
+            <h1 className="font-bold text-[28px] tracking-[-0.01em] text-[var(--color-foreground)] mb-1">
               Hatch
             </h1>
-            <p
-              style={{
-                fontFamily: "'Lora', Georgia, serif",
-                fontStyle: 'italic',
-                fontWeight: 400,
-                fontSize: 16,
-                color: 'var(--color-text-muted)',
-              }}
-            >
+            <p className="text-[14px] text-[var(--color-foreground-muted)] italic">
               From idea to venture.
             </p>
           </div>
 
           {error && (
-            <div
-              className="rounded-lg p-3 text-sm mb-5"
-              style={{
-                backgroundColor: '#FEF2F2',
-                border: '0.5px solid #FECACA',
-                color: '#DC2626',
-              }}
-            >
+            <div className="rounded-[var(--radius-input)] p-3 text-sm mb-5 bg-red-50 border border-red-200 text-red-700">
               {error}
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label
-                className="block mb-1.5"
-                style={{
-                  fontSize: 11,
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: 'var(--color-text-muted)',
-                }}
-              >
+              <label className="block mb-1.5 caption-upper text-[var(--color-foreground-muted)]">
                 Email
               </label>
               <input
@@ -110,28 +90,11 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full px-3.5 py-2.5 text-sm outline-none transition-colors"
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  border: '0.5px solid var(--color-border)',
-                  borderRadius: 8,
-                  color: 'var(--color-ink)',
-                }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+                className="w-full px-4 py-2.5 text-sm rounded-[var(--radius-input)] bg-[var(--color-surface-card)] border-[1.5px] border-[var(--color-border-strong)] text-[var(--color-foreground)] placeholder:text-[var(--color-foreground-faint)] outline-none transition-colors focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)]"
               />
             </div>
             <div>
-              <label
-                className="block mb-1.5"
-                style={{
-                  fontSize: 11,
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: 'var(--color-text-muted)',
-                }}
-              >
+              <label className="block mb-1.5 caption-upper text-[var(--color-foreground-muted)]">
                 Password
               </label>
               <input
@@ -140,42 +103,23 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 text-sm outline-none transition-colors"
-                style={{
-                  backgroundColor: '#FFFFFF',
-                  border: '0.5px solid var(--color-border)',
-                  borderRadius: 8,
-                  color: 'var(--color-ink)',
-                }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+                className="w-full px-4 py-2.5 text-sm rounded-[var(--radius-input)] bg-[var(--color-surface-card)] border-[1.5px] border-[var(--color-border-strong)] text-[var(--color-foreground)] placeholder:text-[var(--color-foreground-faint)] outline-none transition-colors focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[color-mix(in_srgb,var(--color-primary)_25%,transparent)]"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 text-sm font-medium transition-colors disabled:opacity-60 mt-2"
-              style={{
-                backgroundColor: 'var(--color-amber)',
-                color: '#FFFFFF',
-                borderRadius: 8,
-                border: 'none',
-              }}
-              onMouseEnter={(e) => !loading && ((e.target as HTMLElement).style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => !loading && ((e.target as HTMLElement).style.backgroundColor = 'var(--color-amber)')}
+              className="w-full h-11 px-5 text-sm font-medium rounded-full mt-2 bg-[var(--color-primary)] text-[var(--color-primary-foreground)] transition-colors disabled:opacity-60 hover:bg-[var(--color-primary-hover)] active:scale-[0.98]"
             >
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
 
-          <p
-            className="text-center mt-5"
-            style={{ fontSize: 13, color: 'var(--color-text-muted)' }}
-          >
+          <p className="text-center mt-6 text-[13px] text-[var(--color-foreground-muted)]">
             Don&apos;t have an account?{' '}
             <Link
               href="/register"
-              style={{ color: 'var(--color-amber)', fontWeight: 500 }}
+              className="font-semibold text-[var(--color-primary)] hover:text-[var(--color-primary-hover)]"
             >
               Create one
             </Link>

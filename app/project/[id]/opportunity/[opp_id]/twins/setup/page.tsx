@@ -5,8 +5,7 @@ import TwinSetupClient from './TwinSetupClient'
 export const dynamic = 'force-dynamic'
 
 export default async function TwinSetupPage({
-  params,
-}: {
+  params }: {
   params: Promise<{ id: string; opp_id: string }>
 }) {
   const { id, opp_id } = await params

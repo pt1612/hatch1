@@ -6,8 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import {
   Plus, CheckCircle2, Clock, ChevronRight, ChevronDown, Loader2, X, Trash2,
-  Sparkles, Brain,
-} from 'lucide-react'
+  Sparkles, Brain } from 'lucide-react'
 import type { Opportunity, Ability } from '@/lib/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useI18n } from '@/lib/i18n/context'
@@ -26,8 +25,7 @@ function DeleteAppConfirm({
   appName,
   count,
   onConfirm,
-  onCancel,
-}: {
+  onCancel }: {
   appName: string
   count: number
   onConfirm: () => void
@@ -46,9 +44,8 @@ function DeleteAppConfirm({
         <button
           onClick={onCancel}
           style={{
-            fontSize: 11, color: 'var(--color-text-muted)',
-            background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px',
-          }}
+            fontSize: 11, color: 'var(--color-foreground-muted)',
+            background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px' }}
         >
           {t.opps_delete_cancel}
         </button>
@@ -57,8 +54,7 @@ function DeleteAppConfirm({
           style={{
             fontSize: 11, fontWeight: 500, color: '#FFFFFF',
             backgroundColor: '#DC2626', border: 'none', borderRadius: 6,
-            padding: '4px 12px', cursor: 'pointer',
-          }}
+            padding: '4px 12px', cursor: 'pointer' }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#B91C1C')}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#DC2626')}
         >
@@ -75,8 +71,7 @@ export default function OpportunitiesClient({
   project,
   opportunities: initialOpps,
   evaluations,
-  abilities: initialAbilities,
-}: {
+  abilities: initialAbilities }: {
   project: { id: string; title: string }
   opportunities: Opportunity[]
   evaluations: { id: string; opportunity_id: string; report: unknown }[]
@@ -149,8 +144,7 @@ export default function OpportunitiesClient({
         application: newOpp.application,
         customer_segment: newOpp.customer_segment,
         description: newOpp.description,
-        phase: 'abilities',
-      })
+        phase: 'abilities' })
       .select()
       .single()
     if (data) setLocalOpps((prev) => [...prev, data as Opportunity])
@@ -210,8 +204,7 @@ export default function OpportunitiesClient({
       const res = await fetch('/api/extract-opportunities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversation, language: lang }),
-      })
+        body: JSON.stringify({ conversation, language: lang }) })
       const { opportunities: suggestedOpps } = await res.json()
       if (suggestedOpps?.length > 0) {
         const rows = suggestedOpps.map((o: { name: string; application: string; customer_segment: string; description: string }) => ({
@@ -220,8 +213,7 @@ export default function OpportunitiesClient({
           application: o.application,
           customer_segment: o.customer_segment,
           description: o.description,
-          phase: 'abilities' as const,
-        }))
+          phase: 'abilities' as const }))
         const { data: inserted } = await supabase.from('opportunities').insert(rows).select()
         if (inserted) setLocalOpps((prev) => [...prev, ...(inserted as Opportunity[])])
       }
@@ -235,7 +227,7 @@ export default function OpportunitiesClient({
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div className="flex-1 flex overflow-hidden min-h-screen pt-14">
@@ -251,16 +243,14 @@ export default function OpportunitiesClient({
             <div>
               <h1
                 style={{
-                  fontFamily: "'Lora', Georgia, serif",
                   fontWeight: 400,
                   fontSize: 34,
                   letterSpacing: '-0.03em',
-                  color: 'var(--color-ink)',
-                }}
+                  color: 'var(--color-foreground)' }}
               >
                 Opportunities
               </h1>
-              <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
+              <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', marginTop: 2 }}>
                 {localOpps.length} {t.opps_identified} · {evaluatedCount} {t.opps_evaluated_count}
               </p>
             </div>
@@ -270,11 +260,10 @@ export default function OpportunitiesClient({
                 className="py-2 px-3 rounded-lg text-xs font-medium transition-colors"
                 style={{
                   border: '0.5px solid var(--color-border)',
-                  color: 'var(--color-ink)',
+                  color: 'var(--color-foreground)',
                   textDecoration: 'none',
-                  backgroundColor: 'transparent',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-amber)')}
+                  backgroundColor: 'transparent' }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
               >
                 {t.opps_back_skills}
@@ -285,14 +274,13 @@ export default function OpportunitiesClient({
                 className="flex items-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium disabled:opacity-50"
                 style={{
                   border: '0.5px solid var(--color-border)',
-                  color: 'var(--color-ink)',
+                  color: 'var(--color-foreground)',
                   backgroundColor: '#FFFFFF',
                   cursor: suggestingAI || localAbilities.length === 0 ? 'default' : 'pointer',
-                  transition: 'border-color 0.15s ease',
-                }}
+                  transition: 'border-color 0.15s ease' }}
                 onMouseEnter={(e) => {
                   if (!suggestingAI && localAbilities.length > 0)
-                    e.currentTarget.style.borderColor = 'var(--color-amber)'
+                    e.currentTarget.style.borderColor = 'var(--color-primary)'
                 }}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
               >
@@ -307,18 +295,17 @@ export default function OpportunitiesClient({
                 onClick={() => setShowAddForm((v) => !v)}
                 className="flex items-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium"
                 style={{
-                  backgroundColor: 'var(--color-amber)',
-                  color: '#FFFFFF',
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'var(--color-primary-foreground)',
                   border: 'none',
                   cursor: 'pointer',
-                  transition: 'background-color 0.15s ease, box-shadow 0.15s ease',
-                }}
+                  transition: 'background-color 0.15s ease, box-shadow 0.15s ease' }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#A8612A'
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                  e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                  e.currentTarget.style.backgroundColor = 'var(--color-primary)'
                   e.currentTarget.style.boxShadow = 'none'
                 }}
               >
@@ -332,15 +319,14 @@ export default function OpportunitiesClient({
           {localOpps.length > 0 && (
             <div
               className="rounded-full overflow-hidden mb-5"
-              style={{ height: 4, backgroundColor: 'var(--color-linen)' }}
+              style={{ height: 4, backgroundColor: 'var(--color-muted)' }}
             >
               <div
                 className="h-full rounded-full transition-all"
                 style={{
                   width: `${localOpps.length ? (evaluatedCount / localOpps.length) * 100 : 0}%`,
-                  backgroundColor: 'var(--color-amber)',
-                  boxShadow: '0 0 8px rgba(199,123,58,0.4)',
-                }}
+                  backgroundColor: 'var(--color-primary)',
+                  boxShadow: '0 0 8px rgba(19,163,137,0.4)' }}
               />
             </div>
           )}
@@ -353,13 +339,13 @@ export default function OpportunitiesClient({
             <button
               onClick={() => setSkillsOpen((v) => !v)}
               className="w-full flex items-center justify-between px-5 py-3 text-left transition-colors"
-              style={{ backgroundColor: 'var(--color-cream)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-cream)')}
+              style={{ backgroundColor: 'var(--color-background)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-background)')}
             >
               <div className="flex items-center gap-2">
-                <Sparkles size={13} style={{ color: 'var(--color-amber)' }} />
-                <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}>
+                <Sparkles size={13} style={{ color: 'var(--color-primary)' }} />
+                <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-foreground-muted)' }}>
                   Skills
                 </span>
                 <span
@@ -367,11 +353,10 @@ export default function OpportunitiesClient({
                     fontSize: 10,
                     fontWeight: 500,
                     backgroundColor: '#FFFFFF',
-                    color: 'var(--color-text-muted)',
+                    color: 'var(--color-foreground-muted)',
                     border: '0.5px solid var(--color-border)',
                     borderRadius: 99,
-                    padding: '1px 7px',
-                  }}
+                    padding: '1px 7px' }}
                 >
                   {localAbilities.length}
                 </span>
@@ -379,10 +364,9 @@ export default function OpportunitiesClient({
               <ChevronDown
                 size={13}
                 style={{
-                  color: 'var(--color-text-faint)',
+                  color: 'var(--color-foreground-faint)',
                   transform: skillsOpen ? 'none' : 'rotate(-90deg)',
-                  transition: 'transform 0.15s',
-                }}
+                  transition: 'transform 0.15s' }}
               />
             </button>
 
@@ -397,7 +381,7 @@ export default function OpportunitiesClient({
                 >
                   <div style={{ backgroundColor: '#FFFFFF', padding: '12px 20px 16px' }}>
                     {localAbilities.length === 0 && !showAddAbility && (
-                      <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic', marginBottom: 10 }}>
+                      <p style={{ fontSize: 12, color: 'var(--color-foreground-faint)', fontStyle: 'italic', marginBottom: 10 }}>
                         {t.abilities_empty}
                       </p>
                     )}
@@ -410,16 +394,15 @@ export default function OpportunitiesClient({
                             alignItems: 'center',
                             gap: 4,
                             fontSize: 12,
-                            color: 'var(--color-ink)',
-                            backgroundColor: 'var(--color-amber-bg)',
-                            border: '0.5px solid rgba(199,123,58,0.2)',
+                            color: 'var(--color-foreground)',
+                            backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+                            border: '0.5px solid rgba(19,163,137,0.2)',
                             borderRadius: 8,
-                            padding: '4px 10px',
-                          }}
+                            padding: '4px 10px' }}
                         >
                           <span style={{ fontWeight: 500 }}>{ab.name}</span>
                           {ab.description && (
-                            <span style={{ color: 'var(--color-text-muted)' }}>— {ab.description}</span>
+                            <span style={{ color: 'var(--color-foreground-muted)' }}>— {ab.description}</span>
                           )}
                         </div>
                       ))}
@@ -432,8 +415,7 @@ export default function OpportunitiesClient({
                           padding: '10px 14px',
                           borderRadius: 10,
                           border: '0.5px solid var(--color-border)',
-                          backgroundColor: 'var(--color-cream)',
-                        }}
+                          backgroundColor: 'var(--color-background)' }}
                       >
                         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                           <input
@@ -450,8 +432,7 @@ export default function OpportunitiesClient({
                               borderRadius: 6,
                               outline: 'none',
                               backgroundColor: '#FFFFFF',
-                              color: 'var(--color-ink)',
-                            }}
+                              color: 'var(--color-foreground)' }}
                           />
                           <input
                             value={newAbility.description}
@@ -466,14 +447,13 @@ export default function OpportunitiesClient({
                               borderRadius: 6,
                               outline: 'none',
                               backgroundColor: '#FFFFFF',
-                              color: 'var(--color-ink)',
-                            }}
+                              color: 'var(--color-foreground)' }}
                           />
                         </div>
                         <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                           <button
                             onClick={() => { setShowAddAbility(false); setNewAbility({ name: '', description: '' }) }}
-                            style={{ fontSize: 11, color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '3px 8px' }}
+                            style={{ fontSize: 11, color: 'var(--color-foreground-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '3px 8px' }}
                           >
                             {t.common_cancel}
                           </button>
@@ -481,10 +461,9 @@ export default function OpportunitiesClient({
                             onClick={handleAddAbility}
                             disabled={addingAbility || !newAbility.name.trim()}
                             style={{
-                              fontSize: 11, fontWeight: 500, color: '#FFFFFF',
-                              backgroundColor: 'var(--color-amber)', border: 'none',
-                              borderRadius: 6, padding: '3px 10px', cursor: 'pointer',
-                            }}
+                              fontSize: 11, fontWeight: 500, color: 'var(--color-primary-foreground)',
+                              backgroundColor: 'var(--color-primary)', border: 'none',
+                              borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}
                           >
                             {addingAbility ? '…' : t.common_add}
                           </button>
@@ -498,21 +477,20 @@ export default function OpportunitiesClient({
                           alignItems: 'center',
                           gap: 5,
                           fontSize: 11,
-                          color: 'var(--color-text-muted)',
+                          color: 'var(--color-foreground-muted)',
                           background: 'none',
                           border: '0.5px dashed var(--color-border)',
                           borderRadius: 7,
                           padding: '5px 12px',
                           cursor: 'pointer',
-                          transition: 'border-color 0.15s, color 0.15s',
-                        }}
+                          transition: 'border-color 0.15s, color 0.15s' }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--color-amber)'
-                          e.currentTarget.style.color = 'var(--color-amber)'
+                          e.currentTarget.style.borderColor = 'var(--color-primary)'
+                          e.currentTarget.style.color = 'var(--color-primary)'
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.borderColor = 'var(--color-border)'
-                          e.currentTarget.style.color = 'var(--color-text-muted)'
+                          e.currentTarget.style.color = 'var(--color-foreground-muted)'
                         }}
                       >
                         <Plus size={11} />
@@ -532,12 +510,12 @@ export default function OpportunitiesClient({
               style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }}>
+                <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-foreground)' }}>
                   {t.opps_add_dialog_title}
                 </h3>
                 <button
                   onClick={() => setShowAddForm(false)}
-                  style={{ color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer' }}
+                  style={{ color: 'var(--color-foreground-faint)', background: 'none', border: 'none', cursor: 'pointer' }}
                 >
                   <X size={16} />
                 </button>
@@ -555,8 +533,7 @@ export default function OpportunitiesClient({
                       style={{
                         fontSize: 10, fontWeight: 500,
                         textTransform: 'uppercase', letterSpacing: '0.08em',
-                        color: 'var(--color-text-muted)',
-                      }}
+                        color: 'var(--color-foreground-muted)' }}
                     >
                       {label}
                     </label>
@@ -569,11 +546,10 @@ export default function OpportunitiesClient({
                         backgroundColor: '#FFFFFF',
                         border: '0.5px solid var(--color-border)',
                         borderRadius: 8,
-                        color: 'var(--color-ink)',
-                      }}
+                        color: 'var(--color-foreground)' }}
                       onFocus={(e) => {
-                        e.target.style.borderColor = 'var(--color-amber)'
-                        e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+                        e.target.style.borderColor = 'var(--color-primary)'
+                        e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
                       }}
                       onBlur={(e) => {
                         e.target.style.borderColor = 'var(--color-border)'
@@ -586,9 +562,9 @@ export default function OpportunitiesClient({
                   onClick={handleAddOpportunity}
                   disabled={adding || !newOpp.name.trim()}
                   className="flex items-center gap-2 py-2 px-4 rounded-lg text-xs font-medium transition-colors disabled:opacity-60"
-                  style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', border: 'none', cursor: 'pointer' }}
-                  onMouseEnter={(e) => { if (!(adding || !newOpp.name.trim())) e.currentTarget.style.backgroundColor = '#A8612A' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-amber)' }}
+                  style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', border: 'none', cursor: 'pointer' }}
+                  onMouseEnter={(e) => { if (!(adding || !newOpp.name.trim())) e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)' }}
                 >
                   {adding ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
                   {t.opps_add_btn}
@@ -601,13 +577,13 @@ export default function OpportunitiesClient({
           {localOpps.length === 0 ? (
             <div className="text-center py-16">
               <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
-                <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="var(--color-amber-bg)" />
-                <circle cx="50" cy="50" r="14" fill="var(--color-linen)" />
+                <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="color-mix(in srgb, var(--color-primary) 10%, transparent)" />
+                <circle cx="50" cy="50" r="14" fill="var(--color-muted)" />
               </svg>
-              <p style={{ fontSize: 13, fontFamily: "'Lora', Georgia, serif", fontStyle: 'italic', color: 'var(--color-text-muted)' }}>
+              <p style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--color-foreground-muted)' }}>
                 {t.opps_empty}
               </p>
-              <p style={{ fontSize: 12, color: 'var(--color-text-faint)', marginTop: 4 }}>
+              <p style={{ fontSize: 12, color: 'var(--color-foreground-faint)', marginTop: 4 }}>
                 {t.opps_empty_hint}
               </p>
             </div>
@@ -626,15 +602,15 @@ export default function OpportunitiesClient({
                     {/* Group header */}
                     <div
                       className="flex items-center transition-colors"
-                      style={{ backgroundColor: 'var(--color-cream)' }}
+                      style={{ backgroundColor: 'var(--color-background)' }}
                     >
                       <button
                         onClick={() => toggleApp(app)}
                         className="flex-1 flex items-center gap-3 px-5 py-3.5 text-left min-w-0"
-                        onMouseEnter={(e) => (e.currentTarget.parentElement!.style.backgroundColor = 'var(--color-linen)')}
-                        onMouseLeave={(e) => (e.currentTarget.parentElement!.style.backgroundColor = 'var(--color-cream)')}
+                        onMouseEnter={(e) => (e.currentTarget.parentElement!.style.backgroundColor = 'var(--color-muted)')}
+                        onMouseLeave={(e) => (e.currentTarget.parentElement!.style.backgroundColor = 'var(--color-background)')}
                       >
-                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }} className="truncate">
+                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-foreground)' }} className="truncate">
                           {app}
                         </span>
                         <span
@@ -642,20 +618,18 @@ export default function OpportunitiesClient({
                           style={{
                             fontSize: 10, fontWeight: 500,
                             backgroundColor: '#FFFFFF',
-                            color: 'var(--color-text-muted)',
-                            border: '0.5px solid var(--color-border)',
-                          }}
+                            color: 'var(--color-foreground-muted)',
+                            border: '0.5px solid var(--color-border)' }}
                         >
                           {evaluatedInGroup}/{opps.length} {t.opps_evaluated_label}
                         </span>
                         <ChevronDown
                           size={13}
                           style={{
-                            color: 'var(--color-text-faint)',
+                            color: 'var(--color-foreground-faint)',
                             flexShrink: 0,
                             transform: isCollapsed ? 'rotate(-90deg)' : 'none',
-                            transition: 'transform 0.15s',
-                          }}
+                            transition: 'transform 0.15s' }}
                         />
                       </button>
                       {/* Delete application button */}
@@ -668,11 +642,10 @@ export default function OpportunitiesClient({
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: isConfirmingDelete ? '#DC2626' : 'var(--color-text-faint)',
-                          marginRight: 8,
-                        }}
+                          color: isConfirmingDelete ? '#DC2626' : 'var(--color-foreground-faint)',
+                          marginRight: 8 }}
                         onMouseEnter={(e) => (e.currentTarget.style.color = '#DC2626')}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = isConfirmingDelete ? '#DC2626' : 'var(--color-text-faint)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = isConfirmingDelete ? '#DC2626' : 'var(--color-foreground-faint)')}
                         title="Elimina application"
                       >
                         <Trash2 size={13} />
@@ -701,14 +674,13 @@ export default function OpportunitiesClient({
                               className="px-5 py-4 flex items-start gap-4"
                               style={{
                                 backgroundColor: '#FFFFFF',
-                                borderTop: idx > 0 ? '0.5px solid var(--color-border)' : undefined,
-                              }}
+                                borderTop: idx > 0 ? '0.5px solid var(--color-border)' : undefined }}
                             >
                               <div className="flex-shrink-0 mt-0.5">
                                 {isEvaluated ? (
-                                  <CheckCircle2 size={16} style={{ color: 'var(--color-sage)' }} />
+                                  <CheckCircle2 size={16} style={{ color: 'var(--color-primary)' }} />
                                 ) : (
-                                  <Clock size={16} style={{ color: 'var(--color-linen)' }} />
+                                  <Clock size={16} style={{ color: 'var(--color-muted)' }} />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -719,12 +691,11 @@ export default function OpportunitiesClient({
                                       style={{
                                         fontSize: 10, fontWeight: 500,
                                         textTransform: 'uppercase', letterSpacing: '0.06em',
-                                        color: 'var(--color-text-faint)',
-                                      }}
+                                        color: 'var(--color-foreground-faint)' }}
                                     >
                                       {opp.customer_segment}
                                     </p>
-                                    <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)' }}>
+                                    <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-foreground)' }}>
                                       {opp.name}
                                     </h3>
                                   </div>
@@ -732,15 +703,14 @@ export default function OpportunitiesClient({
                                     className="flex-shrink-0 px-2.5 py-0.5 rounded-full"
                                     style={{
                                       fontSize: 11, fontWeight: 500,
-                                      backgroundColor: isEvaluated ? 'var(--color-sage-bg)' : 'var(--color-linen)',
-                                      color: isEvaluated ? '#2D7A57' : 'var(--color-text-muted)',
-                                    }}
+                                      backgroundColor: isEvaluated ? 'color-mix(in srgb, var(--color-primary) 10%, transparent)' : 'var(--color-muted)',
+                                      color: isEvaluated ? 'var(--color-primary)' : 'var(--color-foreground-muted)' }}
                                   >
                                     {isEvaluated ? t.opps_evaluated_badge : t.opps_pending_badge}
                                   </span>
                                 </div>
                                 {opp.description && (
-                                  <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 4, lineHeight: '1.6' }}>
+                                  <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', marginTop: 4, lineHeight: '1.6' }}>
                                     {opp.description}
                                   </p>
                                 )}
@@ -751,7 +721,7 @@ export default function OpportunitiesClient({
                                   <Link
                                     href={`/project/${project.id}/opportunity/${opp.id}/report`}
                                     className="flex items-center gap-1 text-xs font-medium transition-colors"
-                                    style={{ color: 'var(--color-amber)', textDecoration: 'none' }}
+                                    style={{ color: 'var(--color-primary)', textDecoration: 'none' }}
                                   >
                                     {t.opps_view_report}
                                     <ChevronRight size={12} />
@@ -761,12 +731,11 @@ export default function OpportunitiesClient({
                                     href={`/project/${project.id}/opportunity/${opp.id}/context`}
                                     className="flex items-center gap-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors"
                                     style={{
-                                      backgroundColor: 'var(--color-amber)',
-                                      color: '#FFFFFF',
-                                      textDecoration: 'none',
-                                    }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                                      backgroundColor: 'var(--color-primary)',
+                                      color: 'var(--color-primary-foreground)',
+                                      textDecoration: 'none' }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
                                   >
                                     {t.opps_evaluate}
                                     <ChevronRight size={12} />
@@ -779,13 +748,12 @@ export default function OpportunitiesClient({
                                     background: 'none',
                                     border: 'none',
                                     cursor: 'pointer',
-                                    color: 'var(--color-text-faint)',
+                                    color: 'var(--color-foreground-faint)',
                                     padding: 4,
                                     display: 'flex',
-                                    alignItems: 'center',
-                                  }}
+                                    alignItems: 'center' }}
                                   onMouseEnter={(e) => (e.currentTarget.style.color = '#DC2626')}
-                                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-faint)')}
+                                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-foreground-faint)')}
                                   title="Elimina opportunità"
                                 >
                                   <X size={13} />
@@ -808,21 +776,19 @@ export default function OpportunitiesClient({
           className="w-64 p-5 overflow-auto flex-shrink-0"
           style={{
             backgroundColor: '#FFFFFF',
-            borderLeft: '0.5px solid var(--color-border)',
-          }}
+            borderLeft: '0.5px solid var(--color-border)' }}
         >
           <h2
             className="mb-4"
             style={{
               fontSize: 10, fontWeight: 500,
               textTransform: 'uppercase', letterSpacing: '0.08em',
-              color: 'var(--color-text-muted)',
-            }}
+              color: 'var(--color-foreground-muted)' }}
           >
             {t.opps_eval_progress}
           </h2>
           {localOpps.length === 0 ? (
-            <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>
+            <p style={{ fontSize: 12, color: 'var(--color-foreground-faint)', fontStyle: 'italic' }}>
               {t.opps_empty}
             </p>
           ) : (
@@ -832,11 +798,11 @@ export default function OpportunitiesClient({
                 return (
                   <div key={opp.id} className="flex items-center gap-2">
                     {isEvaluated ? (
-                      <CheckCircle2 size={14} style={{ color: 'var(--color-sage)', flexShrink: 0 }} />
+                      <CheckCircle2 size={14} style={{ color: 'var(--color-primary)', flexShrink: 0 }} />
                     ) : (
-                      <Clock size={14} style={{ color: 'var(--color-linen)', flexShrink: 0 }} />
+                      <Clock size={14} style={{ color: 'var(--color-muted)', flexShrink: 0 }} />
                     )}
-                    <span className="truncate" style={{ fontSize: 12, color: 'var(--color-text-main)' }}>
+                    <span className="truncate" style={{ fontSize: 12, color: 'var(--color-foreground)' }}>
                       {opp.name}
                     </span>
                   </div>
@@ -850,12 +816,11 @@ export default function OpportunitiesClient({
               href={`/project/${project.id}/map`}
               className="flex items-center justify-center gap-2 w-full mt-5 py-2.5 px-4 rounded-lg text-xs font-medium transition-colors"
               style={{
-                backgroundColor: 'var(--color-amber)',
-                color: '#FFFFFF',
-                textDecoration: 'none',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-primary-foreground)',
+                textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
             >
               {t.opps_view_map}
               <ChevronRight size={14} />

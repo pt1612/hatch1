@@ -144,8 +144,7 @@ export async function POST(request: NextRequest) {
     mode,
     messages,
     userMessage,
-    vpcSyntheticInterview,
-  } = body as {
+    vpcSyntheticInterview } = body as {
     projectInfo?: ProjectInfo
     twins?: DigitalTwin[]
     selectedTwinId?: string
@@ -200,8 +199,7 @@ export async function POST(request: NextRequest) {
           messages: [
             ...history.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
             { role: 'user' as const, content: String(userMessage ?? '') },
-          ],
-        })
+          ] })
 
         for await (const event of anthropicStream) {
           if (
@@ -216,16 +214,13 @@ export async function POST(request: NextRequest) {
         }
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))
         controller.close()
-      },
-    })
+      } })
 
     return new Response(readable, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-      },
-    })
+        Connection: 'keep-alive' } })
   }
 
   if (!projectInfo || !twins || !selectedTwinId) {
@@ -247,13 +242,11 @@ export async function POST(request: NextRequest) {
           messages: [
             ...twinHistory.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
             { role: 'user', content: String(userMessage ?? '') },
-          ],
-        })
+          ] })
         return {
           twinId: twin.id,
           twinName: twin.name,
-          text: msg.content[0].type === 'text' ? msg.content[0].text : '',
-        }
+          text: msg.content[0].type === 'text' ? msg.content[0].text : '' }
       })
     )
     return Response.json({ responses })
@@ -277,8 +270,7 @@ export async function POST(request: NextRequest) {
           messages: [
             ...twinHistory.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
             { role: 'user', content: String(userMessage ?? '') },
-          ],
-        })
+          ] })
 
         for await (const event of anthropicStream) {
           if (
@@ -293,15 +285,12 @@ export async function POST(request: NextRequest) {
         }
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))
         controller.close()
-      },
-    })
+      } })
 
     return new Response(readable, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-      },
-    })
+        Connection: 'keep-alive' } })
   }
 }

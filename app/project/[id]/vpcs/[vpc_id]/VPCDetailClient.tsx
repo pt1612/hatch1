@@ -28,18 +28,17 @@ function Pill({ text, onRemove }: { text: string; onRemove?: () => void }) {
         gap: 6,
         padding: '5px 10px',
         borderRadius: 20,
-        backgroundColor: 'var(--color-linen)',
+        backgroundColor: 'var(--color-muted)',
         border: '0.5px solid var(--color-border)',
         fontSize: 12,
-        color: 'var(--color-ink)',
-        maxWidth: '100%',
-      }}
+        color: 'var(--color-foreground)',
+        maxWidth: '100%' }}
     >
       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{text}</span>
       {onRemove && (
         <button
           onClick={onRemove}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexShrink: 0, color: 'var(--color-text-faint)' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexShrink: 0, color: 'var(--color-foreground-faint)' }}
         >
           <X size={12} />
         </button>
@@ -50,8 +49,7 @@ function Pill({ text, onRemove }: { text: string; onRemove?: () => void }) {
 
 function AddInput({
   placeholder,
-  onAdd,
-}: {
+  onAdd }: {
   placeholder: string
   onAdd: (val: string) => void
 }) {
@@ -81,9 +79,8 @@ function AddInput({
           border: '0.5px solid var(--color-border)',
           backgroundColor: '#FFFFFF',
           fontSize: 12,
-          color: 'var(--color-ink)',
-          outline: 'none',
-        }}
+          color: 'var(--color-foreground)',
+          outline: 'none' }}
       />
       <button
         onClick={handleAdd}
@@ -92,12 +89,11 @@ function AddInput({
           padding: '5px 10px',
           borderRadius: 6,
           border: '0.5px solid var(--color-border)',
-          backgroundColor: val.trim() ? 'var(--color-amber)' : 'var(--color-linen)',
-          color: val.trim() ? '#FFFFFF' : 'var(--color-text-faint)',
+          backgroundColor: val.trim() ? 'var(--color-primary)' : 'var(--color-muted)',
+          color: val.trim() ? '#FFFFFF' : 'var(--color-foreground-faint)',
           fontSize: 12,
           cursor: val.trim() ? 'pointer' : 'not-allowed',
-          whiteSpace: 'nowrap',
-        }}
+          whiteSpace: 'nowrap' }}
       >
         <Plus size={12} />
       </button>
@@ -110,8 +106,7 @@ function PillSection({
   items,
   onAdd,
   onRemove,
-  placeholder,
-}: {
+  placeholder }: {
   label: string
   items: string[]
   onAdd: (val: string) => void
@@ -120,12 +115,12 @@ function PillSection({
 }) {
   return (
     <div style={{ marginBottom: 20 }}>
-      <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 8 }}>
+      <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-foreground-muted)', marginBottom: 8 }}>
         {label}
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {items.length === 0 && (
-          <span style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic' }}>—</span>
+          <span style={{ fontSize: 12, color: 'var(--color-foreground-faint)', fontStyle: 'italic' }}>—</span>
         )}
         <AnimatePresence>
           {items.map((item, idx) => (
@@ -152,8 +147,7 @@ export default function VPCDetailClient({
   opportunityName,
   opportunity,
   abilities,
-  sourceVpcs,
-}: VPCDetailClientProps) {
+  sourceVpcs }: VPCDetailClientProps) {
   const supabase = createClient()
   const { toast } = useToast()
   const { t } = useI18n()
@@ -164,14 +158,12 @@ export default function VPCDetailClient({
   const [customerProfile, setCustomerProfile] = useState<VPCCustomerProfile>({
     jobs: initialCp.jobs ?? [],
     pains: initialCp.pains ?? [],
-    gains: initialCp.gains ?? [],
-  })
+    gains: initialCp.gains ?? [] })
 
   const [valueMap, setValueMap] = useState<VPCValueMap>({
     productsAndServices: initialVm.productsAndServices ?? [],
     painRelievers: initialVm.painRelievers ?? [],
-    gainCreators: initialVm.gainCreators ?? [],
-  })
+    gainCreators: initialVm.gainCreators ?? [] })
 
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -218,16 +210,13 @@ export default function VPCDetailClient({
           aggregatedJobs: customerProfile.jobs,
           twinProfile: (vpc.interview_attachment as { twin_id?: string } | null)?.twin_id
             ? { name: vpc.customer_profile_name, role: '', segment: '' }
-            : undefined,
-        }),
-      })
+            : undefined }) })
       const { valueMap: generated } = await res.json()
       if (generated) {
         setValueMap({
           productsAndServices: generated.productsAndServices ?? [],
           painRelievers: generated.painRelievers ?? [],
-          gainCreators: generated.gainCreators ?? [],
-        })
+          gainCreators: generated.gainCreators ?? [] })
         setSaved(false)
       }
     } catch {
@@ -246,8 +235,7 @@ export default function VPCDetailClient({
       .update({
         customer_profile: customerProfile,
         value_map: valueMap,
-        updated_at: new Date().toISOString(),
-      })
+        updated_at: new Date().toISOString() })
       .eq('id', vpc.id)
 
     setSaving(false)
@@ -265,14 +253,14 @@ export default function VPCDetailClient({
     valueMap.gainCreators.length > 0
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-cream)' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '88px 24px 60px' }}>
         {/* Back link */}
         <Link
           href={`/project/${project.id}/vpcs`}
-          style={{ fontSize: 12, color: 'var(--color-text-muted)', textDecoration: 'none', display: 'inline-block', marginBottom: 24 }}
+          style={{ fontSize: 12, color: 'var(--color-foreground-muted)', textDecoration: 'none', display: 'inline-block', marginBottom: 24 }}
         >
           {t.vpcd_detail_back}
         </Link>
@@ -283,13 +271,11 @@ export default function VPCDetailClient({
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <h1
                 style={{
-                  fontFamily: "'Lora', Georgia, serif",
                   fontWeight: 400,
                   fontSize: 26,
-                  color: 'var(--color-ink)',
+                  color: 'var(--color-foreground)',
                   letterSpacing: '-0.02em',
-                  margin: 0,
-                }}
+                  margin: 0 }}
               >
                 {vpc.customer_profile_name}
               </h1>
@@ -302,22 +288,21 @@ export default function VPCDetailClient({
                     textTransform: 'uppercase',
                     padding: '2px 8px',
                     borderRadius: 4,
-                    backgroundColor: 'rgba(199,123,58,0.10)',
-                    color: 'var(--color-amber)',
-                    border: '0.5px solid rgba(199,123,58,0.30)',
-                  }}
+                    backgroundColor: 'rgba(19,163,137,0.10)',
+                    color: 'var(--color-primary)',
+                    border: '0.5px solid rgba(19,163,137,0.30)' }}
                 >
                   {t.vpcd_detail_aggregate_badge}
                 </span>
               )}
             </div>
             {opportunityName && (
-              <p style={{ fontSize: 12, color: 'var(--color-text-faint)', margin: 0 }}>
+              <p style={{ fontSize: 12, color: 'var(--color-foreground-faint)', margin: 0 }}>
                 {opportunityName}
               </p>
             )}
             {sourceVpcs.length > 0 && (
-              <p style={{ fontSize: 12, color: 'var(--color-text-faint)', margin: '4px 0 0' }}>
+              <p style={{ fontSize: 12, color: 'var(--color-foreground-faint)', margin: '4px 0 0' }}>
                 {t.vpcd_detail_sources_label}: {sourceVpcs.map(s => s.name).join(' · ')}
               </p>
             )}
@@ -336,12 +321,11 @@ export default function VPCDetailClient({
               fontSize: 13,
               fontWeight: 500,
               cursor: saving ? 'not-allowed' : 'pointer',
-              border: '0.5px solid var(--color-amber)',
-              backgroundColor: saved ? 'rgba(76,175,125,0.10)' : 'var(--color-amber)',
-              color: saved ? '#2D7A57' : '#FFFFFF',
+              border: '0.5px solid var(--color-primary)',
+              backgroundColor: saved ? 'rgba(19,163,137,0.10)' : 'var(--color-primary)',
+              color: saved ? 'var(--color-primary)' : '#FFFFFF',
               transition: 'all 0.15s ease',
-              flexShrink: 0,
-            }}
+              flexShrink: 0 }}
           >
             {saving ? (
               <>
@@ -364,18 +348,15 @@ export default function VPCDetailClient({
               borderRadius: 16,
               backgroundColor: '#FFFFFF',
               border: '0.5px solid var(--color-border)',
-              padding: 24,
-            }}
+              padding: 24 }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <h2
                 style={{
-                  fontFamily: "'Lora', Georgia, serif",
                   fontWeight: 400,
                   fontSize: 16,
-                  color: 'var(--color-ink)',
-                  margin: 0,
-                }}
+                  color: 'var(--color-foreground)',
+                  margin: 0 }}
               >
                 {t.vpcd_detail_value_map}
               </h2>
@@ -391,11 +372,10 @@ export default function VPCDetailClient({
                   fontSize: 12,
                   fontWeight: 500,
                   cursor: generatingMap ? 'not-allowed' : 'pointer',
-                  border: '0.5px solid rgba(199,123,58,0.40)',
-                  backgroundColor: 'rgba(199,123,58,0.08)',
-                  color: 'var(--color-amber)',
-                  transition: 'all 0.15s ease',
-                }}
+                  border: '0.5px solid rgba(19,163,137,0.40)',
+                  backgroundColor: 'rgba(19,163,137,0.08)',
+                  color: 'var(--color-primary)',
+                  transition: 'all 0.15s ease' }}
               >
                 {generatingMap ? (
                   <>
@@ -412,7 +392,7 @@ export default function VPCDetailClient({
             </div>
 
             {!hasValueMapContent && !generatingMap && (
-              <p style={{ fontSize: 12, color: 'var(--color-text-faint)', fontStyle: 'italic', marginBottom: 20 }}>
+              <p style={{ fontSize: 12, color: 'var(--color-foreground-faint)', fontStyle: 'italic', marginBottom: 20 }}>
                 {t.vpcd_detail_empty_map}
               </p>
             )}
@@ -446,17 +426,14 @@ export default function VPCDetailClient({
               borderRadius: 16,
               backgroundColor: '#FFFFFF',
               border: '0.5px solid var(--color-border)',
-              padding: 24,
-            }}
+              padding: 24 }}
           >
             <h2
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
                 fontSize: 16,
-                color: 'var(--color-ink)',
-                margin: '0 0 24px',
-              }}
+                color: 'var(--color-foreground)',
+                margin: '0 0 24px' }}
             >
               {t.vpcd_detail_customer_profile}
             </h2>

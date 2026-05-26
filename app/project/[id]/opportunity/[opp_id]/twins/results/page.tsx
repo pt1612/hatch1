@@ -6,15 +6,13 @@ import type { DigitalTwin, TwinMessage, TwinReport } from '@/lib/types'
 export const dynamic = 'force-dynamic'
 
 export default async function ResultsPage({
-  params,
-}: {
+  params }: {
   params: Promise<{ id: string; opp_id: string }>
 }) {
   const { id, opp_id } = await params
   const supabase = await createClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: project } = await supabase
@@ -52,8 +50,7 @@ export default async function ResultsPage({
     affinityLabel: (row.affinity_label ?? 'moderate') as
       | 'high_affinity'
       | 'moderate'
-      | 'early_adopter',
-  }))
+      | 'early_adopter' }))
 
   // Load twin_session (may contain saved report)
   const { data: twinSession } = await supabase

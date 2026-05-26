@@ -14,12 +14,10 @@ import { useI18n } from '@/lib/i18n/context'
 
 const containerVariants: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
-}
+  show: { transition: { staggerChildren: 0.06 } } }
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } },
-}
+  show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } } }
 
 const POTENTIAL_DIM_KEYS = ['reason_to_buy', 'market_volume', 'economic_viability'] as const
 const CHALLENGE_DIM_KEYS = ['implementation_obstacles', 'time_to_revenue', 'external_risks'] as const
@@ -30,7 +28,7 @@ const ALL_DIM_KEYS = [
 
 function barColor(key: string): string {
   const isChallenge = ['implementation_obstacles', 'time_to_revenue', 'external_risks'].includes(key)
-  return isChallenge ? 'var(--color-warm-gray)' : 'var(--color-amber)'
+  return isChallenge ? 'var(--color-warm)' : 'var(--color-primary)'
 }
 
 function extractScoresFromReport(r: InterviewReport): Record<string, number> {
@@ -49,16 +47,14 @@ function computeOverall(userScores: Record<string, number>) {
   const ca = avg(chal)
   return {
     potential: pa != null ? numericToLabel(pa) : null,
-    challenge: ca != null ? numericToLabel(ca) : null,
-  }
+    challenge: ca != null ? numericToLabel(ca) : null }
 }
 
 // ─── Score stepper ────────────────────────────────────────────────────────────
 
 function ScoreStepper({
   value,
-  onChange,
-}: {
+  onChange }: {
   value: number
   onChange: (v: number) => void
 }) {
@@ -73,16 +69,15 @@ function ScoreStepper({
           borderRadius: 6,
           border: '0.5px solid var(--color-border)',
           backgroundColor: '#FFFFFF',
-          color: 'var(--color-text-muted)',
-          cursor: 'pointer',
-        }}
+          color: 'var(--color-foreground-muted)',
+          cursor: 'pointer' }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'var(--color-amber)'
-          e.currentTarget.style.color = 'var(--color-amber)'
+          e.currentTarget.style.borderColor = 'var(--color-primary)'
+          e.currentTarget.style.color = 'var(--color-primary)'
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.borderColor = 'var(--color-border)'
-          e.currentTarget.style.color = 'var(--color-text-muted)'
+          e.currentTarget.style.color = 'var(--color-foreground-muted)'
         }}
       >
         <Minus size={10} />
@@ -102,15 +97,14 @@ function ScoreStepper({
           height: 28,
           fontSize: 14,
           fontWeight: 600,
-          color: 'var(--color-ink)',
+          color: 'var(--color-foreground)',
           border: '0.5px solid var(--color-border)',
           borderRadius: 6,
-          backgroundColor: '#FFFFFF',
-        }}
-        onFocus={(e) => (e.target.style.borderColor = 'var(--color-amber)')}
+          backgroundColor: '#FFFFFF' }}
+        onFocus={(e) => (e.target.style.borderColor = 'var(--color-primary)')}
         onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
       />
-      <span style={{ fontSize: 12, color: 'var(--color-text-faint)' }}>/10</span>
+      <span style={{ fontSize: 12, color: 'var(--color-foreground-faint)' }}>/10</span>
       <button
         onClick={() => onChange(Math.min(10, value + 1))}
         className="flex items-center justify-center transition-colors"
@@ -120,16 +114,15 @@ function ScoreStepper({
           borderRadius: 6,
           border: '0.5px solid var(--color-border)',
           backgroundColor: '#FFFFFF',
-          color: 'var(--color-text-muted)',
-          cursor: 'pointer',
-        }}
+          color: 'var(--color-foreground-muted)',
+          cursor: 'pointer' }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'var(--color-amber)'
-          e.currentTarget.style.color = 'var(--color-amber)'
+          e.currentTarget.style.borderColor = 'var(--color-primary)'
+          e.currentTarget.style.color = 'var(--color-primary)'
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.borderColor = 'var(--color-border)'
-          e.currentTarget.style.color = 'var(--color-text-muted)'
+          e.currentTarget.style.color = 'var(--color-foreground-muted)'
         }}
       >
         <Plus size={10} />
@@ -147,8 +140,7 @@ function DimensionCard({
   aiScore,
   analysis,
   onScoreChange,
-  onUseAI,
-}: {
+  onUseAI }: {
   dimKey: string
   label: string
   userScore: number
@@ -167,7 +159,7 @@ function DimensionCard({
       style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-ink)', paddingTop: 2 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-foreground)', paddingTop: 2 }}>
           {label}
         </h3>
         <div className="flex items-center gap-3 flex-shrink-0">
@@ -177,9 +169,8 @@ function DimensionCard({
               <span
                 style={{
                   fontSize: 11,
-                  color: aiDiffers ? 'var(--color-text-muted)' : 'var(--color-text-faint)',
-                  whiteSpace: 'nowrap',
-                }}
+                  color: aiDiffers ? 'var(--color-foreground-muted)' : 'var(--color-foreground-faint)',
+                  whiteSpace: 'nowrap' }}
               >
                 AI: {aiScore}/10
               </span>
@@ -189,16 +180,15 @@ function DimensionCard({
                   style={{
                     fontSize: 10,
                     fontWeight: 500,
-                    color: 'var(--color-amber)',
-                    backgroundColor: 'var(--color-amber-bg)',
-                    border: '0.5px solid rgba(199,123,58,0.25)',
+                    color: 'var(--color-primary)',
+                    backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+                    border: '0.5px solid rgba(19,163,137,0.25)',
                     borderRadius: 5,
                     padding: '2px 7px',
                     cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(199,123,58,0.15)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber-bg)')}
+                    whiteSpace: 'nowrap' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(19,163,137,0.15)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--color-primary) 10%, transparent)')}
                 >
                   {t.report_use_ai}
                 </button>
@@ -210,20 +200,19 @@ function DimensionCard({
 
       <div
         className="rounded-full overflow-hidden mb-3"
-        style={{ height: 4, backgroundColor: 'var(--color-linen)' }}
+        style={{ height: 4, backgroundColor: 'var(--color-muted)' }}
       >
         <div
           className="h-full rounded-full transition-all"
           style={{
             width: `${userScore * 10}%`,
             backgroundColor: barColor(dimKey),
-            boxShadow: `0 0 8px ${barColor(dimKey)}66`,
-          }}
+            boxShadow: `0 0 8px ${barColor(dimKey)}66` }}
         />
       </div>
 
       {analysis && (
-        <p style={{ fontSize: 12, color: 'var(--color-text-muted)', lineHeight: '1.7' }}>{analysis}</p>
+        <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', lineHeight: '1.7' }}>{analysis}</p>
       )}
     </motion.div>
   )
@@ -234,8 +223,7 @@ function DimensionCard({
 export default function ReportClient({
   project,
   opportunity,
-  existingEvaluation,
-}: {
+  existingEvaluation }: {
   project: { id: string; title: string }
   opportunity: Opportunity
   existingEvaluation: { id: string; report: unknown; dimension_scores: unknown } | null
@@ -250,8 +238,7 @@ export default function ReportClient({
     economic_viability:        t.dim_economic_viability,
     implementation_obstacles:  t.dim_implementation_obstacles,
     time_to_revenue:           t.dim_time_to_revenue,
-    external_risks:            t.dim_external_risks,
-  }
+    external_risks:            t.dim_external_risks }
   const existingDimScores = existingEvaluation?.dimension_scores as Record<string, number> | null
 
   // AI report — used for analysis text and AI score suggestions
@@ -295,9 +282,7 @@ export default function ReportClient({
           customerSegment: opportunity.customer_segment,
           description: opportunity.description,
           userContext,
-          language: lang,
-        }),
-      })
+          language: lang }) })
       const { report: generatedReport } = await res.json()
       setAiReport(generatedReport)
 
@@ -318,8 +303,7 @@ export default function ReportClient({
             opportunity_id: opportunity.id,
             report: generatedReport,
             messages: [],
-            dimension_scores: {},
-          })
+            dimension_scores: {} })
           .select()
           .single()
         if (data) setEvaluationId(data.id)
@@ -371,8 +355,7 @@ export default function ReportClient({
           opportunity_id: opportunity.id,
           dimension_scores: userScores,
           report: updatedReport,
-          messages: [],
-        })
+          messages: [] })
         .select()
         .single()
       if (data) setEvaluationId(data.id)
@@ -391,18 +374,16 @@ export default function ReportClient({
 
   if (loadingAI || regenerating) {
     return (
-      <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+      <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
         <TopNav projectId={project.id} projectTitle={project.title} />
         <div className="flex-1 overflow-auto p-8 pt-14">
           <BackButton href={`/project/${project.id}/opportunities`} label={t.report_back} />
           <h1
             style={{
-              fontFamily: "'Lora', Georgia, serif",
               fontWeight: 400,
               fontSize: 22,
-              color: 'var(--color-ink)',
-              marginBottom: 24,
-            }}
+              color: 'var(--color-foreground)',
+              marginBottom: 24 }}
           >
             {opportunity.name}
           </h1>
@@ -410,8 +391,8 @@ export default function ReportClient({
             className="rounded-2xl p-6 mb-4 flex items-center gap-3"
             style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
           >
-            <Loader2 size={18} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+            <Loader2 size={18} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
+            <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)' }}>
               {t.report_generating}
             </p>
           </div>
@@ -422,13 +403,13 @@ export default function ReportClient({
               style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
             >
               <div className="flex items-center justify-between mb-3">
-                <div className="h-4 rounded w-40" style={{ backgroundColor: 'var(--color-linen)' }} />
-                <div className="h-6 rounded w-32" style={{ backgroundColor: 'var(--color-linen)' }} />
+                <div className="h-4 rounded w-40" style={{ backgroundColor: 'var(--color-muted)' }} />
+                <div className="h-6 rounded w-32" style={{ backgroundColor: 'var(--color-muted)' }} />
               </div>
-              <div className="h-1.5 rounded-full w-full mb-3" style={{ backgroundColor: 'var(--color-linen)' }} />
+              <div className="h-1.5 rounded-full w-full mb-3" style={{ backgroundColor: 'var(--color-muted)' }} />
               <div className="space-y-1.5">
                 {[1, 0.8, 0.6].map((w, j) => (
-                  <div key={j} className="h-3 rounded" style={{ backgroundColor: 'var(--color-linen)', width: `${w * 100}%` }} />
+                  <div key={j} className="h-3 rounded" style={{ backgroundColor: 'var(--color-muted)', width: `${w * 100}%` }} />
                 ))}
               </div>
             </div>
@@ -442,7 +423,7 @@ export default function ReportClient({
 
   if (errorAI && Object.keys(userScores).length === 0) {
     return (
-      <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+      <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
         <TopNav projectId={project.id} projectTitle={project.title} />
         <div className="flex-1 overflow-auto p-8 pt-14">
           <BackButton href={`/project/${project.id}/opportunities`} label={t.report_back} />
@@ -461,9 +442,9 @@ export default function ReportClient({
               <button
                 onClick={handleRegenerate}
                 className="flex items-center gap-2 py-2 px-4 rounded-lg text-xs font-medium transition-colors"
-                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', border: 'none', cursor: 'pointer' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
               >
                 <RefreshCw size={13} />
                 {t.report_retry}
@@ -481,7 +462,7 @@ export default function ReportClient({
   // ── Main render ────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div
@@ -499,16 +480,14 @@ export default function ReportClient({
             <div className="min-w-0">
               <h1
                 style={{
-                  fontFamily: "'Lora', Georgia, serif",
                   fontWeight: 400,
                   fontSize: 22,
                   letterSpacing: '-0.02em',
-                  color: 'var(--color-ink)',
-                }}
+                  color: 'var(--color-foreground)' }}
               >
                 {opportunity.name}
               </h1>
-              <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
+              <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', marginTop: 2 }}>
                 {opportunity.customer_segment} · {opportunity.application}
               </p>
             </div>
@@ -536,19 +515,18 @@ export default function ReportClient({
                 disabled={saving || !hasScores}
                 className="flex items-center gap-1.5 py-2 px-3.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
                 style={{
-                  backgroundColor: saved ? 'var(--color-sage)' : 'var(--color-amber)',
-                  color: '#FFFFFF',
+                  backgroundColor: saved ? 'var(--color-primary)' : 'var(--color-primary)',
+                  color: 'var(--color-primary-foreground)',
                   border: 'none',
-                  cursor: saving || !hasScores ? 'default' : 'pointer',
-                }}
+                  cursor: saving || !hasScores ? 'default' : 'pointer' }}
                 onMouseEnter={(e) => {
                   if (!saving && hasScores)
-                    e.currentTarget.style.backgroundColor = saved ? '#2D7A57' : '#A8612A'
+                    e.currentTarget.style.backgroundColor = saved ? 'var(--color-primary)' : 'var(--color-primary-hover)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = saved
-                    ? 'var(--color-sage)'
-                    : 'var(--color-amber)'
+                    ? 'var(--color-primary)'
+                    : 'var(--color-primary)'
                 }}
               >
                 {saving ? (
@@ -577,12 +555,11 @@ export default function ReportClient({
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
-                  color: 'var(--color-text-muted)',
-                }}
+                  color: 'var(--color-foreground-muted)' }}
               >
                 {t.report_ai_summary}
               </h2>
-              <p style={{ fontSize: 13, color: 'var(--color-ink)', lineHeight: '1.7' }}>
+              <p style={{ fontSize: 13, color: 'var(--color-foreground)', lineHeight: '1.7' }}>
                 {aiReport.executive_summary}
               </p>
             </motion.div>
@@ -609,8 +586,8 @@ export default function ReportClient({
 
           {/* ── Fix f: Aggregated dimension groups ─────────────────────────── */}
           {[
-            { label: t.report_dim_potential, keys: POTENTIAL_DIM_KEYS, expanded: potentialExpanded, setExpanded: setPotentialExpanded, color: 'var(--color-amber)' },
-            { label: t.report_dim_challenge, keys: CHALLENGE_DIM_KEYS, expanded: challengeExpanded, setExpanded: setChallengeExpanded, color: 'var(--color-warm-gray)' },
+            { label: t.report_dim_potential, keys: POTENTIAL_DIM_KEYS, expanded: potentialExpanded, setExpanded: setPotentialExpanded, color: 'var(--color-primary)' },
+            { label: t.report_dim_challenge, keys: CHALLENGE_DIM_KEYS, expanded: challengeExpanded, setExpanded: setChallengeExpanded, color: 'var(--color-warm)' },
           ].map((group) => {
             const scores = group.keys.map((k) => userScores[k]).filter((v) => v != null)
             const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : null
@@ -621,24 +598,23 @@ export default function ReportClient({
                   style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <h2 style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-ink)', margin: 0 }}>{group.label}</h2>
-                      <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 2 }}>{t.report_aggregated_hint}</p>
+                      <h2 style={{ fontSize: 15, fontWeight: 500, color: 'var(--color-foreground)', margin: 0 }}>{group.label}</h2>
+                      <p style={{ fontSize: 11, color: 'var(--color-foreground-muted)', marginTop: 2 }}>{t.report_aggregated_hint}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       {avg != null && (
                         <span style={{ fontSize: 18, fontWeight: 600, color: group.color }}>
-                          {avg.toFixed(1)}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--color-text-muted)' }}>/10</span>
+                          {avg.toFixed(1)}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--color-foreground-muted)' }}>/10</span>
                         </span>
                       )}
                       <ChevronDown size={16} style={{
-                        color: 'var(--color-text-muted)',
+                        color: 'var(--color-foreground-muted)',
                         transform: group.expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.2s ease',
-                      }} />
+                        transition: 'transform 0.2s ease' }} />
                     </div>
                   </div>
                   {avg != null && (
-                    <div style={{ height: 4, borderRadius: 2, backgroundColor: 'var(--color-linen)', overflow: 'hidden' }}>
+                    <div style={{ height: 4, borderRadius: 2, backgroundColor: 'var(--color-muted)', overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${(avg / 10) * 100}%`, backgroundColor: group.color, borderRadius: 2, transition: 'width 0.4s ease' }} />
                     </div>
                   )}
@@ -666,25 +642,25 @@ export default function ReportClient({
           <div className="flex items-center justify-between pb-24">
             <Link href={`/project/${project.id}/opportunities`}
               className="py-2.5 px-4 text-sm font-medium transition-colors"
-              style={{ border: '0.5px solid var(--color-border)', color: 'var(--color-ink)', borderRadius: 8, textDecoration: 'none' }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-amber)')}
+              style={{ border: '0.5px solid var(--color-border)', color: 'var(--color-foreground)', borderRadius: 8, textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}>
               {t.report_back}
             </Link>
             <div className="flex items-center gap-3">
               <button onClick={handleRegenerate} disabled={loadingAI || regenerating}
                 className="flex items-center gap-1.5 transition-colors disabled:opacity-40"
-                style={{ fontSize: 12, color: 'var(--color-text-faint)', background: 'none', border: 'none', cursor: 'pointer' }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-faint)')}>
+                style={{ fontSize: 12, color: 'var(--color-foreground-faint)', background: 'none', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-foreground-muted)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-foreground-faint)')}>
                 <RefreshCw size={12} />
                 {t.report_regen_ai}
               </button>
               <Link href={`/project/${project.id}/map`}
                 className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium transition-colors"
-                style={{ backgroundColor: 'var(--color-amber)', color: '#FFFFFF', borderRadius: 8, textDecoration: 'none' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}>
+                style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-primary-foreground)', borderRadius: 8, textDecoration: 'none' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}>
                 <Map size={15} />
                 {t.report_view_map}
               </Link>
@@ -699,8 +675,7 @@ export default function ReportClient({
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
         backgroundColor: 'rgba(250,247,242,0.95)', backdropFilter: 'blur(8px)',
         borderTop: '0.5px solid var(--color-border)',
-        padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-      }}>
+        padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <div className="flex items-center gap-3">
           {computedPotential && (
             <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${POTENTIAL_BADGE[computedPotential]}`}>
@@ -713,18 +688,17 @@ export default function ReportClient({
             </span>
           )}
           {!hasScores && (
-            <span style={{ fontSize: 12, color: 'var(--color-text-faint)' }}>Set all 6 scores to save</span>
+            <span style={{ fontSize: 12, color: 'var(--color-foreground-faint)' }}>Set all 6 scores to save</span>
           )}
         </div>
         <button onClick={handleSave} disabled={saving || !hasScores}
           className="flex items-center gap-2 py-3 px-6 text-sm font-semibold disabled:opacity-50 transition-colors"
           style={{
-            backgroundColor: saved ? 'var(--color-sage)' : 'var(--color-amber)', color: '#FFFFFF',
+            backgroundColor: saved ? 'var(--color-primary)' : 'var(--color-primary)', color: 'var(--color-primary-foreground)',
             borderRadius: 10, border: 'none', cursor: saving || !hasScores ? 'default' : 'pointer',
-            boxShadow: '0 4px 14px rgba(199,123,58,0.35)', minWidth: 140, justifyContent: 'center',
-          }}
-          onMouseEnter={(e) => { if (!saving && hasScores) e.currentTarget.style.backgroundColor = saved ? '#2D7A57' : '#A8612A' }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = saved ? 'var(--color-sage)' : 'var(--color-amber)' }}>
+            boxShadow: '0 4px 14px rgba(19,163,137,0.35)', minWidth: 140, justifyContent: 'center' }}
+          onMouseEnter={(e) => { if (!saving && hasScores) e.currentTarget.style.backgroundColor = saved ? 'var(--color-primary)' : 'var(--color-primary-hover)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = saved ? 'var(--color-primary)' : 'var(--color-primary)' }}>
           {saving ? <Loader2 size={15} className="animate-spin" /> : saved ? <Check size={15} /> : <Save size={15} />}
           {saving ? t.report_saving : saved ? t.report_saved : t.report_save}
         </button>

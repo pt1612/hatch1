@@ -466,7 +466,6 @@ export const en = {
   vpc_detail_col_pains: 'Pains',
   vpc_detail_col_gains: 'Gains',
   vpc_detail_value_map_header: 'Value Map',
-  vpc_detail_customer_profile_header: 'Customer Profile',
-} as const
+  vpc_detail_customer_profile_header: 'Customer Profile' } as const
 
 export type Translations = { [K in keyof typeof en]: string }

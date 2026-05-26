@@ -46,8 +46,7 @@ The persona must be consistent with the segment description. Do not mention JSON
     const msg = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }],
-    })
+      messages: [{ role: 'user', content: prompt }] })
 
     const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
     const match = raw.match(/\{[\s\S]*\}/)
@@ -69,8 +68,7 @@ The persona must be consistent with the segment description. Do not mention JSON
         : 'moderate',
       occupation: String(parsed.occupation ?? parsed.role ?? 'Professional'),
       background: String(parsed.background ?? ''),
-      motivations: Array.isArray(parsed.motivations) ? parsed.motivations.map(String).slice(0, 5) : [],
-    }
+      motivations: Array.isArray(parsed.motivations) ? parsed.motivations.map(String).slice(0, 5) : [] }
 
     return Response.json({ twin })
   } catch (e) {

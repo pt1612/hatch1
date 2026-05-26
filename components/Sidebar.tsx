@@ -69,30 +69,20 @@ export default function Sidebar({ projectId, projectTitle, userEmail }: SidebarP
     return pathname === href || pathname.startsWith(href + '/')
   }
 
-  // Progress dot status for each nav item
   function dotStatus(href: string): 'done' | 'active' | 'todo' {
     if (isActive(href)) return 'active'
     return 'todo'
   }
 
   function ProgressDot({ status }: { status: 'done' | 'active' | 'todo' }) {
-    const color =
+    const cls =
       status === 'done'
-        ? '#4CAF7D'
+        ? 'bg-[var(--color-aruba-blue)]'
         : status === 'active'
-        ? '#E8A96A'
-        : '#3A3A38'
+        ? 'bg-[var(--color-primary)]'
+        : 'bg-white/20'
     return (
-      <span
-        className="flex-shrink-0"
-        style={{
-          width: 6,
-          height: 6,
-          borderRadius: '50%',
-          backgroundColor: color,
-          display: 'inline-block',
-        }}
-      />
+      <span className={`flex-shrink-0 inline-block w-1.5 h-1.5 rounded-full ${cls}`} />
     )
   }
 
@@ -107,29 +97,23 @@ export default function Sidebar({ projectId, projectTitle, userEmail }: SidebarP
     return (
       <Link
         href={href}
-        className="flex items-center gap-2 px-2.5 py-[7px] rounded-lg transition-colors"
-        style={{
-          background: active ? 'rgba(199,123,58,0.15)' : 'transparent',
-          color: active ? '#E8A96A' : '#A8A89E',
-          fontSize: 13,
-          letterSpacing: '0.01em',
-        }}
-        onMouseEnter={(e) => {
-          if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'
-        }}
-        onMouseLeave={(e) => {
-          if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'
-        }}
+        className={[
+          'flex items-center gap-2 px-2.5 py-[7px] rounded-lg transition-colors text-[13px]',
+          active
+            ? 'bg-white/10 text-[var(--color-aruba-blue)]'
+            : 'text-white/60 hover:bg-white/5 hover:text-white/90',
+        ].join(' ')}
       >
-        <span className="w-4 h-4 flex-shrink-0 opacity-70">{icon}</span>
+        <span className="w-4 h-4 flex-shrink-0 opacity-80">{icon}</span>
         <span className="flex-1">{label}</span>
         {badge && (
           <span
-            className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
-            style={{
-              background: active ? 'rgba(232,169,106,0.2)' : 'rgba(255,255,255,0.08)',
-              color: active ? '#E8A96A' : '#666660',
-            }}
+            className={[
+              'text-[10px] font-medium px-1.5 py-0.5 rounded-full',
+              active
+                ? 'bg-[var(--color-aruba-blue)]/20 text-[var(--color-aruba-blue)]'
+                : 'bg-white/10 text-white/50',
+            ].join(' ')}
           >
             {badge}
           </span>
@@ -140,25 +124,13 @@ export default function Sidebar({ projectId, projectTitle, userEmail }: SidebarP
   }
 
   const sectionLabel = (text: string) => (
-    <p
-      className="px-2.5 mt-5 mb-1"
-      style={{
-        fontSize: 10,
-        letterSpacing: '0.1em',
-        textTransform: 'uppercase',
-        color: '#666660',
-        fontWeight: 500,
-      }}
-    >
+    <p className="px-2.5 mt-5 mb-1 text-[10px] tracking-[0.1em] uppercase text-white/40 font-medium">
       {text}
     </p>
   )
 
   return (
-    <aside
-      className="fixed left-0 top-0 h-screen w-60 flex flex-col z-30"
-      style={{ backgroundColor: '#1A1A18' }}
-    >
+    <aside className="fixed left-0 top-0 h-screen w-60 flex flex-col z-30 bg-[var(--color-surface-dark)] text-[var(--color-primary-foreground)]">
       {/* Logo area */}
       <div className="px-4 pt-5 pb-4">
         <Link href="/dashboard" className="flex items-center gap-2.5">
@@ -169,23 +141,12 @@ export default function Sidebar({ projectId, projectTitle, userEmail }: SidebarP
             height={32}
             style={{ height: 32, width: 'auto' }}
           />
-          <span
-            style={{
-              fontFamily: "'Lora', Georgia, serif",
-              fontWeight: 400,
-              fontSize: 18,
-              color: '#FAFAF8',
-              letterSpacing: '-0.01em',
-            }}
-          >
+          <span className="font-bold text-[18px] tracking-[-0.01em] text-[var(--color-wispy-clouds)]">
             Hatch
           </span>
         </Link>
         {projectTitle && (
-          <p
-            className="mt-2 truncate pl-0.5"
-            style={{ fontSize: 11, color: '#666660' }}
-          >
+          <p className="mt-2 truncate pl-0.5 text-[11px] text-white/40">
             {projectTitle}
           </p>
         )}
@@ -197,10 +158,7 @@ export default function Sidebar({ projectId, projectTitle, userEmail }: SidebarP
 
         {projectId && (
           <>
-            <div
-              className="my-3"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
-            />
+            <div className="my-3 border-t border-white/10" />
 
             {sectionLabel('Where to Play')}
             {navLink(`/project/${projectId}/abilities`, 'Core Abilities', <Lightbulb size={16} />)}
@@ -218,24 +176,15 @@ export default function Sidebar({ projectId, projectTitle, userEmail }: SidebarP
       </nav>
 
       {/* Bottom */}
-      <div
-        className="px-4 py-4"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
-      >
+      <div className="px-4 py-4 border-t border-white/10">
         {email && (
-          <p
-            className="truncate mb-2"
-            style={{ fontSize: 11, color: '#666660', letterSpacing: '0.01em' }}
-          >
+          <p className="truncate mb-2 text-[11px] text-white/40 tracking-[0.01em]">
             {email}
           </p>
         )}
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-2 transition-colors"
-          style={{ fontSize: 12, color: '#666660', letterSpacing: '0.01em' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#A8A89E')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = '#666660')}
+          className="flex items-center gap-2 text-[12px] text-white/40 hover:text-white/80 transition-colors tracking-[0.01em]"
         >
           <LogOut size={13} />
           Sign out

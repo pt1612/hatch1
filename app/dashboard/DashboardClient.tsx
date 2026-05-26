@@ -25,8 +25,7 @@ type EnrichedProject = {
 export default function DashboardClient({
   projects,
   userId,
-  userName,
-}: {
+  userName }: {
   projects: EnrichedProject[]
   userId: string
   userName?: string
@@ -96,10 +95,24 @@ export default function DashboardClient({
   }
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav />
-      <main className="flex-1 overflow-auto p-8 pt-14 max-w-5xl mx-auto w-full px-8">
+      <main className="relative flex-1 overflow-auto p-8 pt-14 max-w-5xl mx-auto w-full px-8">
+        {/* Decorative line-art (md+ only, behind header whitespace) */}
+        <svg
+          viewBox="0 0 400 400"
+          className="hidden md:block absolute -right-16 top-10 w-72 opacity-20 pointer-events-none"
+          aria-hidden="true"
+        >
+          <g fill="none" stroke="var(--color-deep-teal)" strokeWidth="1">
+            <circle cx="200" cy="200" r="160" />
+            <circle cx="203" cy="197" r="160" />
+            <circle cx="206" cy="194" r="160" />
+          </g>
+        </svg>
+
         <motion.div
+          className="relative"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.22, ease: 'easeOut' }}
@@ -109,16 +122,14 @@ export default function DashboardClient({
             <div>
               <h1
                 style={{
-                  fontFamily: "'Lora', Georgia, serif",
                   fontWeight: 400,
                   fontSize: 34,
                   letterSpacing: '-0.03em',
-                  color: 'var(--color-ink)',
-                }}
+                  color: 'var(--color-foreground)' }}
               >
                 {greeting}{firstName ? `, ${firstName}` : ''}.
               </h1>
-              <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
+              <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)', marginTop: 4 }}>
                 {projects.length === 0 ? t.dash_no_projects : activeText}
               </p>
             </div>
@@ -127,21 +138,20 @@ export default function DashboardClient({
               disabled={creating}
               className="flex items-center gap-2 py-2.5 px-4 text-sm font-medium disabled:opacity-60"
               style={{
-                backgroundColor: 'var(--color-amber)',
-                color: '#FFFFFF',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-primary-foreground)',
                 borderRadius: 8,
                 border: 'none',
-                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-              }}
+                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease' }}
               onMouseEnter={(e) => {
                 if (!creating) {
-                  e.currentTarget.style.backgroundColor = '#A8612A'
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                  e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
                 }
               }}
               onMouseLeave={(e) => {
                 if (!creating) {
-                  e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                  e.currentTarget.style.backgroundColor = 'var(--color-primary)'
                   e.currentTarget.style.boxShadow = 'none'
                 }
               }}
@@ -155,19 +165,17 @@ export default function DashboardClient({
           {projects.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-5">
-                <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="var(--color-amber-bg)" />
-                <circle cx="50" cy="50" r="16" fill="var(--color-linen)" />
-                <circle cx="50" cy="50" r="8" fill="var(--color-amber-light)" opacity="0.5" />
+                <path d="M50 15 C24 15 10 32 10 52 C10 74 25 88 50 88 C75 88 90 74 90 52 C90 32 76 15 50 15 Z" fill="color-mix(in srgb, var(--color-primary) 10%, transparent)" />
+                <circle cx="50" cy="50" r="16" fill="var(--color-muted)" />
+                <circle cx="50" cy="50" r="8" fill="var(--color-accent)" opacity="0.5" />
               </svg>
               <p
                 style={{
-                  fontFamily: "'Lora', Georgia, serif",
                   fontStyle: 'italic',
                   fontWeight: 400,
                   fontSize: 16,
-                  color: 'var(--color-text-muted)',
-                  marginBottom: 20,
-                }}
+                  color: 'var(--color-foreground-muted)',
+                  marginBottom: 20 }}
               >
                 {t.dash_empty_tagline}
               </p>
@@ -176,21 +184,20 @@ export default function DashboardClient({
                 disabled={creating}
                 className="flex items-center gap-2 py-2.5 px-5 text-sm font-medium disabled:opacity-60"
                 style={{
-                  backgroundColor: 'var(--color-amber)',
-                  color: '#FFFFFF',
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'var(--color-primary-foreground)',
                   borderRadius: 8,
                   border: 'none',
-                  transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-                }}
+                  transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease' }}
                 onMouseEnter={(e) => {
                   if (!creating) {
-                    e.currentTarget.style.backgroundColor = '#A8612A'
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                    e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!creating) {
-                    e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                    e.currentTarget.style.backgroundColor = 'var(--color-primary)'
                     e.currentTarget.style.boxShadow = 'none'
                   }
                 }}
@@ -234,8 +241,7 @@ function ProjectCard({
   project,
   isDeleting,
   onDelete,
-  onRename,
-}: {
+  onRename }: {
   project: EnrichedProject
   isDeleting: boolean
   onDelete: () => void
@@ -253,8 +259,7 @@ function ProjectCard({
   const formattedDate = new Date(project.updated_at).toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric',
-  })
+    year: 'numeric' })
 
   return (
     <motion.div
@@ -263,15 +268,14 @@ function ProjectCard({
       className={`flex flex-col gap-4 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
       style={{
         backgroundColor: '#FFFFFF',
-        borderTop: `3px solid ${isDraft ? 'var(--color-linen)' : 'var(--color-amber)'}`,
+        borderTop: `3px solid ${isDraft ? 'var(--color-muted)' : 'var(--color-primary)'}`,
         border: '0.5px solid var(--color-border)',
         borderRadius: 14,
         padding: 24,
-        transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-      }}
+        transition: 'border-color 0.15s ease, box-shadow 0.15s ease' }}
       onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
         const el = e.currentTarget as HTMLElement
-        el.style.borderColor = 'var(--color-amber)'
+        el.style.borderColor = 'var(--color-primary)'
         el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'
       }}
       onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
@@ -311,20 +315,19 @@ function ProjectCard({
                 width: '100%',
                 fontWeight: 500,
                 fontSize: 14,
-                color: 'var(--color-ink)',
+                color: 'var(--color-foreground)',
                 background: 'none',
                 border: 'none',
-                borderBottom: '1px solid var(--color-amber)',
+                borderBottom: '1px solid var(--color-primary)',
                 outline: 'none',
                 padding: '0 0 1px 0',
-                transition: 'opacity 0.15s ease',
-              }}
+                transition: 'opacity 0.15s ease' }}
             />
           ) : (
             <div className="flex items-center gap-1.5">
               <h3
                 className="truncate"
-                style={{ fontWeight: 500, fontSize: 14, color: 'var(--color-ink)' }}
+                style={{ fontWeight: 500, fontSize: 14, color: 'var(--color-foreground)' }}
               >
                 {project.title}
               </h3>
@@ -341,10 +344,9 @@ function ProjectCard({
                     border: 'none',
                     cursor: 'pointer',
                     padding: 0,
-                    color: 'var(--color-text-faint)',
+                    color: 'var(--color-foreground-faint)',
                     display: 'flex',
-                    alignItems: 'center',
-                  }}
+                    alignItems: 'center' }}
                   title="Rinomina progetto"
                 >
                   <Pencil size={12} />
@@ -352,7 +354,7 @@ function ProjectCard({
               )}
             </div>
           )}
-          <div className="flex items-center gap-1 mt-1" style={{ fontSize: 11, color: 'var(--color-text-faint)' }}>
+          <div className="flex items-center gap-1 mt-1" style={{ fontSize: 11, color: 'var(--color-foreground-faint)' }}>
             <Calendar size={11} />
             <span>{formattedDate}</span>
           </div>
@@ -362,8 +364,8 @@ function ProjectCard({
           <button
             onClick={() => setMenuOpen((v) => !v)}
             className="w-7 h-7 flex items-center justify-center rounded-lg transition-colors"
-            style={{ color: 'var(--color-text-faint)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-cream)')}
+            style={{ color: 'var(--color-foreground-faint)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-background)')}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
           >
             <MoreHorizontal size={16} />
@@ -373,8 +375,7 @@ function ProjectCard({
               className="absolute right-0 top-8 z-10 py-1 w-36 rounded-xl shadow-lg"
               style={{
                 backgroundColor: '#FFFFFF',
-                border: '0.5px solid var(--color-border)',
-              }}
+                border: '0.5px solid var(--color-border)' }}
             >
               <button
                 className="w-full text-left px-4 py-2 text-sm transition-colors"
@@ -395,15 +396,14 @@ function ProjectCard({
         <span
           className="px-3 py-1 rounded-full"
           style={{
-            backgroundColor: 'var(--color-amber-bg)',
-            color: 'var(--color-amber)',
-            fontWeight: 500,
-          }}
+            backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+            color: 'var(--color-primary)',
+            fontWeight: 500 }}
         >
           {project.opportunity_count} {t.dash_opportunities}
         </span>
         {project.evaluated_count > 0 && (
-          <span style={{ color: 'var(--color-text-faint)' }}>
+          <span style={{ color: 'var(--color-foreground-faint)' }}>
             {project.evaluated_count}/{project.opportunity_count} {t.dash_evaluated}
           </span>
         )}
@@ -412,7 +412,7 @@ function ProjectCard({
       {/* Progress bar — 5 segments */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span style={{ fontSize: 11, color: 'var(--color-text-faint)' }}>
+          <span style={{ fontSize: 11, color: 'var(--color-foreground-faint)' }}>
             {completed}/{total} {t.dash_phases}
           </span>
         </div>
@@ -427,11 +427,10 @@ function ProjectCard({
                   height: 4,
                   borderRadius: 2,
                   backgroundColor: done
-                    ? 'var(--color-amber)'
+                    ? 'var(--color-primary)'
                     : isActive
-                    ? 'var(--color-amber-light)'
-                    : 'var(--color-linen)',
-                }}
+                    ? 'var(--color-accent)'
+                    : 'var(--color-muted)' }}
               />
             )
           })}
@@ -448,18 +447,17 @@ function ProjectCard({
                 width: 20,
                 height: 20,
                 borderRadius: '50%',
-                backgroundColor: project.completed_phases[i] ? 'var(--color-amber)' : 'transparent',
-                border: `1.5px solid ${project.completed_phases[i] ? 'var(--color-amber)' : 'var(--color-linen)'}`,
+                backgroundColor: project.completed_phases[i] ? 'var(--color-primary)' : 'transparent',
+                border: `1.5px solid ${project.completed_phases[i] ? 'var(--color-primary)' : 'var(--color-muted)'}`,
                 fontSize: 9,
                 fontWeight: 600,
-                color: project.completed_phases[i] ? '#FFFFFF' : 'var(--color-text-faint)',
-              }}
+                color: project.completed_phases[i] ? '#FFFFFF' : 'var(--color-foreground-faint)' }}
             >
               {i + 1}
             </div>
             <span
               className="hidden sm:block"
-              style={{ fontSize: 10, color: 'var(--color-text-faint)' }}
+              style={{ fontSize: 10, color: 'var(--color-foreground-faint)' }}
             >
               {label}
             </span>
@@ -472,18 +470,17 @@ function ProjectCard({
         href={project.next_route}
         className="flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium mt-auto"
         style={{
-          backgroundColor: 'var(--color-amber)',
-          color: '#FFFFFF',
+          backgroundColor: 'var(--color-primary)',
+          color: 'var(--color-primary-foreground)',
           borderRadius: 8,
           textDecoration: 'none',
-          transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-        }}
+          transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease' }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#A8612A'
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+          e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+          e.currentTarget.style.backgroundColor = 'var(--color-primary)'
           e.currentTarget.style.boxShadow = 'none'
         }}
       >

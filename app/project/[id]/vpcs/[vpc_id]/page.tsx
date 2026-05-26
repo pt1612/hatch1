@@ -6,8 +6,7 @@ import type { VPC, VPCAggregate } from '@/lib/types'
 export const dynamic = 'force-dynamic'
 
 export default async function VPCDetailPage({
-  params,
-}: {
+  params }: {
   params: Promise<{ id: string; vpc_id: string }>
 }) {
   const { id, vpc_id } = await params

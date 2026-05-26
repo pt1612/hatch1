@@ -28,48 +28,39 @@ const BMC_BLOCKS: BMCBlockDef[] = [
   {
     key: 'key_partners',
     label: 'Key Partners',
-    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
-  },
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[var(--color-foreground)] border border-[rgba(180,168,136,0.25)]' },
   {
     key: 'key_activities',
     label: 'Key Activities',
-    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
-  },
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[var(--color-foreground)] border border-[rgba(180,168,136,0.25)]' },
   {
     key: 'key_resources',
     label: 'Key Resources',
-    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[#1A1A18] border border-[rgba(180,168,136,0.25)]',
-  },
+    pillClass: 'bg-[rgba(180,168,136,0.15)] text-[var(--color-foreground)] border border-[rgba(180,168,136,0.25)]' },
   {
     key: 'value_propositions',
     label: 'Value Propositions',
-    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[#7A4A20] border border-[rgba(19,163,137,0.2)]' },
   {
     key: 'customer_relationships',
     label: 'Customer Relationships',
-    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
-  },
+    pillClass: 'bg-[var(--color-border)] text-[var(--color-foreground)] border border-[var(--color-border)]' },
   {
     key: 'channels',
     label: 'Channels',
-    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
-  },
+    pillClass: 'bg-[var(--color-border)] text-[var(--color-foreground)] border border-[var(--color-border)]' },
   {
     key: 'customer_segments',
     label: 'Customer Segments',
-    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[#7A4A20] border border-[rgba(19,163,137,0.2)]' },
   {
     key: 'cost_structure',
     label: 'Cost Structure',
-    pillClass: 'bg-[#E8E5DC] text-[#888880] border border-[#E5E3DC]',
-  },
+    pillClass: 'bg-[var(--color-border)] text-[var(--color-foreground-muted)] border border-[var(--color-border)]' },
   {
     key: 'revenue_streams',
     label: 'Revenue Streams',
-    pillClass: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[var(--color-primary)] border border-[rgba(19,163,137,0.2)]' },
 ]
 
 // ─── BubbleBlock component ────────────────────────────────────────────────────
@@ -79,8 +70,7 @@ function BubbleBlock({
   items,
   pillClass,
   onAdd,
-  onRemove,
-}: {
+  onRemove }: {
   label: string
   items: string[]
   pillClass: string
@@ -105,8 +95,7 @@ function BubbleBlock({
           style={{
             fontSize: 11,
             fontWeight: 500,
-            color: 'var(--color-ink)',
-          }}
+            color: 'var(--color-foreground)' }}
         >
           {label}
         </span>
@@ -116,19 +105,18 @@ function BubbleBlock({
             width: 18,
             height: 18,
             borderRadius: '50%',
-            backgroundColor: 'var(--color-linen)',
+            backgroundColor: 'var(--color-muted)',
             border: 'none',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexShrink: 0,
-          }}
+            flexShrink: 0 }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
           title="Aggiungi elemento"
         >
-          <Plus size={10} style={{ color: 'var(--color-text-muted)' }} />
+          <Plus size={10} style={{ color: 'var(--color-foreground-muted)' }} />
         </button>
       </div>
 
@@ -153,8 +141,7 @@ function BubbleBlock({
                 cursor: 'pointer',
                 background: 'none',
                 border: 'none',
-                padding: 0,
-              }}
+                padding: 0 }}
               onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.5')}
             >
@@ -164,7 +151,7 @@ function BubbleBlock({
         ))}
 
         {items.length === 0 && !adding && (
-          <span style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-text-faint)' }}>
+          <span style={{ fontSize: 10, fontStyle: 'italic', color: 'var(--color-foreground-faint)' }}>
             Vuoto — clicca + per aggiungere
           </span>
         )}
@@ -191,11 +178,10 @@ function BubbleBlock({
               fontSize: 11,
               padding: '4px 8px',
               borderRadius: 6,
-              border: '0.5px solid var(--color-amber)',
+              border: '0.5px solid var(--color-primary)',
               backgroundColor: '#FFFFFF',
               outline: 'none',
-              color: 'var(--color-ink)',
-            }}
+              color: 'var(--color-foreground)' }}
           />
           <button
             onClick={submit}
@@ -203,12 +189,11 @@ function BubbleBlock({
               fontSize: 10,
               padding: '4px 8px',
               borderRadius: 6,
-              backgroundColor: 'var(--color-amber)',
-              color: '#FFFFFF',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-primary-foreground)',
               border: 'none',
               cursor: 'pointer',
-              flexShrink: 0,
-            }}
+              flexShrink: 0 }}
           >
             Add
           </button>
@@ -219,7 +204,7 @@ function BubbleBlock({
             }}
             style={{ background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}
           >
-            <X size={11} style={{ color: 'var(--color-text-faint)' }} />
+            <X size={11} style={{ color: 'var(--color-foreground-faint)' }} />
           </button>
         </div>
       )}
@@ -267,8 +252,7 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
           application: '',
           customer_segment: '',
           description: '',
-          phase: 'abilities',
-        })
+          phase: 'abilities' })
         .select()
         .single()
 
@@ -285,8 +269,7 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
         gainCreators: [],
         jobs: [],
         pains: [],
-        gains: blocks.customer_segments.map((text) => ({ text, twinIdx: -1 })),
-      }
+        gains: blocks.customer_segments.map((text) => ({ text, twinIdx: -1 })) }
 
       const { data: vpc } = await supabase
         .from('vpcs')
@@ -298,10 +281,8 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
           value_map: {
             productsAndServices: vpcCanvas.productsAndServices,
             painRelievers: [],
-            gainCreators: [],
-          },
-          final_canvas: vpcCanvas,
-        })
+            gainCreators: [] },
+          final_canvas: vpcCanvas })
         .select('id')
         .single()
 
@@ -333,15 +314,15 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
     return (
       <div
         className="flex items-center justify-center min-h-screen"
-        style={{ backgroundColor: 'var(--color-cream)' }}
+        style={{ backgroundColor: 'var(--color-background)' }}
       >
-        <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
+        <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={projectId} />
 
       <motion.div className="pt-14 px-6 pb-16 max-w-5xl mx-auto" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -349,7 +330,7 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
           onClick={() => router.push(`/project/${projectId}/start-bmc`)}
           style={{
             fontSize: 12,
-            color: 'var(--color-text-muted)',
+            color: 'var(--color-foreground-muted)',
             marginBottom: 24,
             marginTop: 16,
             display: 'flex',
@@ -358,25 +339,22 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: 0,
-          }}
+            padding: 0 }}
         >
           ← Indietro
         </button>
 
         <h1
           style={{
-            fontFamily: "'Lora', Georgia, serif",
             fontWeight: 400,
             fontSize: 34,
             letterSpacing: '-0.03em',
-            color: 'var(--color-ink)',
-            marginBottom: 6,
-          }}
+            color: 'var(--color-foreground)',
+            marginBottom: 6 }}
         >
           Importa il tuo BMC
         </h1>
-        <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginBottom: 28 }}>
+        <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)', marginBottom: 28 }}>
           Aggiungi gli elementi del tuo Business Model Canvas come bolle.
         </p>
 
@@ -389,9 +367,8 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
               fontWeight: 500,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              color: 'var(--color-text-muted)',
-              marginBottom: 6,
-            }}
+              color: 'var(--color-foreground-muted)',
+              marginBottom: 6 }}
           >
             Nome dell&apos;opportunità
           </label>
@@ -406,13 +383,12 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
               backgroundColor: '#FFFFFF',
               border: '0.5px solid var(--color-border)',
               borderRadius: 8,
-              color: 'var(--color-ink)',
+              color: 'var(--color-foreground)',
               outline: 'none',
-              boxSizing: 'border-box',
-            }}
+              boxSizing: 'border-box' }}
             onFocus={(e) => {
-              e.target.style.borderColor = 'var(--color-amber)'
-              e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+              e.target.style.borderColor = 'var(--color-primary)'
+              e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
             }}
             onBlur={(e) => {
               e.target.style.borderColor = 'var(--color-border)'
@@ -427,8 +403,7 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 12,
-            marginBottom: 28,
-          }}
+            marginBottom: 28 }}
         >
           {BMC_BLOCKS.map((block) => (
             <div
@@ -437,8 +412,7 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
                 backgroundColor: '#FFFFFF',
                 border: '0.5px solid var(--color-border)',
                 borderRadius: 10,
-                padding: 14,
-              }}
+                padding: 14 }}
             >
               <BubbleBlock
                 label={block.label}
@@ -462,22 +436,21 @@ export default function ImportBMCPage({ params }: { params: Promise<{ id: string
             fontSize: 14,
             fontWeight: 500,
             backgroundColor:
-              hasAnyData() && !saving ? 'var(--color-amber)' : 'var(--color-linen)',
-            color: hasAnyData() && !saving ? '#FFFFFF' : 'var(--color-text-muted)',
+              hasAnyData() && !saving ? 'var(--color-primary)' : 'var(--color-muted)',
+            color: hasAnyData() && !saving ? '#FFFFFF' : 'var(--color-foreground-muted)',
             border: 'none',
             borderRadius: 10,
             cursor: hasAnyData() && !saving ? 'pointer' : 'default',
-            transition: 'background-color 0.15s ease',
-          }}
+            transition: 'background-color 0.15s ease' }}
           onMouseEnter={(e) => {
             if (hasAnyData() && !saving) {
-              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
-              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary-hover)'
+              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
             }
           }}
           onMouseLeave={(e) => {
             if (hasAnyData() && !saving) {
-              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary)'
               ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
             }
           }}

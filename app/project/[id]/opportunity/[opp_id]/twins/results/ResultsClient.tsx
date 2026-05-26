@@ -13,8 +13,8 @@ import { useI18n } from '@/lib/i18n/context'
 function MetricCard({ label, score, description }: { label: string; score: number; description: string }) {
   const { t } = useI18n()
   const displayScore = (score / 10).toFixed(1)
-  const color = score >= 70 ? 'var(--color-sage)' : score >= 40 ? 'var(--color-amber)' : '#DC2626'
-  const barColor = score >= 70 ? 'var(--color-sage)' : score >= 40 ? 'var(--color-amber)' : '#EF4444'
+  const color = score >= 70 ? 'var(--color-primary)' : score >= 40 ? 'var(--color-primary)' : '#DC2626'
+  const barColor = score >= 70 ? 'var(--color-primary)' : score >= 40 ? 'var(--color-primary)' : '#EF4444'
 
   return (
     <div
@@ -23,19 +23,19 @@ function MetricCard({ label, score, description }: { label: string; score: numbe
     >
       <p
         className="mb-3"
-        style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-muted)' }}
+        style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-foreground-muted)' }}
       >
         {label}
       </p>
       <p style={{ fontSize: 36, fontWeight: 700, marginBottom: 2, color }}>{displayScore}</p>
-      <p style={{ fontSize: 11, color: 'var(--color-text-faint)', marginBottom: 12 }}>{t.results_out_of_ten}</p>
-      <div className="w-full rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'var(--color-linen)' }}>
+      <p style={{ fontSize: 11, color: 'var(--color-foreground-faint)', marginBottom: 12 }}>{t.results_out_of_ten}</p>
+      <div className="w-full rounded-full overflow-hidden" style={{ height: 4, backgroundColor: 'var(--color-muted)' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${score}%`, backgroundColor: barColor, boxShadow: score >= 40 ? '0 0 8px rgba(199,123,58,0.4)' : undefined }}
+          style={{ width: `${score}%`, backgroundColor: barColor, boxShadow: score >= 40 ? '0 0 8px rgba(19,163,137,0.4)' : undefined }}
         />
       </div>
-      <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 12, lineHeight: '1.6' }}>{description}</p>
+      <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', marginTop: 12, lineHeight: '1.6' }}>{description}</p>
     </div>
   )
 }
@@ -43,12 +43,12 @@ function MetricCard({ label, score, description }: { label: string; score: numbe
 function LoadingSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <div className="h-40 rounded-2xl" style={{ backgroundColor: 'var(--color-linen)' }} />
+      <div className="h-40 rounded-2xl" style={{ backgroundColor: 'var(--color-muted)' }} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="h-36 rounded-2xl" style={{ backgroundColor: 'var(--color-linen)' }} />
-        <div className="h-36 rounded-2xl" style={{ backgroundColor: 'var(--color-linen)' }} />
+        <div className="h-36 rounded-2xl" style={{ backgroundColor: 'var(--color-muted)' }} />
+        <div className="h-36 rounded-2xl" style={{ backgroundColor: 'var(--color-muted)' }} />
       </div>
-      <div className="h-32 rounded-2xl" style={{ backgroundColor: 'var(--color-linen)' }} />
+      <div className="h-32 rounded-2xl" style={{ backgroundColor: 'var(--color-muted)' }} />
     </div>
   )
 }
@@ -59,8 +59,7 @@ export default function ResultsClient({
   twins,
   messages,
   existingReport,
-  twinSessionId,
-}: {
+  twinSessionId }: {
   project: { id: string; title: string }
   opportunity: Opportunity
   twins: DigitalTwin[]
@@ -79,24 +78,20 @@ export default function ResultsClient({
       headline: t.verdict_strong_headline,
       label: 'Strong Fit',
       tagline: t.verdict_strong_tagline,
-      bgColor: 'var(--color-sage)',
-      badgeStyle: { backgroundColor: 'rgba(76,175,125,0.15)', color: '#2D7A57' },
-    },
+      bgColor: 'var(--color-primary)',
+      badgeStyle: { backgroundColor: 'rgba(19,163,137,0.15)', color: 'var(--color-primary)' } },
     weak_fit: {
       headline: t.verdict_weak_headline,
       label: 'Weak Fit',
       tagline: t.verdict_weak_tagline,
-      bgColor: 'var(--color-amber)',
-      badgeStyle: { backgroundColor: 'rgba(232,169,106,0.2)', color: '#7A4A20' },
-    },
+      bgColor: 'var(--color-primary)',
+      badgeStyle: { backgroundColor: 'rgba(111,226,214,0.2)', color: '#7A4A20' } },
     pivot_needed: {
       headline: t.verdict_pivot_headline,
       label: 'Pivot Needed',
       tagline: t.verdict_pivot_tagline,
       bgColor: '#C0392B',
-      badgeStyle: { backgroundColor: 'rgba(220,38,38,0.1)', color: '#DC2626' },
-    },
-  }
+      badgeStyle: { backgroundColor: 'rgba(220,38,38,0.1)', color: '#DC2626' } } }
 
   async function generateReport() {
     if (messages.length === 0) {
@@ -113,9 +108,7 @@ export default function ResultsClient({
           opportunityId: opportunity.id,
           projectInfo: { name: opportunity.name, problem: opportunity.description, target: opportunity.customer_segment, solution: opportunity.application },
           twins,
-          messages,
-        }),
-      })
+          messages }) })
       if (!res.ok) throw new Error('Generation failed')
       const { report: generated } = await res.json()
       setReport(generated)
@@ -137,8 +130,7 @@ export default function ResultsClient({
             await supabase.from('twin_interviews').update({
               segment_attractiveness: entry.segmentAttractiveness,
               ability_to_serve: entry.abilityToServe,
-              gains: entryGains, pains: entryPains, jobs_to_be_done: entryJobs,
-            }).eq('twin_id', twinRow.id).select('id, gains, pains, jobs_to_be_done')
+              gains: entryGains, pains: entryPains, jobs_to_be_done: entryJobs }).eq('twin_id', twinRow.id).select('id, gains, pains, jobs_to_be_done')
 
           }
         }
@@ -200,7 +192,7 @@ export default function ResultsClient({
   }
 
   return (
-    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="flex min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
       <motion.div className="flex-1 overflow-auto p-8 pt-14" style={{ maxWidth: 768 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -210,16 +202,14 @@ export default function ResultsClient({
           <div>
             <h1
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
                 fontSize: 34,
                 letterSpacing: '-0.03em',
-                color: 'var(--color-ink)',
-              }}
+                color: 'var(--color-foreground)' }}
             >
               {t.results_title}
             </h1>
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', marginTop: 2 }}>{opportunity.name}</p>
+            <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)', marginTop: 2 }}>{opportunity.name}</p>
           </div>
           {messages.length > 0 && (
             <button
@@ -228,9 +218,8 @@ export default function ResultsClient({
               style={{
                 backgroundColor: '#FFFFFF',
                 border: '0.5px solid var(--color-border)',
-                color: 'var(--color-ink)',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+                color: 'var(--color-foreground)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
             >
               <Download size={13} />
@@ -242,8 +231,8 @@ export default function ResultsClient({
         {generating && (
           <div className="mb-6">
             <LoadingSkeleton />
-            <div className="flex items-center gap-2 mt-4" style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
-              <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
+            <div className="flex items-center gap-2 mt-4" style={{ fontSize: 13, color: 'var(--color-foreground-muted)' }}>
+              <Loader2 size={14} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
               {t.results_analyzing}
             </div>
           </div>
@@ -271,33 +260,32 @@ export default function ResultsClient({
             style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}
           >
             <svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
-              <rect x="20" y="20" width="60" height="60" rx="8" fill="var(--color-amber-bg)" />
-              <rect x="30" y="60" width="10" height="20" rx="2" fill="var(--color-amber-light)" opacity="0.7" />
-              <rect x="45" y="45" width="10" height="35" rx="2" fill="var(--color-amber)" opacity="0.7" />
-              <rect x="60" y="35" width="10" height="45" rx="2" fill="var(--color-amber)" />
+              <rect x="20" y="20" width="60" height="60" rx="8" fill="color-mix(in srgb, var(--color-primary) 10%, transparent)" />
+              <rect x="30" y="60" width="10" height="20" rx="2" fill="var(--color-accent)" opacity="0.7" />
+              <rect x="45" y="45" width="10" height="35" rx="2" fill="var(--color-primary)" opacity="0.7" />
+              <rect x="60" y="35" width="10" height="45" rx="2" fill="var(--color-primary)" />
             </svg>
-            <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink)', marginBottom: 8 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-foreground)', marginBottom: 8 }}>
               {t.results_ready_title}
             </h3>
-            <p style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 20, maxWidth: 320, margin: '0 auto 20px', lineHeight: '1.6' }}>
+            <p style={{ fontSize: 12, color: 'var(--color-foreground-muted)', marginBottom: 20, maxWidth: 320, margin: '0 auto 20px', lineHeight: '1.6' }}>
               {t.results_ready_desc}
             </p>
             <button
               onClick={generateReport}
               className="inline-flex items-center gap-2 py-2.5 px-5 text-sm font-medium"
               style={{
-                backgroundColor: 'var(--color-amber)',
-                color: '#FFFFFF',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-primary-foreground)',
                 borderRadius: 10,
                 border: 'none',
-                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-              }}
+                transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease' }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#A8612A'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-amber)'
+                e.currentTarget.style.backgroundColor = 'var(--color-primary)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
@@ -332,12 +320,10 @@ export default function ResultsClient({
               </div>
               <h2
                 style={{
-                  fontFamily: "'Lora', Georgia, serif",
                   fontWeight: 400,
                   fontSize: 20,
                   lineHeight: '1.4',
-                  marginBottom: 8,
-                }}
+                  marginBottom: 8 }}
               >
                 {verdict.headline}
               </h2>
@@ -358,7 +344,7 @@ export default function ResultsClient({
               >
                 <h3
                   className="mb-3"
-                  style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
+                  style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-foreground-muted)' }}
                 >
                   {t.results_recurring_themes}
                 </h3>
@@ -370,10 +356,9 @@ export default function ResultsClient({
                       style={{
                         fontSize: 12,
                         fontWeight: 500,
-                        backgroundColor: 'var(--color-amber-bg)',
-                        color: 'var(--color-amber)',
-                        border: '0.5px solid rgba(199,123,58,0.2)',
-                      }}
+                        backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+                        color: 'var(--color-primary)',
+                        border: '0.5px solid rgba(19,163,137,0.2)' }}
                     >
                       {theme}
                     </span>
@@ -390,7 +375,7 @@ export default function ResultsClient({
               >
                 <h3
                   className="mb-3"
-                  style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
+                  style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-foreground-muted)' }}
                 >
                   {t.results_main_objections}
                 </h3>
@@ -402,10 +387,9 @@ export default function ResultsClient({
                       style={{
                         fontSize: 12,
                         fontWeight: 500,
-                        backgroundColor: 'var(--color-linen)',
-                        color: 'var(--color-text-main)',
-                        border: '0.5px solid var(--color-border)',
-                      }}
+                        backgroundColor: 'var(--color-muted)',
+                        color: 'var(--color-foreground)',
+                        border: '0.5px solid var(--color-border)' }}
                     >
                       {obj}
                     </span>
@@ -422,7 +406,7 @@ export default function ResultsClient({
               >
                 <h3
                   className="mb-3"
-                  style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-muted)' }}
+                  style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-foreground-muted)' }}
                 >
                   {t.results_next_steps}
                 </h3>
@@ -431,11 +415,11 @@ export default function ResultsClient({
                     <li key={i} className="flex items-start gap-3">
                       <span
                         className="w-5 h-5 rounded-full text-white flex items-center justify-center flex-shrink-0 mt-0.5"
-                        style={{ fontSize: 10, fontWeight: 600, backgroundColor: 'var(--color-amber)' }}
+                        style={{ fontSize: 10, fontWeight: 600, backgroundColor: 'var(--color-primary)' }}
                       >
                         {i + 1}
                       </span>
-                      <p style={{ fontSize: 13, color: 'var(--color-ink)', lineHeight: '1.6' }}>{step}</p>
+                      <p style={{ fontSize: 13, color: 'var(--color-foreground)', lineHeight: '1.6' }}>{step}</p>
                     </li>
                   ))}
                 </ol>
@@ -446,13 +430,12 @@ export default function ResultsClient({
               href={`/project/${project.id}/vpcs`}
               className="flex items-center justify-center gap-2 w-full py-3 px-6 text-sm font-medium transition-colors"
               style={{
-                backgroundColor: 'var(--color-amber)',
-                color: '#FFFFFF',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-primary-foreground)',
                 borderRadius: 10,
-                textDecoration: 'none',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#A8612A')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-amber)')}
+                textDecoration: 'none' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-primary)')}
             >
               {t.results_go_vpc}
               <ChevronRight size={15} />

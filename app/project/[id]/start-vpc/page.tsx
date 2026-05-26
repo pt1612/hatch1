@@ -28,7 +28,7 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
   if (!projectId) return null
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={projectId} />
 
       <motion.div className="pt-14 px-6 pb-16 max-w-2xl mx-auto" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -37,7 +37,7 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
             onClick={() => router.push(`/project/${projectId}/onboarding`)}
             style={{
               fontSize: 12,
-              color: 'var(--color-text-muted)',
+              color: 'var(--color-foreground-muted)',
               marginBottom: 28,
               display: 'flex',
               alignItems: 'center',
@@ -45,22 +45,19 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: 0,
-            }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--color-ink)')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text-muted)')}
+              padding: 0 }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--color-foreground)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'var(--color-foreground-muted)')}
           >
             ← Indietro
           </button>
           <h1
             style={{
-              fontFamily: "'Lora', Georgia, serif",
               fontWeight: 400,
               fontSize: 34,
               letterSpacing: '-0.03em',
-              color: 'var(--color-ink)',
-              marginBottom: 28,
-            }}
+              color: 'var(--color-foreground)',
+              marginBottom: 28 }}
           >
             Ho già la mia proposta di valore
           </h1>
@@ -68,10 +65,9 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
           <p
             style={{
               fontSize: 15,
-              color: 'var(--color-ink)',
+              color: 'var(--color-foreground)',
               lineHeight: 1.75,
-              marginBottom: 20,
-            }}
+              marginBottom: 20 }}
           >
             Un Value Proposition Canvas si costruisce in due parti. Si parte dal profilo del cliente, a
             destra: i suoi obiettivi quotidiani, i vantaggi che vorrebbe ottenere e le frustrazioni che
@@ -82,10 +78,9 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
           <p
             style={{
               fontSize: 15,
-              color: 'var(--color-ink)',
+              color: 'var(--color-foreground)',
               lineHeight: 1.75,
-              marginBottom: 36,
-            }}
+              marginBottom: 36 }}
           >
             L&apos;obiettivo è trovare una corrispondenza precisa tra le due parti: ogni elemento della
             mappa del valore dovrebbe rispondere a qualcosa nel profilo del cliente.
@@ -98,8 +93,7 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
               borderRadius: 14,
               overflow: 'hidden',
               marginBottom: 36,
-              border: '0.5px solid rgba(199,123,58,0.3)',
-            }}
+              border: '0.5px solid rgba(19,163,137,0.3)' }}
           >
             {imageExists ? (
               <Image
@@ -114,18 +108,16 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
                 style={{
                   width: '100%',
                   minHeight: 220,
-                  backgroundColor: 'rgba(199,123,58,0.04)',
+                  backgroundColor: 'rgba(19,163,137,0.04)',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                  justifyContent: 'center' }}
               >
                 <p
                   style={{
                     fontSize: 13,
-                    color: 'var(--color-text-faint)',
-                    fontStyle: 'italic',
-                  }}
+                    color: 'var(--color-foreground-faint)',
+                    fontStyle: 'italic' }}
                 >
                   Immagine: vpc_explainer.png
                 </p>
@@ -142,19 +134,18 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
               padding: '13px 28px',
               fontSize: 14,
               fontWeight: 500,
-              backgroundColor: 'var(--color-amber)',
-              color: '#FFFFFF',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-primary-foreground)',
               borderRadius: 10,
               border: 'none',
               cursor: 'pointer',
-              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease',
-            }}
+              transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease' }}
             onMouseEnter={(e) => {
-              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
-              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary-hover)'
+              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
             }}
             onMouseLeave={(e) => {
-              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+              ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary)'
               ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
             }}
           >

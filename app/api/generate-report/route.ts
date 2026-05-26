@@ -117,8 +117,7 @@ Return ONLY valid JSON in this exact format:
   const msg = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 2000,
-    messages: [{ role: 'user', content: systemPrompt }],
-  })
+    messages: [{ role: 'user', content: systemPrompt }] })
 
   const raw = msg.content[0].type === 'text' ? msg.content[0].text : '{}'
   console.log('[generate-report] raw LLM response:', raw)
@@ -172,16 +171,14 @@ Return ONLY valid JSON in this exact format:
   const report: Record<string, unknown> = {
     executive_summary: parsed.summary,
     overall_potential: numericToLabel(potentialAvg),
-    overall_challenge: numericToLabel(challengeAvg),
-  }
+    overall_challenge: numericToLabel(challengeAvg) }
 
   for (const key of DIM_KEYS) {
     const d = dims[key]
     report[key] = {
       score: d.numeric_score,
       label: d.score as string,
-      analysis: d.detailed_analysis,
-    }
+      analysis: d.detailed_analysis }
   }
 
   console.log('[generate-report] shaped report:', JSON.stringify(report, null, 2))

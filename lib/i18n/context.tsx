@@ -19,8 +19,7 @@ interface I18nContextValue {
 const I18nContext = createContext<I18nContextValue>({
   t: en,
   lang: 'en',
-  setLang: () => {},
-})
+  setLang: () => {} })
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>('en')

@@ -21,38 +21,32 @@ const VPC_BLOCKS: VPCBlock[] = [
     key: 'productsAndServices',
     label: 'Products & Services',
     side: 'left',
-    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#7A4A20] border border-[rgba(199,123,58,0.2)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[#7A4A20] border border-[rgba(19,163,137,0.2)]' },
   {
     key: 'gainCreators',
     label: 'Gain Creators',
     side: 'left',
-    pillClass: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[var(--color-primary)] border border-[rgba(19,163,137,0.2)]' },
   {
     key: 'painRelievers',
     label: 'Pain Relievers',
     side: 'left',
-    pillClass: 'bg-[#E8E5DC] text-[#1A1A18] border border-[#E5E3DC]',
-  },
+    pillClass: 'bg-[var(--color-border)] text-[var(--color-foreground)] border border-[var(--color-border)]' },
   {
     key: 'jobs',
     label: 'Customer Jobs',
     side: 'right',
-    pillClass: 'bg-[rgba(199,123,58,0.10)] text-[#C77B3A] border border-[rgba(199,123,58,0.15)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[var(--color-primary)] border border-[rgba(19,163,137,0.15)]' },
   {
     key: 'gains',
     label: 'Gains',
     side: 'right',
-    pillClass: 'bg-[rgba(76,175,125,0.10)] text-[#2D7A57] border border-[rgba(76,175,125,0.2)]',
-  },
+    pillClass: 'bg-[rgba(19,163,137,0.10)] text-[var(--color-primary)] border border-[rgba(19,163,137,0.2)]' },
   {
     key: 'pains',
     label: 'Pains',
     side: 'right',
-    pillClass: 'bg-[rgba(232,169,106,0.15)] text-[#7A3D10] border border-[rgba(232,169,106,0.25)]',
-  },
+    pillClass: 'bg-[rgba(111,226,214,0.15)] text-[#7A3D10] border border-[rgba(111,226,214,0.25)]' },
 ]
 
 // ─── BubbleBlock component ────────────────────────────────────────────────────
@@ -62,8 +56,7 @@ function BubbleBlock({
   items,
   pillClass,
   onAdd,
-  onRemove,
-}: {
+  onRemove }: {
   label: string
   items: string[]
   pillClass: string
@@ -90,8 +83,7 @@ function BubbleBlock({
             fontWeight: 500,
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
-            color: 'var(--color-text-muted)',
-          }}
+            color: 'var(--color-foreground-muted)' }}
         >
           {label}
         </span>
@@ -101,19 +93,18 @@ function BubbleBlock({
             width: 18,
             height: 18,
             borderRadius: '50%',
-            backgroundColor: 'var(--color-linen)',
+            backgroundColor: 'var(--color-muted)',
             border: 'none',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexShrink: 0,
-          }}
+            flexShrink: 0 }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-border)')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-linen)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
           title="Aggiungi elemento"
         >
-          <Plus size={10} style={{ color: 'var(--color-text-muted)' }} />
+          <Plus size={10} style={{ color: 'var(--color-foreground-muted)' }} />
         </button>
       </div>
 
@@ -142,7 +133,7 @@ function BubbleBlock({
 
         {items.length === 0 && !adding && (
           <span
-            style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--color-text-faint)' }}
+            style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--color-foreground-faint)' }}
           >
             Nessun elemento — clicca + per aggiungere
           </span>
@@ -170,11 +161,10 @@ function BubbleBlock({
               fontSize: 12,
               padding: '5px 10px',
               borderRadius: 8,
-              border: '0.5px solid var(--color-amber)',
+              border: '0.5px solid var(--color-primary)',
               backgroundColor: '#FFFFFF',
               outline: 'none',
-              color: 'var(--color-ink)',
-            }}
+              color: 'var(--color-foreground)' }}
           />
           <button
             onClick={submit}
@@ -182,12 +172,11 @@ function BubbleBlock({
               fontSize: 11,
               padding: '5px 10px',
               borderRadius: 8,
-              backgroundColor: 'var(--color-amber)',
-              color: '#FFFFFF',
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-primary-foreground)',
               border: 'none',
               cursor: 'pointer',
-              flexShrink: 0,
-            }}
+              flexShrink: 0 }}
           >
             Add
           </button>
@@ -198,7 +187,7 @@ function BubbleBlock({
             }}
             style={{ background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}
           >
-            <X size={12} style={{ color: 'var(--color-text-faint)' }} />
+            <X size={12} style={{ color: 'var(--color-foreground-faint)' }} />
           </button>
         </div>
       )}
@@ -218,8 +207,7 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
     painRelievers: [],
     jobs: [],
     gains: [],
-    pains: [],
-  })
+    pains: [] })
   const [opportunityName, setOpportunityName] = useState('')
   const [saving, setSaving] = useState(false)
   const [filling, setFilling] = useState(false)
@@ -267,10 +255,7 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
           existingVPCItems: {
             productsAndServices: blocks.productsAndServices,
             gainCreators: blocks.gainCreators,
-            painRelievers: blocks.painRelievers,
-          },
-        }),
-      })
+            painRelievers: blocks.painRelievers } }) })
       if (res.ok) {
         const data = await res.json()
         const vm = data.valueMap ?? data
@@ -304,8 +289,7 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
           application: '',
           customer_segment: '',
           description: '',
-          phase: 'abilities',
-        })
+          phase: 'abilities' })
         .select()
         .single()
 
@@ -320,8 +304,7 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
         painRelievers:       blocks.painRelievers.map((t) => ({ text: t, twinIdx: 0 })),
         jobs:                blocks.jobs.map((t) => ({ text: t, twinIdx: 0 })),
         gains:               blocks.gains.map((t) => ({ text: t, twinIdx: 0 })),
-        pains:               blocks.pains.map((t) => ({ text: t, twinIdx: 0 })),
-      }
+        pains:               blocks.pains.map((t) => ({ text: t, twinIdx: 0 })) }
 
       await supabase.from('twin_sessions').upsert(
         { opportunity_id: opp.id, vpc_value_map: vpcValueMap, suggested_segments: [], report: null },
@@ -339,9 +322,9 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
     return (
       <div
         className="flex items-center justify-center min-h-screen"
-        style={{ backgroundColor: 'var(--color-cream)' }}
+        style={{ backgroundColor: 'var(--color-background)' }}
       >
-        <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-amber)' }} />
+        <Loader2 size={20} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
       </div>
     )
   }
@@ -350,7 +333,7 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
   const rightBlocks = VPC_BLOCKS.filter((b) => b.side === 'right')
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-cream)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={projectId} />
 
       <motion.div className="pt-14 px-6 pb-16 max-w-5xl mx-auto" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -358,7 +341,7 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
           onClick={() => router.push(`/project/${projectId}/start-vpc`)}
           style={{
             fontSize: 12,
-            color: 'var(--color-text-muted)',
+            color: 'var(--color-foreground-muted)',
             marginBottom: 24,
             marginTop: 16,
             display: 'flex',
@@ -367,8 +350,7 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: 0,
-          }}
+            padding: 0 }}
         >
           ← Indietro
         </button>
@@ -377,17 +359,15 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
           <div>
             <h1
               style={{
-                fontFamily: "'Lora', Georgia, serif",
                 fontWeight: 400,
                 fontSize: 34,
                 letterSpacing: '-0.03em',
-                color: 'var(--color-ink)',
-                marginBottom: 6,
-              }}
+                color: 'var(--color-foreground)',
+                marginBottom: 6 }}
             >
               Importa il tuo VPC
             </h1>
-            <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+            <p style={{ fontSize: 13, color: 'var(--color-foreground-muted)' }}>
               Aggiungi gli elementi del tuo Value Proposition Canvas come bolle.
             </p>
           </div>
@@ -402,9 +382,8 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
               fontWeight: 500,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              color: 'var(--color-text-muted)',
-              marginBottom: 6,
-            }}
+              color: 'var(--color-foreground-muted)',
+              marginBottom: 6 }}
           >
             Nome dell&apos;opportunità
           </label>
@@ -419,13 +398,12 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
               backgroundColor: '#FFFFFF',
               border: '0.5px solid var(--color-border)',
               borderRadius: 8,
-              color: 'var(--color-ink)',
+              color: 'var(--color-foreground)',
               outline: 'none',
-              boxSizing: 'border-box',
-            }}
+              boxSizing: 'border-box' }}
             onFocus={(e) => {
-              e.target.style.borderColor = 'var(--color-amber)'
-              e.target.style.boxShadow = '0 0 0 3px rgba(199,123,58,0.12)'
+              e.target.style.borderColor = 'var(--color-primary)'
+              e.target.style.boxShadow = '0 0 0 3px rgba(19,163,137,0.12)'
             }}
             onBlur={(e) => {
               e.target.style.borderColor = 'var(--color-border)'
@@ -442,8 +420,7 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
               backgroundColor: '#FFFFFF',
               border: '0.5px solid var(--color-border)',
               borderRadius: 12,
-              padding: 20,
-            }}
+              padding: 20 }}
           >
             <p
               style={{
@@ -451,9 +428,8 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
                 fontWeight: 500,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: 'var(--color-amber)',
-                marginBottom: 16,
-              }}
+                color: 'var(--color-primary)',
+                marginBottom: 16 }}
             >
               Value Proposition
             </p>
@@ -475,8 +451,7 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
               backgroundColor: '#FFFFFF',
               border: '0.5px solid var(--color-border)',
               borderRadius: 12,
-              padding: 20,
-            }}
+              padding: 20 }}
           >
             <p
               style={{
@@ -484,9 +459,8 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
                 fontWeight: 500,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: 'var(--color-text-muted)',
-                marginBottom: 16,
-              }}
+                color: 'var(--color-foreground-muted)',
+                marginBottom: 16 }}
             >
               Customer Profile
             </p>
@@ -517,16 +491,15 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
                 fontSize: 13,
                 fontWeight: 500,
                 backgroundColor: '#FFFFFF',
-                color: 'var(--color-amber)',
-                border: '0.5px solid var(--color-amber)',
+                color: 'var(--color-primary)',
+                border: '0.5px solid var(--color-primary)',
                 borderRadius: 8,
                 cursor: filling || saving ? 'default' : 'pointer',
-                transition: 'background-color 0.15s ease',
-              }}
+                transition: 'background-color 0.15s ease' }}
               onMouseEnter={(e) => {
                 if (!filling && !saving)
                   (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                    'var(--color-amber-bg)'
+                    'color-mix(in srgb, var(--color-primary) 10%, transparent)'
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#FFFFFF'
@@ -553,25 +526,24 @@ export default function ImportVPCPage({ params }: { params: Promise<{ id: string
               fontWeight: 500,
               backgroundColor:
                 hasAnyData() && !saving && !filling
-                  ? 'var(--color-amber)'
-                  : 'var(--color-linen)',
+                  ? 'var(--color-primary)'
+                  : 'var(--color-muted)',
               color:
-                hasAnyData() && !saving && !filling ? '#FFFFFF' : 'var(--color-text-muted)',
+                hasAnyData() && !saving && !filling ? '#FFFFFF' : 'var(--color-foreground-muted)',
               border: 'none',
               borderRadius: 8,
               cursor:
                 hasAnyData() && !saving && !filling ? 'pointer' : 'default',
-              transition: 'background-color 0.15s ease',
-            }}
+              transition: 'background-color 0.15s ease' }}
             onMouseEnter={(e) => {
               if (hasAnyData() && !saving && !filling) {
-                ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = '#A8612A'
-                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(199,123,58,0.25)'
+                ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary-hover)'
+                ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 12px rgba(19,163,137,0.25)'
               }
             }}
             onMouseLeave={(e) => {
               if (hasAnyData() && !saving && !filling) {
-                ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-amber)'
+                ;(e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--color-primary)'
                 ;(e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
               }
             }}
