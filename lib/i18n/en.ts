@@ -261,7 +261,6 @@ export const en = {
   // ── VPC ───────────────────────────────────────────────────────────────────────
   vpc_back: '← Back to results',
   vpc_download: 'Download VPC',
-  vpc_download_pdf: 'Download PDF',
   vpc_no_data_title: 'No VPC data yet',
   vpc_no_data_desc: 'Complete at least one interview to generate VPC data.',
   vpc_go_interviews: 'Go to interviews',
@@ -467,18 +466,6 @@ export const en = {
   vpc_detail_col_pains: 'Pains',
   vpc_detail_col_gains: 'Gains',
   vpc_detail_value_map_header: 'Value Map',
-  vpc_detail_customer_profile_header: 'Customer Profile',
-
-  // ── Onboarding / path picker ─────────────────────────────────────────────────
-  onboarding_title: 'Where do you want to start?',
-  onboarding_subtitle: 'Choose the path that best matches your situation.',
-  onboarding_path_full_title: 'Starting from scratch',
-  onboarding_path_full_desc: 'Explore abilities, generate opportunities, and validate everything.',
-  onboarding_path_idea_title: 'I already have an idea',
-  onboarding_path_idea_desc: "I already have an idea and I want to validate it with Twins.",
-  onboarding_path_vpc_title: 'I already have my value proposition',
-  onboarding_path_vpc_desc: 'I mapped customers and value, now I want to structure the business.',
-  onboarding_path_bmc_title: 'I already have my business model',
-  onboarding_path_bmc_desc: 'I already have a canvas, I want to refine it and find the gaps.' } as const
+  vpc_detail_customer_profile_header: 'Customer Profile' } as const
 
 export type Translations = { [K in keyof typeof en]: string }

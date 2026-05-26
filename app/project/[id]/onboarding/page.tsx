@@ -6,41 +6,42 @@ import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
 import { Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { useI18n } from '@/lib/i18n/context'
 
 type EntryPath = 'full' | 'idea' | 'vpc' | 'bmc'
 
-type PathDef = {
+const PATHS: {
   id: EntryPath
+  title: string
+  description: string
   destination: (id: string) => string
-}
-
-const PATHS: PathDef[] = [
-  { id: 'full', destination: (id) => `/project/${id}/abilities` },
-  { id: 'idea', destination: (id) => `/project/${id}/idea` },
-  { id: 'vpc',  destination: (id) => `/project/${id}/start-vpc` },
-  { id: 'bmc',  destination: (id) => `/project/${id}/start-bmc` },
+}[] = [
+  {
+    id: 'full',
+    title: 'Parto da zero',
+    description: 'Esploro abilità, genero opportunità e valido tutto.',
+    destination: (id) => `/project/${id}/abilities` },
+  {
+    id: 'idea',
+    title: "Ho già un'idea",
+    description: "Ho già un'idea e voglio validarla con i Twin.",
+    destination: (id) => `/project/${id}/idea` },
+  {
+    id: 'vpc',
+    title: 'Ho già la mia proposta di valore',
+    description: 'Ho mappato clienti e valore offerto, ora voglio strutturare il business.',
+    destination: (id) => `/project/${id}/start-vpc` },
+  {
+    id: 'bmc',
+    title: 'Ho già il mio modello di business',
+    description: 'Ho già un canvas, voglio migliorarlo e trovare i gap.',
+    destination: (id) => `/project/${id}/start-bmc` },
 ]
 
 export default function OnboardingPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const supabase = createClient()
-  const { t } = useI18n()
   const [projectId, setProjectId] = useState<string | null>(null)
   const [selecting, setSelecting] = useState<EntryPath | null>(null)
-
-  const pathTitles: Record<EntryPath, string> = {
-    full: t.onboarding_path_full_title,
-    idea: t.onboarding_path_idea_title,
-    vpc: t.onboarding_path_vpc_title,
-    bmc: t.onboarding_path_bmc_title,
-  }
-  const pathDescs: Record<EntryPath, string> = {
-    full: t.onboarding_path_full_desc,
-    idea: t.onboarding_path_idea_desc,
-    vpc: t.onboarding_path_vpc_desc,
-    bmc: t.onboarding_path_bmc_desc,
-  }
 
   useEffect(() => {
     params.then(({ id }) => setProjectId(id))
@@ -102,7 +103,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
             marginBottom: 8,
             textAlign: 'center' }}
         >
-          {t.onboarding_title}
+          Da dove vuoi partire?
         </h1>
         <p
           style={{
@@ -112,7 +113,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
             textAlign: 'center',
             lineHeight: 1.7 }}
         >
-          {t.onboarding_subtitle}
+          Scegli il percorso più adatto alla tua situazione.
         </p>
 
         {/* Path cards — 2×2 on mobile, 4 across on desktop */}
@@ -120,7 +121,6 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(2, 1fr)',
-            gridAutoRows: '1fr',
             gap: 16,
             width: '100%',
             maxWidth: 860 }}
@@ -132,7 +132,6 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
                 key={path.id}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                style={{ height: '100%' }}
               >
                 <button
                   onClick={() => handleSelect(path.id)}
@@ -150,8 +149,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
                     opacity: selecting && !isLoading ? 0.5 : 1,
                     transition: 'border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                    width: '100%',
-                    height: '100%' }}
+                    width: '100%' }}
                   onMouseEnter={(e) => {
                     if (!selecting) {
                       const el = e.currentTarget as HTMLButtonElement
@@ -195,7 +193,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
                       color: 'var(--color-foreground)',
                       marginBottom: 6 }}
                   >
-                    {pathTitles[path.id]}
+                    {path.title}
                   </p>
                   <p
                     style={{
@@ -203,7 +201,7 @@ export default function OnboardingPage({ params }: { params: Promise<{ id: strin
                       color: 'var(--color-foreground-muted)',
                       lineHeight: '1.55' }}
                   >
-                    {pathDescs[path.id]}
+                    {path.description}
                   </p>
                 </button>
               </motion.div>

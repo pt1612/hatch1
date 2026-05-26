@@ -263,7 +263,6 @@ export const it: Translations = {
   // ── VPC ───────────────────────────────────────────────────────────────────────
   vpc_back: '← Torna ai risultati',
   vpc_download: 'Scarica VPC',
-  vpc_download_pdf: 'Scarica PDF',
   vpc_no_data_title: 'Nessun dato VPC ancora',
   vpc_no_data_desc: "Completa almeno un'intervista per generare i dati VPC.",
   vpc_go_interviews: 'Vai alle interviste',
@@ -469,16 +468,4 @@ export const it: Translations = {
   vpc_detail_col_pains: 'Pain',
   vpc_detail_col_gains: 'Gain',
   vpc_detail_value_map_header: 'Value Map',
-  vpc_detail_customer_profile_header: 'Profilo Cliente',
-
-  // ── Onboarding / path picker ─────────────────────────────────────────────────
-  onboarding_title: 'Da dove vuoi partire?',
-  onboarding_subtitle: 'Scegli il percorso più adatto alla tua situazione.',
-  onboarding_path_full_title: 'Parto da zero',
-  onboarding_path_full_desc: 'Esploro abilità, genero opportunità e valido tutto.',
-  onboarding_path_idea_title: "Ho già un'idea",
-  onboarding_path_idea_desc: "Ho già un'idea e voglio validarla con i Twin.",
-  onboarding_path_vpc_title: 'Ho già la mia proposta di valore',
-  onboarding_path_vpc_desc: 'Ho mappato clienti e valore offerto, ora voglio strutturare il business.',
-  onboarding_path_bmc_title: 'Ho già il mio modello di business',
-  onboarding_path_bmc_desc: 'Ho già un canvas, voglio migliorarlo e trovare i gap.' }
+  vpc_detail_customer_profile_header: 'Profilo Cliente' }
