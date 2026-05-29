@@ -920,19 +920,34 @@ export default function VPCClient({
                   {t.vpc_your_final}
                 </h2>
                 {hasFinalData && (
-                  <button
-                    onClick={downloadVPC}
-                    className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors"
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                      border: '0.5px solid var(--color-border)',
-                      color: 'var(--color-foreground)' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
-                  >
-                    <Download size={11} />
-                    {t.vpc_download}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={downloadVPC}
+                      className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors"
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        border: '0.5px solid var(--color-border)',
+                        color: 'var(--color-foreground)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
+                    >
+                      <Download size={11} />
+                      {t.vpc_download}
+                    </button>
+                    <button
+                      onClick={() => window.print()}
+                      className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors"
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        border: '0.5px solid var(--color-border)',
+                        color: 'var(--color-foreground)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-muted)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
+                    >
+                      <Download size={11} />
+                      {t.vpc_download_pdf}
+                    </button>
+                  </div>
                 )}
               </div>
               <p style={{ fontSize: 10, color: 'var(--color-foreground-faint)', marginBottom: 12 }}>
@@ -958,7 +973,13 @@ export default function VPCClient({
                 </div>
               )}
 
-              <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
+              <div className="vpc-print-target rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '0.5px solid var(--color-border)' }}>
+                <div className="vpc-print-header px-5 pt-4">
+                  <div className="vpc-print-title">Value Proposition Canvas</div>
+                  <div className="vpc-print-meta">
+                    {(opportunity.customer_segment || opportunity.name)} · {new Date().toLocaleDateString(lang === 'it' ? 'it-IT' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  </div>
+                </div>
                 {!hasFinalData && (
                   <div className="px-5 py-4" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--color-foreground-faint)' }}>
                     {t.vpc_empty_canvas}
