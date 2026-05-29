@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
-import { Loader2, X, Plus, Sparkles } from 'lucide-react'
+import { Loader2, X, Plus, Sparkles, Download } from 'lucide-react'
 import type { VPC, VPCCustomerProfile, VPCValueMap, Opportunity } from '@/lib/types'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useToast } from '@/components/ui/toast'
@@ -256,17 +256,26 @@ export default function VPCDetailClient({
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
       <TopNav projectId={project.id} projectTitle={project.title} />
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '88px 24px 60px' }}>
+      <div className="vpc-print-target" style={{ maxWidth: 1100, margin: '0 auto', padding: '88px 24px 60px' }}>
+        {/* Print-only header: customer profile name + date (hidden on screen) */}
+        <div className="vpc-print-header">
+          <div className="vpc-print-title">{vpc.customer_profile_name}</div>
+          <div className="vpc-print-meta">
+            {opportunityName ? `${opportunityName} · ` : ''}{new Date().toLocaleDateString('it-IT')}
+          </div>
+        </div>
+
         {/* Back link */}
         <Link
           href={`/project/${project.id}/vpcs`}
+          className="vpc-print-hide"
           style={{ fontSize: 12, color: 'var(--color-foreground-muted)', textDecoration: 'none', display: 'inline-block', marginBottom: 24 }}
         >
           {t.vpcd_detail_back}
         </Link>
 
         {/* Header */}
-        <div style={{ marginBottom: 32, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+        <div className="vpc-print-hide" style={{ marginBottom: 32, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <h1
@@ -310,6 +319,28 @@ export default function VPCDetailClient({
 
           {/* Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          {/* Download PDF button (browser print → save as PDF) */}
+          <button
+            onClick={() => window.print()}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 18px',
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: 'pointer',
+              border: '0.5px solid var(--color-border)',
+              backgroundColor: '#FFFFFF',
+              color: 'var(--color-foreground)',
+              whiteSpace: 'nowrap',
+              transition: 'all 0.15s ease' }}
+          >
+            <Download size={14} />
+            {t.vpcd_detail_download_pdf}
+          </button>
+
           {/* Create BMC button */}
           <Link
             href={`/project/${project.id}/bmcs/new?vpc=${vpc.id}`}

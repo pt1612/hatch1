@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import TopNav from '@/components/TopNav'
@@ -205,7 +205,9 @@ function initAggData(
   twinSegments: string[],
   primaryVPC: VPCSummary | null = null
 ): BMCData {
-  const vp = primaryVPC ? deriveValuePropositionsFromVPC(primaryVPC) : deriveValuePropositions(vpcValueMap)
+  // For a primary-VPC BMC the value propositions are synthesized by AI from the
+  // VPC left side after mount (see effect in the component), so start them empty.
+  const vp = primaryVPC ? [] : deriveValuePropositions(vpcValueMap)
   const cs = primaryVPC ? deriveCustomerSegmentsFromVPC(primaryVPC) : twinSegments
   if (existingBMC) {
     return {
@@ -640,9 +642,9 @@ export default function BMCClient({
   const { t } = useI18n()
   const finalVPC = (vpcValueMap as FinalVPC | null) ?? null
   const derivedVPC = primaryVPC?.final_canvas ?? finalVPC
-  const readOnlyInheritedBlocks = primaryVPC
-    ? new Set<BlockKey>(['value_propositions'])
-    : new Set<BlockKey>()
+  // Value Propositions are AI-synthesized from the primary VPC but remain fully
+  // editable/deletable — nothing is inherited read-only anymore.
+  const readOnlyInheritedBlocks = new Set<BlockKey>()
   const lockedCustomerSegments = primaryVPC
     ? new Set<string>(deriveCustomerSegmentsFromVPC(primaryVPC))
     : new Set<string>()
@@ -670,6 +672,39 @@ export default function BMCClient({
     (existingBMC?.agg_attribution as AggAttribution | null | undefined) ?? {}
   )
   const [exporting, setExporting] = useState(false)
+
+  // ── Auto-synthesize Value Propositions from the primary VPC's left side ───────
+  // Distills Products & Services / Pain Relievers / Gain Creators into 3-5 VP
+  // statements (not a verbatim copy). Runs once when the block is still empty.
+  const vpSynthRef = useRef(false)
+  useEffect(() => {
+    if (!primaryVPC || vpSynthRef.current) return
+    if (aggData.value_propositions.length > 0) return
+    const left = {
+      productsAndServices: extractTexts(derivedVPC?.productsAndServices),
+      painRelievers:       extractTexts(derivedVPC?.painRelievers),
+      gainCreators:        extractTexts(derivedVPC?.gainCreators) }
+    if (left.productsAndServices.length === 0 && left.painRelievers.length === 0 && left.gainCreators.length === 0) return
+    vpSynthRef.current = true
+    setAggGenerating((prev) => ({ ...prev, value_propositions: true }))
+    fetch('/api/generate-vpc-value-propositions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...left, customerProfileName: primaryVPC.customer_profile_name }) })
+      .then((r) => r.json())
+      .then((json) => {
+        const items: string[] = Array.isArray(json.items) ? json.items : []
+        if (items.length === 0) return
+        setAggData((prev) => {
+          if (prev.value_propositions.length > 0) return prev
+          const updated = { ...prev, value_propositions: items }
+          saveAgg(updated)
+          return updated
+        })
+      })
+      .catch(() => { /* silent */ })
+      .finally(() => setAggGenerating((prev) => ({ ...prev, value_propositions: false })))
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Unlock logic ─────────────────────────────────────────────────────────────
   function isUnlocked(data: BMCData, block: BlockKey): boolean {

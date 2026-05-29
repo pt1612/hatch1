@@ -330,6 +330,7 @@ export const en = {
   vpcd_detail_saved: 'Saved',
   vpcd_detail_saving: 'Saving…',
   vpcd_detail_create_bmc: 'Create BMC',
+  vpcd_detail_download_pdf: 'Download PDF',
   vpcd_detail_empty_map: 'Value map not generated yet.',
   vpcd_detail_aggregate_badge: 'Aggregate',
   vpcd_detail_sources_label: 'Source VPCs',

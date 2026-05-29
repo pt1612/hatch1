@@ -332,6 +332,7 @@ export const it: Translations = {
   vpcd_detail_saved: 'Salvato',
   vpcd_detail_saving: 'Salvataggio…',
   vpcd_detail_create_bmc: 'Crea BMC',
+  vpcd_detail_download_pdf: 'Scarica PDF',
   vpcd_detail_empty_map: 'Value map non ancora generata.',
   vpcd_detail_aggregate_badge: 'Aggregato',
   vpcd_detail_sources_label: 'VPC sorgente',
