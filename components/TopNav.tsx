@@ -31,7 +31,7 @@ function isItemLocked(label: string, entryPath: string | null | undefined, href?
     return false
   }
   if (label === 'BMC') {
-    if (!entryPath || entryPath === 'full' || entryPath === 'idea') return true
+    if (href?.endsWith('/bmcs') || href?.includes('/bmcs/')) return false
     if (entryPath === 'vpc') return true
     return false
   }

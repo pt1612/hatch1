@@ -279,7 +279,8 @@ function BMCBlock({
   getTwinDots,
   forceGeneratable = false,
   readOnly = false,
-  editInVpcHref }: {
+  editInVpcHref,
+  lockedItems }: {
   blockKey: BlockKey
   items: string[]
   isUnlocked: boolean
@@ -294,6 +295,7 @@ function BMCBlock({
   forceGeneratable?: boolean
   readOnly?: boolean
   editInVpcHref?: string
+  lockedItems?: Set<string>
 }) {
   const { t } = useI18n()
   const [adding, setAdding] = useState(false)
@@ -398,6 +400,7 @@ function BMCBlock({
             <div className="flex flex-wrap gap-1 mt-1">
               {items.map((item, i) => {
                 const dots = getTwinDots?.(item) ?? []
+                const itemLocked = lockedItems?.has(item) ?? false
                 if (editingIdx === i) {
                   return (
                     <span key={i} className="inline-flex items-center gap-1 max-w-full">
@@ -439,9 +442,9 @@ function BMCBlock({
                       />
                     ))}
                     <span
-                      className={`flex-1 min-w-0 ${readOnly ? '' : 'cursor-text'}`}
+                      className={`flex-1 min-w-0 ${readOnly || itemLocked ? '' : 'cursor-text'}`}
                       onClick={() => {
-                        if (!readOnly) {
+                        if (!readOnly && !itemLocked) {
                           setEditingIdx(i)
                           setEditVal(item)
                         }
@@ -449,7 +452,7 @@ function BMCBlock({
                     >
                       {item}
                     </span>
-                    {!readOnly && (
+                    {!readOnly && !itemLocked && (
                       <button
                         onClick={() => onRemove(i)}
                         className="opacity-40 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
@@ -532,7 +535,8 @@ function BMCGrid({
   getTwinDots,
   twinTab = false,
   readOnlyBlocks = new Set<BlockKey>(),
-  editInVpcHref }: {
+  editInVpcHref,
+  lockedItemsByBlock }: {
   data: BMCData
   isUnlocked: (block: BlockKey) => boolean
   generating: Partial<Record<BlockKey, boolean>>
@@ -544,6 +548,7 @@ function BMCGrid({
   twinTab?: boolean
   readOnlyBlocks?: Set<BlockKey>
   editInVpcHref?: string
+  lockedItemsByBlock?: Partial<Record<BlockKey, Set<string>>>
 }) {
   return (
     <>
@@ -574,6 +579,7 @@ function BMCGrid({
               forceGeneratable={twinTab && key === 'value_propositions'}
               readOnly={readOnlyBlocks.has(key)}
               editInVpcHref={editInVpcHref}
+              lockedItems={lockedItemsByBlock?.[key]}
             />
           ))}
         </div>
@@ -595,6 +601,7 @@ function BMCGrid({
               forceGeneratable={twinTab && key === 'value_propositions'}
               readOnly={readOnlyBlocks.has(key)}
               editInVpcHref={editInVpcHref}
+              lockedItems={lockedItemsByBlock?.[key]}
             />
           </div>
         ))}
@@ -634,8 +641,11 @@ export default function BMCClient({
   const finalVPC = (vpcValueMap as FinalVPC | null) ?? null
   const derivedVPC = primaryVPC?.final_canvas ?? finalVPC
   const readOnlyInheritedBlocks = primaryVPC
-    ? new Set<BlockKey>(['value_propositions', 'customer_segments'])
+    ? new Set<BlockKey>(['value_propositions'])
     : new Set<BlockKey>()
+  const lockedCustomerSegments = primaryVPC
+    ? new Set<string>(deriveCustomerSegmentsFromVPC(primaryVPC))
+    : new Set<string>()
 
   // tabIndex: 0..n-1 = per-twin, n = aggregated
   const [activeTab, setActiveTab] = useState<number>(twinInterviews.length) // default: Aggregated
@@ -1169,6 +1179,7 @@ export default function BMCClient({
             getTwinDots={twinInterviews.length > 0 ? getTwinDotsForItem : undefined}
             readOnlyBlocks={readOnlyInheritedBlocks}
             editInVpcHref={primaryVPC ? `/project/${project.id}/vpcs/${primaryVPC.id}` : undefined}
+            lockedItemsByBlock={{ customer_segments: lockedCustomerSegments }}
           />
         ) : (
           <BMCGrid

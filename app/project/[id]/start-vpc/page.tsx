@@ -126,7 +126,7 @@ export default function StartVPCPage({ params }: { params: Promise<{ id: string 
           </div>
 
           <button
-            onClick={() => router.push(`/project/${projectId}/import-vpc`)}
+            onClick={() => router.push(`/project/${projectId}/vpcs/new`)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
