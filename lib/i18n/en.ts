@@ -310,6 +310,7 @@ export const en = {
   vpcd_sources: 'Sources',
   vpcd_open: 'Open',
   vpcd_generating_agg: 'Generating aggregate…',
+  vpcd_add_btn: 'Add VPC',
 
   // ── VPC Detail (twin-based canvas) ────────────────────────────────────────────
   vpcd_detail_back: '← Back to VPC Dashboard',
@@ -328,6 +329,7 @@ export const en = {
   vpcd_detail_save: 'Save changes',
   vpcd_detail_saved: 'Saved',
   vpcd_detail_saving: 'Saving…',
+  vpcd_detail_create_bmc: 'Create BMC',
   vpcd_detail_empty_map: 'Value map not generated yet.',
   vpcd_detail_aggregate_badge: 'Aggregate',
   vpcd_detail_sources_label: 'Source VPCs',

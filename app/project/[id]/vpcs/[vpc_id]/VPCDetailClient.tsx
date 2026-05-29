@@ -308,6 +308,29 @@ export default function VPCDetailClient({
             )}
           </div>
 
+          {/* Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          {/* Create BMC button */}
+          <Link
+            href={`/project/${project.id}/bmcs/new?vpc=${vpc.id}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 18px',
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 500,
+              textDecoration: 'none',
+              border: '0.5px solid var(--color-border)',
+              backgroundColor: '#FFFFFF',
+              color: 'var(--color-foreground)',
+              whiteSpace: 'nowrap',
+              transition: 'all 0.15s ease' }}
+          >
+            {t.vpcd_detail_create_bmc}
+          </Link>
+
           {/* Save button */}
           <button
             onClick={handleSave}
@@ -338,6 +361,7 @@ export default function VPCDetailClient({
               t.vpcd_detail_save
             )}
           </button>
+          </div>
         </div>
 
         {/* Two-column canvas */}

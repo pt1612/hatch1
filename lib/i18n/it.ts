@@ -312,6 +312,7 @@ export const it: Translations = {
   vpcd_sources: 'Sorgenti',
   vpcd_open: 'Apri',
   vpcd_generating_agg: 'Generazione aggregato…',
+  vpcd_add_btn: 'Aggiungi VPC',
 
   // ── VPC Detail (canvas twin-based) ────────────────────────────────────────────
   vpcd_detail_back: '← Torna alla Dashboard VPC',
@@ -330,6 +331,7 @@ export const it: Translations = {
   vpcd_detail_save: 'Salva modifiche',
   vpcd_detail_saved: 'Salvato',
   vpcd_detail_saving: 'Salvataggio…',
+  vpcd_detail_create_bmc: 'Crea BMC',
   vpcd_detail_empty_map: 'Value map non ancora generata.',
   vpcd_detail_aggregate_badge: 'Aggregato',
   vpcd_detail_sources_label: 'VPC sorgente',

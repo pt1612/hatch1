@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, ArrowRight, Check, Plus, SquareStack } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -29,7 +29,13 @@ export default function NewBMCClient({
 }) {
   const router = useRouter()
   const supabase = createClient()
-  const [selectedVPCId, setSelectedVPCId] = useState(vpcs[0]?.id ?? '')
+  const searchParams = useSearchParams()
+  const preselectedVPCId = searchParams.get('vpc')
+  const initialVPCId =
+    preselectedVPCId && vpcs.some((vpc) => vpc.id === preselectedVPCId)
+      ? preselectedVPCId
+      : vpcs[0]?.id ?? ''
+  const [selectedVPCId, setSelectedVPCId] = useState(initialVPCId)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 

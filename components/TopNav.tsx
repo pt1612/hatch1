@@ -19,28 +19,9 @@ interface TopNavProps {
   projectTitle?: string
   progressPct?: number
   navItems?: NavItem[]
-  entryPath?: 'full' | 'idea' | 'vpc' | 'bmc' | null
 }
 
 // Nav labels are ALWAYS in English (technical framework terms — not translated)
-function isItemLocked(label: string, entryPath: string | null | undefined, href?: string): boolean {
-  if (label === 'VPC') {
-    if (href?.endsWith('/vpcs') || href?.includes('/vpcs/')) return false
-    if (!entryPath || entryPath === 'full' || entryPath === 'idea') return true
-    if (entryPath === 'bmc') return true
-    return false
-  }
-  if (label === 'BMC') {
-    if (href?.endsWith('/bmcs') || href?.includes('/bmcs/')) return false
-    if (entryPath === 'vpc') return true
-    return false
-  }
-  if (!entryPath || entryPath === 'full') return false
-  if (entryPath === 'idea') return label === 'Skills'
-  if (entryPath === 'vpc') return ['Skills', 'Opportunities', 'Evaluation', 'Map', 'Strategy'].includes(label)
-  if (entryPath === 'bmc') return !['VPC', 'BMC'].includes(label)
-  return false
-}
 
 function LangToggle() {
   const { lang, setLang } = useI18n()
@@ -72,7 +53,6 @@ export default function TopNav({
   projectTitle,
   progressPct = 0,
   navItems,
-  entryPath: entryPathProp,
 }: TopNavProps) {
   const pathname = usePathname()
   const router = useRouter()
@@ -80,9 +60,6 @@ export default function TopNav({
   const { t } = useI18n()
 
   const [userInitials, setUserInitials] = useState('')
-  const [fetchedEntryPath, setFetchedEntryPath] = useState<'full' | 'idea' | 'vpc' | 'bmc' | null | undefined>(
-    undefined
-  )
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }: { data: { user: { user_metadata?: { full_name?: string }; email?: string | null } | null } }) => {
@@ -91,30 +68,7 @@ export default function TopNav({
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (entryPathProp !== undefined) {
-      setFetchedEntryPath(entryPathProp)
-      return
-    }
-    if (!projectId) {
-      setFetchedEntryPath(null)
-      return
-    }
-    supabase
-      .from('projects')
-      .select('entry_path')
-      .eq('id', projectId)
-      .single()
-      .then(({ data }: { data: { entry_path: string | null } | null }) => {
-        setFetchedEntryPath((data?.entry_path as 'full' | 'idea' | 'vpc' | 'bmc' | null) ?? null)
-      })
-  }, [projectId, entryPathProp]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const entryPath = entryPathProp ?? fetchedEntryPath
-
-  const vpcHref = (entryPath === 'vpc' || entryPath === 'bmc')
-    ? `/project/${projectId}/evaluations`
-    : `/project/${projectId}/vpcs`
+  const vpcHref = `/project/${projectId}/vpcs`
 
   const defaultItems: NavItem[] = projectId
     ? [
@@ -162,7 +116,6 @@ export default function TopNav({
         {items.length > 0 && (
           <nav className="flex-1 flex items-center justify-center">
             {items
-              .filter((item) => !isItemLocked(item.label, entryPath, item.href))
               .map((item, i) => {
                 const active = isActive(item.href)
                 return (

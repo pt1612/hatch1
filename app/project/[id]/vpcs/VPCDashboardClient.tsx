@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import TopNav from '@/components/TopNav'
-import { Loader2, ChevronRight, CheckSquare, Square, Layers } from 'lucide-react'
+import { Loader2, ChevronRight, CheckSquare, Square, Layers, Plus } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useToast } from '@/components/ui/toast'
 import { useI18n } from '@/lib/i18n/context'
@@ -195,7 +195,29 @@ export default function VPCDashboardClient({
             </h1>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
+            <Link
+              href={`/project/${project.id}/vpcs/new`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '8px 16px',
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 500,
+                textDecoration: 'none',
+                border: '0.5px solid var(--color-primary)',
+                backgroundColor: 'var(--color-primary)',
+                color: '#FFFFFF',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease' }}
+            >
+              <Plus size={14} />
+              {t.vpcd_add_btn}
+            </Link>
+
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
             <button
               onClick={handleAggregate}
               disabled={selected.size < 2 || aggregating}
@@ -232,6 +254,7 @@ export default function VPCDashboardClient({
                 {t.vpcd_select_hint}
               </p>
             )}
+          </div>
           </div>
         </div>
 
